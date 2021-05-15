@@ -1,0 +1,22 @@
+version: "3.7"
+
+services:
+
+  appserver:
+    container_name: appserver
+    build:
+      context: ./appserver
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./appserver/src:/home/node/app/src
+      - ./appserver/tsconfig.json:/home/node/app/tsconfig.json
+      - ./appserver/streams:/home/node/app/streams
+    expose:
+      - "8080"
+    ports:
+      - "8080:8080"
+      - "9230:9229"
+    env_file:
+      - ./appserver.env
+    command: npm start
+   
