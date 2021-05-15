@@ -1,0 +1,27 @@
+# Project-specific
+# ----------------
+
+*.wav
+volume/
+
+
+
+# Other 
+# -----
+package-lock.json
+node_modules/
+
+
+
+# Whitelisted Files (track these files if they exist)
+# ---------------------------------------------------
+
+!.gitignore
+!.gitattributes
+
+!.prettierrc
+
+!.eslintrc.js
+!.eslintignore
+
+!.dockerignore
