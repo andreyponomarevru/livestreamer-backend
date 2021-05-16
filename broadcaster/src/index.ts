@@ -1,8 +1,6 @@
 //
-// Client-producer
+// Broadcaster (client-producer)
 //
-
-// TODO: rewrite in vanilla JS, it should be possible to run the script from CL
 
 import { spawn } from "child_process";
 import http from "http";
@@ -54,8 +52,6 @@ function sendPostRequest(options: http.RequestOptions) {
     console.log("Streaming stopped.");
   });
 }
-
-// process.on("SIGINT", () => {});
 
 //
 
