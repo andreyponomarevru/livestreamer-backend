@@ -2,8 +2,8 @@
 // App Server
 //
 
-// TODO: add to git current version
-// TODO: do everything with express http server without websockets. Than add WS
+// TODO: do everything with express http server without websockets. Than
+//       introduce WS
 // TODO: replace built-in http server with Express running on another port
 //       DO NOT merge express http server with WebSocket server, keep them
 //       separate
@@ -15,11 +15,12 @@ import http from "http";
 import { v4 as uuidv4 } from "uuid";
 import fs from "fs";
 import wav from "wav";
-const httpServer = http.createServer();
+import { Duplex } from "stream";
+const httpServer = express();
 const { PORT } = process.env;
 
-//
-
+/*
+// on POST request:
 function onRequest(req: any, res: any) {
   console.log(req.headers);
   console.log(`req.url: ${req.url}`);
@@ -49,9 +50,41 @@ function onRequest(req: any, res: any) {
   });
 }
 
-//
+*/
 
-httpServer.on("request", onRequest);
+const inoutStream = new Duplex({
+  write(chunk, encoding, callback) {
+    callback();
+  },
+  read(size) {},
+});
+
+httpServer.post("/stream", (req, res, next) => {
+  console.log("POST request");
+  console.log("Starting streaming request...");
+
+  req.on("data", (chunk: any) => {
+    inoutStream.push(chunk); // check if this process buffers and consumes RAM when nobody listens
+    //console.log(`Pushing incoming stream into duplex stream ...`);
+    //inoutStream.write(chunk); //
+  });
+  req.on("error", (err: Error) => console.log(err));
+  req.on("end", () => console.log("No more data in stream."));
+  req.on("close", () => {
+    inoutStream.push(null); // close read stgrteam
+    //inoutStream.end(); // close write stream
+    console.log("Stream closed.");
+  });
+});
+
+httpServer.get("/stream", (req, res, next) => {
+  console.log("GET request");
+  //if (writableStream && writeTo) {
+  inoutStream.on("data", () => inoutStream.pipe(res));
+
+  // when broadcaster stops sstreaming implement closing reuest from browser client
+  //}
+});
 
 httpServer.listen(PORT, () => {
   console.log(`App HTTP server is listening on ${PORT}`);
