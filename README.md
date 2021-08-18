@@ -1,4 +1,4 @@
-# Aelita 
+# ChilloutTribe
 
 Web application for broadcasting live audio and chat. It's an attempt to recreate [Mixlr](https://mixlr.com) functionality but on a smaller scale and with minimum tools and resources: 
 * JavaScript/TypeScript as the programming language
