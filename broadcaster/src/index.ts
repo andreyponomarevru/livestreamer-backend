@@ -7,10 +7,10 @@ import http from "http";
 const postRequestOptions = {
   host: "localhost",
   port: 8080,
-  path: "/",
+  path: "/stream",
   method: "POST",
   headers: {
-    "content-type": "audio/wav",
+    "content-type": "audio/mpeg",
     "transfer-encoding": "chunked",
   },
 };
@@ -67,5 +67,5 @@ const child = spawn("ffmpeg", [
 
 sendPostRequest(postRequestOptions);
 console.log(
-  `Streaming audio to ${postRequestOptions.host}:${postRequestOptions.port}`,
+  `HTTP Streaming Client is running on ${postRequestOptions.host}:${postRequestOptions.port}`,
 );
