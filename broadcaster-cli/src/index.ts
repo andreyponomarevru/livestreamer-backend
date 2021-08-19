@@ -7,10 +7,10 @@ import http from "http";
 const postRequestOptions = {
   host: "localhost",
   port: 8080,
-  path: "/stream",
+  path: "/stream", // or '/' ?
   method: "POST",
   headers: {
-    "content-type": "audio/mpeg",
+    "content-type": "audio/mpeg", // or audio/mpeg ?
     "transfer-encoding": "chunked",
   },
 };
