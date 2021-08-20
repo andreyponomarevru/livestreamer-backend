@@ -86,6 +86,10 @@ httpServer.get("/stream", (req, res, next) => {
   //}
 });
 
+httpServer.get("/", (req, res, next) => {
+  res.send("ping\n");
+});
+
 httpServer.listen(PORT, () => {
   console.log(`App HTTP server is listening on ${PORT}`);
 });

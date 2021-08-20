@@ -2,6 +2,36 @@ version: "3.7"
 
 services:
 
+  api:
+    container_name: api
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    restart: "no"
+    volumes:
+      # Recompile code on changes
+      - ./api/src:/api/src
+      - ./api/tsconfig.json:/api/tsconfig.json
+      # Write live broadcast streams to disk
+      - ./api/saved-streams:/api/saved-streams
+    # Publicly exposed ports
+    ports:
+      # node.js process is listening for a debugging client on
+      - 9230:9229
+      # Delete this port after you spin up Nginx container as proxy, this port should not be public
+      - 8080:8080
+    # Ports not exposed publicly i.e. to host machine 
+    # (they are only exposed to other services)
+    expose:
+      # Node.js application server
+      - 8080
+    env_file:
+      - ./.dev.common.env
+      - ./api/.dev.env
+      - ./postgres/.dev.env
+#    depends_on:
+#      - postgres
+
   postgres:
     container_name: postgres
     image: postgres

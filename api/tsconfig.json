@@ -1,17 +1,23 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "types": ["node"],
+    
+    "target": "es6",
     "module": "commonjs",
     "sourceMap": true,
     "outDir": "./build",
     
     "strict": true,
-    
+    "moduleResolution": "node",
     "noUnusedLocals": false,
     "noImplicitReturns": true,
     "noImplicitAny": true,
     "noFallthroughCasesInSwitch": true,
     "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowJs": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   },
   "compileOnSave": true,
   "include": ["src/**/*"],
