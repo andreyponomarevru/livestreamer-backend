@@ -2,21 +2,15 @@ version: "3.7"
 
 services:
 
-  appserver:
-    container_name: appserver
-    build:
-      context: ./appserver
-      dockerfile: Dockerfile.dev
-    volumes:
-      - ./appserver/src:/home/node/app/src
-      - ./appserver/tsconfig.json:/home/node/app/tsconfig.json
-      - ./appserver/streams:/home/node/app/streams
-    expose:
-      - "8080"
-    ports:
-      - "8080:8080"
-      - "9230:9229"
+  postgres:
+    container_name: postgres
+    image: postgres
+    restart: "no"
     env_file:
-      - ./appserver.env
-    command: npm start
-   
+      - ./postgres/.dev.env
+    # Publicly exposed ports (to simplify debugging)
+    ports:
+      - 54323:5432
+    volumes:
+      - ./postgres/01-init.sql:/docker-entrypoint-initdb.d/01-init.sql
+      - ./postgres/02-create-first-app-user.sh:/docker-entrypoint-initdb.d/02-create-first-app-user.sh
