@@ -1,0 +1,25 @@
+#
+# Project files
+#
+
+node_modules/
+package-lock.json
+_source/
+./api/saved-streams/
+*.wav
+volume/
+*.env
+
+#
+# Whitelisted files (track these files if they exist)
+#
+
+!.gitignore
+!.gitattributes
+
+!.prettierrc
+
+!.eslintrc.js
+!.eslintignore
+
+!.dockerignore
