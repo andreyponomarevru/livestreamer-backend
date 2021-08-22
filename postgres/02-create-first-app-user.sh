@@ -1,15 +1,16 @@
 #!/bin/bash
 
 echo "Initializing database..."
-echo "Creating first app user and assigning him role ('superadmin'), settings, resource permissions (grant all permissions)"
+echo "Create first app user and assign him role ('superadmin'), settings, resource permissions (grant all permissions)"
 
 psql \
-  -U chillouttribe \
-  -d chillouttribe \
+  -U "$POSTGRES_USER" \
+  -d "$POSTGRES_USER" \
   -c "
     INSERT INTO 
       appuser (role_id, username, password_hash, email, is_confirmed, is_deleted) 
-    VALUES (1, '$SUPERADMIN_USERNAME', '$SUPERADMIN_PASSWORD', '$SUPERADMIN_EMAIL', true, false);
+    VALUES 
+			(1, '$SUPERADMIN_USERNAME', '$SUPERADMIN_PASSWORD', '$SUPERADMIN_EMAIL', true, false);
 
 
     INSERT INTO 
