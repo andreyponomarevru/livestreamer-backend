@@ -51,8 +51,8 @@ CREATE TABLE IF NOT EXISTS appuser (
   email                varchar(320)                NOT NULL, UNIQUE (email), CHECK (email != ''),
   created_at           timestamp with time zone    DEFAULT CURRENT_TIMESTAMP,
   last_login           timestamp with time zone    DEFAULT CURRENT_TIMESTAMP,
-  is_confirmed         boolean        NOT NULL     DEFAULT FALSE, 
-  is_deleted           boolean        NOT NULL     DEFAULT FALSE,
+  is_confirmed         boolean                     DEFAULT FALSE, 
+  is_deleted           boolean                     DEFAULT FALSE,
   
   FOREIGN KEY (role_id) REFERENCES role (role_id)
     ON DELETE RESTRICT
@@ -75,9 +75,9 @@ CREATE TABLE IF NOT EXISTS setting (
 
 CREATE TABLE IF NOT EXISTS allowed_setting_value (
   PRIMARY KEY (allowed_setting_value_id),
-  allowed_setting_value_id    integer           GENERATED ALWAYS AS IDENTITY,
-  setting_id                  integer           NOT NULL,
-  value                          varchar(15)       NOT NULL,                         
+  allowed_setting_value_id      integer            GENERATED ALWAYS AS IDENTITY,
+  setting_id                    integer            NOT NULL,
+  value                         varchar(15)        NOT NULL,                         
   
   FOREIGN KEY (setting_id) REFERENCES setting (setting_id)
     ON DELETE RESTRICT
@@ -146,7 +146,8 @@ CREATE TABLE IF NOT EXISTS broadcast (
   end_at               timestamp with time zone    DEFAULT CURRENT_TIMESTAMP,
   top_listener_count   integer                     DEFAULT 0,
   download_url         varchar(2083)               DEFAULT NULL, CHECK (download_url != ''),
-  player_html          varchar(300)                DEFAULT NULL, CHECK (player_html != '')
+  player_html          varchar(300)                DEFAULT NULL, CHECK (player_html != ''),
+  is_visible           boolean                     DEFAULT TRUE                      
 );
 
 
@@ -178,11 +179,12 @@ CREATE TABLE IF NOT EXISTS broadcast_like (
 
 
 
-CREATE TABLE IF NOT EXISTS schedule (
-  PRIMARY KEY (schedule_id),
-  schedule_id          integer                     GENERATED ALWAYS AS IDENTITY,
-  start_at             timestamp with time zone    DEFAULT CURRENT_TIMESTAMP,
-  end_at               timestamp with time zone    DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE IF NOT EXISTS scheduled_broadcast (
+  PRIMARY KEY (scheduled_broadcast_id),
+  scheduled_broadcast_id          integer                     GENERATED ALWAYS AS IDENTITY,
+  title                           varchar(70)                 NOT NULL, UNIQUE (title), CHECK (title != ''),
+  start_at                        timestamp with time zone    DEFAULT CURRENT_TIMESTAMP,
+  end_at                          timestamp with time zone    DEFAULT CURRENT_TIMESTAMP
 );
 
 
