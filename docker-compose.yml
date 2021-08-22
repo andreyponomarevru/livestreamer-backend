@@ -1,7 +1,6 @@
 version: "3.7"
 
 services:
-
   api:
     container_name: api
     build:
@@ -20,7 +19,7 @@ services:
       - 9230:9229
       # Delete this port after you spin up Nginx container as proxy, this port should not be public
       - 8080:8080
-    # Ports not exposed publicly i.e. to host machine 
+    # Ports not exposed publicly i.e. to host machine
     # (they are only exposed to other services)
     expose:
       # Node.js application server
@@ -29,8 +28,8 @@ services:
       - ./.dev.common.env
       - ./api/.dev.env
       - ./postgres/.dev.env
-#    depends_on:
-#      - postgres
+  #    depends_on:
+  #      - postgres
 
   postgres:
     container_name: postgres
