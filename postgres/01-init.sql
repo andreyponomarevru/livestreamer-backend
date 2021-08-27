@@ -156,7 +156,6 @@ CREATE TABLE IF NOT EXISTS chat_message (
   chat_message_id      integer                     GENERATED ALWAYS AS IDENTITY,
   appuser_id           integer                     NOT NULL,
   created_at           timestamp with time zone    DEFAULT CURRENT_TIMESTAMP,
-  edited_at            timestamp with time zone    DEFAULT CURRENT_TIMESTAMP,
   message              varchar(500)                NOT NULL, 
 	                                                 CHECK (message != ''),
   
@@ -192,16 +191,16 @@ CREATE TABLE IF NOT EXISTS broadcast (
 																									 CHECK (title != ''),
   description          varchar(1000)               DEFAULT NULL, 
 	                                                 CHECK (description != ''),
-  tracklist            varchar(1000)               DEFAULT NULL, 
-	                                                 CHECK (tracklist != ''),
+  tracklist_path       varchar(1000)               DEFAULT NULL, 
+	                                                 CHECK (tracklist_path != ''),
   start_at             timestamp with time zone    DEFAULT CURRENT_TIMESTAMP,
   end_at               timestamp with time zone    DEFAULT CURRENT_TIMESTAMP,
-  top_listener_count   integer                     DEFAULT 0,
+  top_listener_count   integer                     DEFAULT NULL,
   download_url         varchar(2083)               DEFAULT NULL, 
 	                                                 CHECK (download_url != ''),
   player_html          varchar(300)                DEFAULT NULL, 
 	                                                 CHECK (player_html != ''),
-  is_visible           boolean                     DEFAULT TRUE                      
+  is_visible           boolean                     DEFAULT FALSE
 );
 
 
@@ -233,7 +232,7 @@ CREATE TABLE IF NOT EXISTS broadcast_like (
 
 
 
-CREATE TABLE IF NOT EXISTS scheduled_broadcast (
+/*CREATE TABLE IF NOT EXISTS scheduled_broadcast (
   PRIMARY KEY (scheduled_broadcast_id),
   scheduled_broadcast_id  integer                  GENERATED ALWAYS AS IDENTITY,
   title                   varchar(70)                NOT NULL, 
@@ -241,7 +240,7 @@ CREATE TABLE IF NOT EXISTS scheduled_broadcast (
 																	      						 CHECK (title != ''),
   start_at                timestamp with time zone   DEFAULT CURRENT_TIMESTAMP,
   end_at                  timestamp with time zone   DEFAULT CURRENT_TIMESTAMP
-);
+);*/
 
 
 
@@ -274,14 +273,21 @@ VALUES
 INSERT INTO 
   resource (name) 
 VALUES 
-  ('broadcasts'), 
-  ('user_bookmarks'), 
-  ('user_settings'), 
-  ('user_chat_message'), 
-  ('user_account'), 
-  ('tracklists');
--- ('any_account'); -- FIX: probably you don't need this resouruce cause you will have 'superadmin' granted permissions on user_account, user_setting; verify this
-  
+	('user_profiles'),
+	('user_profile'),
+	('user_settings'),
+	('user_bookmarks'),
+	('broadcast'),
+	('broadcasts'),
+	('published_broadcasts'),
+	('hidden_broadcasts'),
+	('broadcast_tracklist'),
+	('stream_like'),
+	('stream'),
+	('chat_comments'),
+	('chat_comment'),
+	('chat_comment_like');
+
 
 
 INSERT INTO 
