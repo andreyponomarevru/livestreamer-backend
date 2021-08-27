@@ -4,13 +4,14 @@
 
 import { spawn } from "child_process";
 import http from "http";
+
 const postRequestOptions = {
   host: "localhost",
   port: 8080,
-  path: "/stream", // or '/' ?
+  path: "/stream",
   method: "POST",
   headers: {
-    "content-type": "audio/mpeg", // or audio/mpeg ?
+    "content-type": "audio/mpeg",
     "transfer-encoding": "chunked",
   },
 };
@@ -38,6 +39,16 @@ function onProcessExit(req: http.ClientRequest) {
   req.end();
 }
 
+const child = spawn("ffmpeg", [
+  "-f", // capture OS audio output (from pulseaudio)
+  "pulse",
+  "-i", // input device "default"
+  "default",
+  "-f", // output in .wav
+  "wav",
+  "pipe:1", // pipe instead of saving to disk
+]);
+
 function sendPostRequest(options: http.RequestOptions) {
   const req = http.request(options);
   child.stdout.pipe(req);
@@ -54,16 +65,6 @@ function sendPostRequest(options: http.RequestOptions) {
 }
 
 //
-
-const child = spawn("ffmpeg", [
-  "-f", // capture OS audio output (from pulseaudio)
-  "pulse",
-  "-i", // input device "default"
-  "default",
-  "-f", // output in .wav
-  "wav",
-  "pipe:1", // pipe instead of saving to disk
-]);
 
 sendPostRequest(postRequestOptions);
 console.log(
