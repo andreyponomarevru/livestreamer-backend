@@ -1,5 +1,5 @@
 //
-// App Server
+// API Server
 //
 
 // TODO: do everything with express http server without websockets. Than
@@ -7,89 +7,66 @@
 // TODO: replace built-in http server with Express running on another port
 //       DO NOT merge express http server with WebSocket server, keep them
 //       separate
-// TODO: send stream to clients-consumers through websocket
+// TODO: send stream to clients-consumers through HTTP
 
+import http from "http";
+import util from "util";
+import path from "path";
+
+import cors from "cors";
+import fs from "fs-extra";
 import express from "express";
 import ws from "ws";
-import http from "http";
 import { v4 as uuidv4 } from "uuid";
-import fs from "fs";
 import wav from "wav";
-import { Duplex } from "stream";
-const httpServer = express();
-const { PORT } = process.env;
+import morganLogger from "morgan";
+import { logger, morganSettings } from "./config/logger";
+import swaggerUI from "swagger-ui-express";
+import { swaggerDocument } from "./open-api/index";
 
-/*
-// on POST request:
-function onRequest(req: any, res: any) {
-  console.log(req.headers);
-  console.log(`req.url: ${req.url}`);
+import { router } from "./controllers/index";
+import { env } from "./config/env";
+import {
+  expressCustomErrorHandler,
+  on404error,
+} from "./controllers/middlewares/error-handlers";
+import {
+  onUncaughtException,
+  onUnhandledRejection,
+  onServerError,
+} from "./event-handlers/errors";
+import { onServerListening } from "./event-handlers/server-events";
 
-  let filename = uuidv4(); // TODO: take filename from `uuidv4 || req.params.filename`
-  const writableStream = fs.createWriteStream(`./streams/${filename}.wav`);
-  //req.pipe(writableStream); // write sreeam to disk, temporary disabled
-  req.pipe(res); // FIX: send not to this response but on response for specific endpoint /stream
+process.once("uncaughtException", onUncaughtException);
+process.on("unhandledRejection", onUnhandledRejection);
 
-  req.on("data", (chunk: any) => {
-    //console.log(chunk);
-  });
+//
+// Express App
+//
 
-  req.on("error", (err: Error) => {
-    console.log("error event");
-    console.log(err);
-  });
+const expressApp = express();
+expressApp.set("port", env.HTTP_PORT);
 
-  req.on("end", () => {
-    console.log("end event");
-    res.end();
-  });
+// Middleware stack
+expressApp.use(morganLogger("combined", morganSettings));
+expressApp.use(cors());
+expressApp.use(express.json());
+expressApp.use(express.urlencoded({ extended: false }));
+expressApp.use(express.static(path.join(__dirname, "public")));
+expressApp.use("/", router);
+expressApp.use("/doc", swaggerUI.serve, swaggerUI.setup(swaggerDocument));
+expressApp.use(on404error); // Catch 404 errors in router above
+expressApp.use(expressCustomErrorHandler);
 
-  req.on("close", () => {
-    console.log("close event");
-    res.end();
-  });
-}
+//
+// Node.js HTTP Server
+//
 
-*/
+const httpServer = http.createServer(expressApp);
 
-const inoutStream = new Duplex({
-  write(chunk, encoding, callback) {
-    callback();
-  },
-  read(size) {},
-});
+httpServer.on("error", onServerError);
+httpServer.on("listening", onServerListening);
 
-httpServer.post("/stream", (req, res, next) => {
-  console.log("POST request");
-  console.log("Starting streaming request...");
+httpServer.listen(env.HTTP_PORT);
 
-  req.on("data", (chunk: any) => {
-    inoutStream.push(chunk); // check if this process buffers and consumes RAM when nobody listens
-    //console.log(`Pushing incoming stream into duplex stream ...`);
-    //inoutStream.write(chunk); //
-  });
-  req.on("error", (err: Error) => console.log(err));
-  req.on("end", () => console.log("No more data in stream."));
-  req.on("close", () => {
-    inoutStream.push(null); // close read stgrteam
-    //inoutStream.end(); // close write stream
-    console.log("Stream closed.");
-  });
-});
-
-httpServer.get("/stream", (req, res, next) => {
-  console.log("GET request");
-  //if (writableStream && writeTo) {
-  inoutStream.on("data", () => inoutStream.pipe(res));
-
-  // when broadcaster stops sstreaming implement closing reuest from browser client
-  //}
-});
-
-httpServer.get("/", (req, res, next) => {
-  res.send("ping\n");
-});
-
-httpServer.listen(PORT, () => {
-  console.log(`App HTTP server is listening on ${PORT}`);
-});
+export { httpServer };
