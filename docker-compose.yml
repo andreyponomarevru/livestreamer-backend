@@ -1,6 +1,23 @@
 version: "3.7"
 
 services:
+  nginx:
+    container_name: nginx
+    build: ./nginx
+    ports:
+      - 8000:80
+      - 443:443
+    volumes:
+      # Main config
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/log/:/var/log/nginx/
+      - ./nginx/html:/var/www/html
+      # Server blocks config
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
+    #depends_on:
+    #  - client
+    #  - api
+
   api:
     container_name: api
     build:
@@ -18,12 +35,12 @@ services:
       # node.js process is listening for a debugging client on
       - 9230:9229
       # Delete this port after you spin up Nginx container as proxy, this port should not be public
-      - 8080:8080
+      - 5000:5000
     # Ports not exposed publicly i.e. to host machine
     # (they are only exposed to other services)
     expose:
       # Node.js application server
-      - 8080
+      - 5000
     env_file:
       - ./.dev.common.env
       - ./api/.dev.env
