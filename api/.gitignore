@@ -5,8 +5,8 @@
 node_modules/
 package-lock.json
 _source/
-./api/saved-streams/
 *.wav
+*.mp3
 volume/
 *.env
 
