@@ -21,8 +21,6 @@ import { v4 as uuidv4 } from "uuid";
 import wav from "wav";
 import morganLogger from "morgan";
 import { logger, morganSettings } from "./config/logger";
-import swaggerUI from "swagger-ui-express";
-import { swaggerDocument } from "./open-api/index";
 
 import { router } from "./controllers/index";
 import { env } from "./config/env";
@@ -54,8 +52,7 @@ expressApp.use(express.json());
 expressApp.use(express.urlencoded({ extended: false }));
 expressApp.use(express.static(path.join(__dirname, "public")));
 expressApp.use("/", router);
-expressApp.use("/doc", swaggerUI.serve, swaggerUI.setup(swaggerDocument));
-expressApp.use(on404error); // Catch 404 errors in router above
+expressApp.use(on404error); // if request doesn't match the routes above, pass it to 404 error handler
 expressApp.use(expressCustomErrorHandler);
 
 //
