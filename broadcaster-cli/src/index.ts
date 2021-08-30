@@ -5,6 +5,10 @@
 import { spawn } from "child_process";
 import http from "http";
 
+import superagent from "superagent";
+
+// TODO: implement authentication. superagent can save cookies: https://stackoverflow.com/questions/11919737/how-can-you-use-cookies-with-superagent
+
 const reqOptions = {
   host: "localhost",
   port: 5000,
@@ -15,8 +19,6 @@ const reqOptions = {
     "transfer-encoding": "chunked",
   },
 };
-
-//
 
 function onResponse(res: http.IncomingMessage) {
   console.log(`${res.statusCode}\n${res.headers}`);
@@ -50,6 +52,8 @@ const child = spawn("ffmpeg", [
   "pipe:1", // pipe instead of saving to disk
 ]);
 
+//
+
 const req = http.request(reqOptions);
 
 req.on("response", onResponse);
@@ -61,8 +65,6 @@ process.on("uncaughtException", onProcessExit.bind(req));
 child.stderr.pipe(process.stderr);
 // Pass audio stream into request stream
 child.stdout.pipe(req);
-
-//
 
 console.log(
   `HTTP Client is streaming audio to ${reqOptions.host}:${reqOptions.port}\n`,
