@@ -60,3 +60,19 @@ services:
     volumes:
       - ./postgres/01-init.sql:/docker-entrypoint-initdb.d/01-init.sql
       - ./postgres/02-create-first-app-user.sh:/docker-entrypoint-initdb.d/02-create-first-app-user.sh
+
+  client:
+    container_name: client
+    build: ./client
+    restart: "always"
+    volumes:
+      - ./client/:/client/
+    env_file:
+      - ./.dev.common.env
+      - ./client/.dev.env
+    expose:
+      - 3000
+    # Publicly exposed ports (for development only). TODO: delete this port
+    # after setting up Nginx
+    ports:
+      - 8080:8080

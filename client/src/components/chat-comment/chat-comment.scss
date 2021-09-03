@@ -1,0 +1,52 @@
+@import "../../global.scss";
+
+.chat-comment {
+  padding: 0.8rem 0.8rem;
+  border-bottom: 1px solid $color_gray-darken;
+  font-size: 14px;
+
+  &__header {
+    display: grid;
+    grid-template-areas: "Meta Controls";
+    justify-content: space-between;
+    font-size: $font-size_sm;
+  }
+
+  // Meta
+
+  &__meta {
+    grid-area: Meta;
+
+    display: grid;
+    grid-template-areas: "Username Timestamp";
+    column-gap: 0.8rem;
+  }
+
+  &__username {
+    grid-area: Username;
+
+    color: white;
+    justify-content: flex-start;
+  }
+
+  &__timestamp {
+    grid-area: Timestamp;
+
+    color: $color_gray_dark;
+  }
+
+  // Controls
+
+  &__controls {
+    grid-area: Controls;
+
+    display: grid;
+    grid-template-columns: auto;
+  }
+
+  &__body {
+    padding: 0.3rem 0 0 0;
+
+    font-weight: normal;
+  }
+}

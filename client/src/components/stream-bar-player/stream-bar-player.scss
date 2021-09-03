@@ -1,0 +1,9 @@
+@import "../../global.scss";
+
+.stream-bar-player {
+  display: grid;
+  grid-template-areas: "Controls Time";
+  column-gap: 0.5rem;
+  align-items: center;
+  justify-content: flex-start;
+}

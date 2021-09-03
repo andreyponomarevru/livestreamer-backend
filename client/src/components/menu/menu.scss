@@ -1,0 +1,33 @@
+@import "../../global.scss";
+
+.menu {
+  overflow-y: scroll;
+  list-style: none;
+  position: fixed;
+  top: 45px;
+  background: black;
+  left: 0;
+  width: 0;
+  bottom: 0;
+  overflow: hidden;
+  max-width: 100%;
+  z-index: $zindex-fixed;
+
+  &_open {
+    border-top: 1px solid $color_gray-darken;
+    padding: 1rem 0.8rem;
+    width: 100%;
+    box-shadow: 0px 0px 20px black;
+  }
+
+  &__link {
+    font-size: $font-size_xl;
+    line-height: $line-height_xl;
+    text-decoration: none;
+    color: white;
+  }
+
+  &__link_active {
+    font-style: italic;
+  }
+}

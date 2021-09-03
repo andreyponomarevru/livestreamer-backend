@@ -1,0 +1,38 @@
+@import "../../global.scss";
+
+.chat-controls {
+  display: flex;
+  flex-flow: row nowrap;
+
+  background-color: $color_gray-darken;
+
+  &__input {
+    width: 100%;
+    padding: 1rem;
+    color: $color_gray-light;
+
+    border-top: 5px solid $color_gray-darken;
+    border-bottom: none;
+    border-left: none;
+    border-right: none;
+    background-color: black;
+
+    &:focus {
+      outline: none;
+    }
+  }
+
+  &__btns {
+    display: grid;
+    grid-template-areas: "Send Heart";
+    align-items: center;
+    background-color: black;
+    column-gap: 1rem;
+    padding: 0.5rem 0.8rem;
+
+    border-top: 5px solid $color_gray-darken;
+    border-bottom: none;
+    border-left: none;
+    border-right: none;
+  }
+}
