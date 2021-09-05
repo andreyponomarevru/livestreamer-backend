@@ -1,0 +1,52 @@
+@import "../../../../global.scss";
+
+.stream-bar-status {
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: center;
+  justify-content: center;
+  column-gap: 0.5rem;
+  font-weight: 800;
+  white-space: nowrap;
+  min-width: 7rem;
+
+  &__text_offline {
+    color: $color_gray-light;
+  }
+
+  &__text_online {
+    color: black;
+  }
+
+  &__dot_offline {
+    border-radius: 100000px;
+    background-color: $color_gray-light;
+    width: 10px;
+    height: 10px;
+  }
+
+  &__dot_online {
+    padding: 0 0 0 0.5rem;
+    border-radius: 100000px;
+    background-color: red;
+    width: 10px;
+    height: 10px;
+
+    box-shadow: 0 0 0.5rem red;
+    animation: glow 0.5s ease-in-out infinite alternate;
+  }
+
+  // Glowing dot
+
+  @keyframes glow {
+    from {
+      box-shadow: 0 0 0 white;
+      background-color: white;
+    }
+
+    to {
+      box-shadow: 0 0 0.5rem red;
+      background-color: red;
+    }
+  }
+}

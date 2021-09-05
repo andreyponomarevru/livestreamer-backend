@@ -1,4 +1,4 @@
-import React, { ReactElement } from "react";
+import React, { ReactElement, Fragment } from "react";
 import {
   Redirect,
   Route,
@@ -10,57 +10,75 @@ import {
 import axios from "axios";
 
 import { ErrorBoundary } from "./../../components/error-boundary/error-boundary";
-import { Ticker } from "../ticker/ticker";
-import { StreamBar } from "../stream-bar/stream-bar";
-import { NavBar } from "../nav-bar/nav-bar";
+import ScrollToTop from "../../utils/scroll-to-top";
+import { BasicLayout } from "../../layouts/basic-layout/basic-layout";
 
 import { PagesChat } from "./../../pages/chat/chat";
-import { PagesAccount } from "../../pages/account/account";
 import { PagesArchive } from "../../pages/archive/archive";
-import { PagesSignIn } from "../../pages/signin/signin";
 import { PagesSchedule } from "../../pages/schedule/schedule";
 import { PagesBookmarks } from "../../pages/bookmarks/bookmarks";
-import { PagesPasswordReset } from "../../pages/password-reset/password-reset";
-
-import "./app.scss";
+import { PagesUsers } from "../../pages/users/users";
+import { ForgotPasswordPage } from "../../pages/forgot-password/forgot-password";
+import { PagesAccount } from "../../pages/account/account";
+import { PagesAuth } from "../../pages/auth-page/auth-page";
 
 const { REACT_APP_API_ROOT } = process.env;
 
 export function App(): ReactElement {
   return (
-    <div className="app">
+    <Fragment>
       <ErrorBoundary>
-        <header className={`app__header`}>
-          <NavBar />
-          <StreamBar />
-          <Ticker />
-        </header>
+        <ScrollToTop />
         {/* A <Switch> looks through its children <Route>s and
      renders the first one that matches the current URL. */}
         <Switch>
-          <Route path="/password-reset">
-            <PagesPasswordReset className="app__main" />
+          <Route path="/forgot-password">
+            <BasicLayout>
+              <ForgotPasswordPage />
+            </BasicLayout>
           </Route>
           <Route path="/bookmarks">
-            <PagesBookmarks className="app__main" />
+            <BasicLayout>
+              <PagesBookmarks />
+            </BasicLayout>
           </Route>
           <Route path="/schedule">
-            <PagesSchedule className="app__main" />
-          </Route>
-          <Route path="/archive">
-            <PagesArchive className="app__main" />
+            <BasicLayout>
+              <PagesSchedule />
+            </BasicLayout>
           </Route>
           <Route path="/signin">
-            <PagesSignIn className="app__main" />
+            <BasicLayout>
+              <PagesAuth />
+            </BasicLayout>
+          </Route>
+          <Route path="/signup">
+            <BasicLayout>
+              <PagesAuth />
+            </BasicLayout>
+          </Route>
+          <Route path="/archive">
+            <BasicLayout>
+              <PagesArchive />
+            </BasicLayout>
           </Route>
           <Route path="/account">
-            <PagesAccount className="app__main" />
+            <BasicLayout>
+              <PagesAccount />
+            </BasicLayout>
+          </Route>
+          <Route path="/users">
+            <BasicLayout>
+              <PagesUsers />
+            </BasicLayout>
           </Route>
           <Route path="/">
-            <PagesChat className="app__main" />
+            <BasicLayout>
+              <PagesChat />
+            </BasicLayout>
           </Route>
         </Switch>
       </ErrorBoundary>
-    </div>
+    </Fragment>
   );
 }

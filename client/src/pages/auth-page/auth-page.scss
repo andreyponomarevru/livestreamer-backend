@@ -1,0 +1,31 @@
+@import "../../global.scss";
+
+.auth-page {
+  padding-top: 7rem;
+  max-width: $content-max-width;
+  margin: 0 auto;
+
+  &__header {
+    display: grid;
+    grid-template-columns: auto auto;
+    padding: 0 1rem;
+  }
+
+  &__header-link {
+    display: grid;
+    padding: 1rem;
+
+    justify-content: center;
+    background: transparent;
+    font-weight: 800;
+    font-size: $font-size_xl;
+    text-decoration: none;
+    color: $color_gray-dark;
+    border-bottom: 1px solid $color_gray-darken;
+  }
+
+  &__header-link_active {
+    color: white;
+    border-bottom: 1px solid white;
+  }
+}

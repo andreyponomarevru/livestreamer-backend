@@ -1,0 +1,24 @@
+@import "../../../global.scss";
+
+.main-header {
+  display: grid;
+  column-gap: 0.8rem;
+  grid-template-areas: "Icon Heading";
+  padding: 1rem 0.8rem;
+  justify-content: flex-start;
+  align-items: center;
+
+  font-weight: bold;
+  color: white;
+  border-bottom: 1px solid $color_gray_darken;
+  font-size: $font-size_lg;
+  background-color: black;
+
+  &__heading {
+    grid-area: Heading;
+  }
+
+  &__icon {
+    pointer-events: none;
+  }
+}

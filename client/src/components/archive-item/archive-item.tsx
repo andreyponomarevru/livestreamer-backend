@@ -1,80 +1,82 @@
-import React, { ReactElement } from "react";
+import React, { ReactElement, useState } from "react";
 
-import icons from "./../../icons.svg";
+import { IconBtn } from "../lib/icon-btn/icon-btn";
+import { ArchiveItemControls } from "./archive-item-controls/archive-item-controls";
+
 import "./archive-item.scss";
 
-interface ArchiveItemProps {
+interface Props extends React.HTMLAttributes<HTMLDivElement> {
   className?: string;
+  title: string;
+  heartsCount: number;
+  peakListenersCount: number;
+  description?: string;
+  bookmarked?: boolean;
+  timestamp: string;
+
+  permissions?: {
+    broadcast: string;
+  };
 }
 
-export function ArchiveItem(
-  props: React.HTMLAttributes<HTMLDivElement>
-): ReactElement {
-  const { className = "" } = props;
+export function ArchiveItem(props: Props): ReactElement {
+  const { className = "", bookmarked = false } = props;
+
+  // Moch API resposne:
+  const permissions = { broadcast: ["update"] };
+
+  //
+
+  const [isControlsOpened, setIsControlsOpened] = useState(false);
+
+  function toggleControls() {
+    setIsControlsOpened((prev) => !prev);
+  }
 
   return (
     <div className={`archive-item ${className}`}>
-      <div className="archive-item__meta">
-        <span className="archive-item__date">23.1.2013</span>
+      <div className="archive-item__meta1">
+        <span className="archive-item__date">{props.timestamp}</span>
+        <IconBtn
+          iconName={props.bookmarked ? "bookmark-selected" : "bookmark"}
+          handleBtnClick={() => {}}
+          className="archive-item__bookmark"
+        />
+      </div>
+      <h3
+        className="archive-item__heading"
+        contentEditable={permissions.broadcast.includes("update")}
+        suppressContentEditableWarning={true}
+      >
+        {props.title} 6 Hour New Year Ambient Mix
+      </h3>
+      <div className="archive-item__meta2">
         <span className="archive-item__listeners">
-          Max Listeners: <span className="archive-item__count">7</span>
+          Max Listeners:{" "}
+          <span className="archive-item__count">
+            {props.peakListenersCount}
+          </span>
         </span>
         <span className="archive-item__hearts">
-          Hearts: <span className="archive-item__count">23</span>
+          Hearts:{" "}
+          <span className="archive-item__count">{props.heartsCount}</span>
         </span>
       </div>
-      <h3 className="archive-item__heading">Test Stream</h3>
-      <div className="archive-item__description">
-        Some short detxt description of this show that should not exceed 255
-        characters it'l like a smal tweet, just put soming here and that's it
+      <div
+        className="archive-item__description"
+        contentEditable={permissions.broadcast.includes("update")}
+        suppressContentEditableWarning={true}
+      >
+        {props.description}
       </div>
       <div className="archive-item__controls">
-        <button className={`menu-btn ${className}`}>
-          <svg className="menu-btn__icon">
-            <use href={`${icons}#tracklist`} />
-          </svg>
-        </button>
-        <button className={`menu-btn ${className}`}>
-          <svg className="menu-btn__icon">
-            <use href={`${icons}#bookmark`} />
-          </svg>
-        </button>
-        <button className={`menu-btn ${className}`}>
-          <svg className="menu-btn__icon">
-            <use href={`${icons}#download`} />
-          </svg>
-        </button>
+        <IconBtn iconName="tracklist" handleBtnClick={() => {}} />
+        <IconBtn iconName="play" handleBtnClick={() => {}} />
+        {permissions.broadcast.includes("update") && (
+          <IconBtn iconName="pencil" handleBtnClick={toggleControls} />
+        )}
       </div>
+      {isControlsOpened && <ArchiveItemControls />}
     </div>
   );
 }
-
-/*
-import React, { ReactElement } from "react";
-
-import icons from "./../../icons.svg";
-import "./menu-btn.scss";
-
-interface Props extends React.HTMLAttributes<HTMLDivElement> {
-  handleBtnClick: () => void;
-  isMenuOpen: boolean;
-}
-
-export function MenuBtn(props: Props): ReactElement {
-  const { className = "" } = props;
-
-  return (
-    <button
-      className={`menu-btn ${className}`}
-      onClick={() => props.handleBtnClick()}
-    >
-      <svg className="menu-btn__icon">
-        <use
-          href={`${icons}#${props.isMenuOpen ? "close" : "hamburger-menu"}`}
-        />
-      </svg>
-    </button>
-  );
-}
-
-*/

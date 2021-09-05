@@ -1,8 +1,7 @@
 import React, { ReactElement } from "react";
 
-import icons from "./../../icons.svg";
-import { HeartBtn } from "../heart-btn/heart-btn";
-import { SendChatMsgBtn } from "../send-chat-msg-btn/send-chat-msg-btn";
+import { HeartBtn } from "./heart-btn/heart-btn";
+import { SendChatMsgBtn } from "./send-chat-msg-btn/send-chat-msg-btn";
 
 import "./chat-controls.scss";
 
@@ -18,6 +17,7 @@ export function ChatControls(props: Props): ReactElement {
         type="text"
         name="message"
         autoComplete="off"
+        placeholder="Type a message here..."
       />
       <div className="chat-controls__btns">
         <SendChatMsgBtn handleBtnClick={() => {}} />

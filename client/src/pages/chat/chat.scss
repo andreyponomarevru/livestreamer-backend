@@ -1,0 +1,30 @@
+@import "../../global.scss";
+
+.chat-page {
+  display: grid;
+  grid-template-areas:
+    "Log"
+    "Controls";
+  grid-template-rows: 1fr auto;
+  height: 100%;
+  min-height: 100%;
+
+  &__log {
+    grid-area: Log;
+    padding: 1rem 0;
+    height: 100%;
+    padding-bottom: 5rem;
+  }
+
+  &__controls {
+    grid-area: Controls;
+
+    position: fixed;
+    z-index: $zindex-fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+
+    box-shadow: 0 -0.8rem 2rem black;
+  }
+}

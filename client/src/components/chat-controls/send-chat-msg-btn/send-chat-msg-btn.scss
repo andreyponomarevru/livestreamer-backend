@@ -1,0 +1,56 @@
+@import "../../../global.scss";
+
+.send-chat-msg-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: transparent;
+  border: none;
+  border-radius: 100000px;
+  padding: auto 1rem;
+  margin: 0;
+  height: 3rem;
+  width: 3rem;
+  cursor: pointer;
+  padding: 0.3rem 0.5rem 0.2rem 0.5rem;
+
+  &:active {
+    background-color: $color_gray-darken;
+  }
+
+  // enable ':hover' only on non-touch devices
+  @media (hover: hover) and (pointer: fine) {
+    &:hover &__icon {
+      fill: white;
+    }
+  }
+
+  &__icon {
+    @include default-icon;
+
+    width: 2em;
+    height: 2rem;
+    padding: 0;
+    margin: 0;
+
+    fill: $color_gray-light;
+
+    // enable ':hover' only on non-touch devices
+    @media (hover: hover) and (pointer: fine) {
+      &:hover &__icon {
+        fill: $color_gray-lighten;
+      }
+    }
+
+    &:visited,
+    &:visited,
+    &:focus {
+      fill: $color_gray-lighten;
+    }
+
+    &:active {
+      fill: white;
+    }
+  }
+}

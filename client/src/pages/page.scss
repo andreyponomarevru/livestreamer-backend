@@ -1,0 +1,21 @@
+@import "./../global.scss";
+
+.page {
+  height: 100%;
+
+  font-size: $font-size_root;
+
+  scroll-behavior: smooth;
+  background-attachment: fixed;
+  background-color: black;
+
+  &__body {
+    min-height: 100%;
+
+    margin: 0 auto;
+
+    font-family: $font-stack_sans;
+    color: $color_text-primary;
+    line-height: 1.5;
+  }
+}
