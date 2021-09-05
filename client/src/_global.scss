@@ -1,15 +1,12 @@
 // Global SASS variables, mixins and functions
 
-// *************
-// * VARIABLES *
-// *************
+//
+// VARIABLES
+//
 
 // font-family
-$font-stack_sans: Tahoma, Helvetica, Arial, Verdana, sans-serif;
-$font-stack_serif: Georgia, "Big Caslon", "Hoefler Text", Garamond, Baskerville,
-  "Palatino Linotype", "Times New Roman", Times, serif;
-$font-stack_mono: Consolas, "Lucida Console", "Lucida Sans Typewriter",
-  "Courier New", Courier, monospace;
+// Open Sans is added via Google Fonts as a web font in index.html header
+$font-stack_sans: "Open Sans", Helvetica, Arial, Tahoma, Verdana, sans-serif;
 
 // font size
 $font-size_root: 15px;
@@ -114,10 +111,11 @@ $zindex-tooltip: 1070 !default;
 
 // other
 $border_radius: 15px !default;
+$content-max-width: 20rem;
 
-// **********
-// * MIXINS *
-// **********
+//
+// MIXINS
+//
 
 @mixin default-icon {
   box-sizing: border-box;
