@@ -1,0 +1,10 @@
+@import "../../global.scss";
+
+.account-page {
+  &__btns {
+    display: grid;
+    grid-template-rows: auto auto auto;
+    row-gap: 0.8rem;
+    padding: 0 0.8rem 1rem 0.8rem;
+  }
+}
