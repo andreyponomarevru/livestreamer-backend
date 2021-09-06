@@ -1,9 +1,9 @@
 export const postUser = {
   summary: "Creates a user.",
   description:
-    "Regular unauthenticated users and user assigned a 'superuser' role required to provide different types of request objects.\n\n'superadmin' required to provide some additional properties: 'role_name', 'permissions' object, 'is_confirmed'. Unauthenticated users attempting to send these properties recieve 401 Bad Request response.\n\nResponse for 'superadmin' user is UserAccount object. For all other users the response object is UserProfile",
+    "Regular unauthenticated users and user assigned a 'superuser' role required to submit different types of request objects.\n\n'superadmin' required to provide some additional properties: 'role_name', 'permissions' object, 'is_confirmed'.\n\nUnauthenticated users attempting to send these properties recieve 401 Bad Request response.\n\nResponse for 'superadmin' user is UserAccount object. For all other users the response object is UserProfile object",
 
-  security: { cookieAuth: [] },
+  security: { cookieAuth: [], basicAuth: [] },
 
   parameters: [
     { name: "cookie", in: "header", required: true, description: "Session ID" },
@@ -48,6 +48,7 @@ export const postUser = {
     },
 
     "401": {
+      headers: { "WWW-Authenticate": { schema: { type: "string" } } },
       description:
         "Unauthorized. Unauthenticated user attempts to send the request.",
       content: {

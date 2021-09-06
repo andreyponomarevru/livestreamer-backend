@@ -20,6 +20,7 @@ export const deleteSession = {
   },
 
   "401": {
+    headers: { "WWW-Authenticate": { schema: { type: "string" } } },
     description: "Unauthorized. User is not authenticated.",
     content: {
       "application/json": {

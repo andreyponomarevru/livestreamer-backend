@@ -1,7 +1,19 @@
 export const postSession = {
   summary: "Creates a session: logs in and returns the authentication cookie.",
 
+  description:
+    "Put username + password in Authroization (Basic) header, and email in json body",
+
   security: [], // no authentication
+
+  parameters: [
+    {
+      name: "authorization",
+      in: "header",
+      requried: true,
+      description: "Basic username:password",
+    },
+  ],
 
   requestBody: {
     required: true,
@@ -48,6 +60,7 @@ export const postSession = {
     },
 
     "401": {
+      headers: { "WWW-Authenticate": { schema: { type: "string" } } },
       description:
         "Unauthorized. User authentication failed due to invalid credentials: wrong username or password",
       content: {

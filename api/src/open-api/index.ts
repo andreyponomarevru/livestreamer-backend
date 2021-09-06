@@ -98,6 +98,7 @@ export const swaggerDocument = {
   components: {
     securitySchemes: {
       cookieAuth: { type: "apiKey", in: "cookie", name: "SESSIONID" },
+      basicAuth: { type: "http", scheme: "basic" },
     },
 
     schemas: {
@@ -214,13 +215,10 @@ export const swaggerDocument = {
 
       // Request/Response Object
 
+      // username + password passed in Authorization header
       CreateSessionRequest: {
         type: "object",
-        properties: {
-          email: { type: "string" },
-          username: { type: "string" },
-          password: { type: "string" },
-        },
+        properties: { email: { type: "string" } },
       },
 
       ResetPasswordRequest: {

@@ -14,6 +14,7 @@ export const postStreamLike = {
     "200": {},
 
     "401": {
+      headers: { "WWW-Authenticate": { schema: { type: "string" } } },
       description:
         "Unauthorized. Unauthenticated user attempts to send the request.",
       content: {

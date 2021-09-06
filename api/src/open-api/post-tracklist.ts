@@ -32,6 +32,7 @@ export const postTracklist = {
     },
 
     "401": {
+      headers: { "WWW-Authenticate": { schema: { type: "string" } } },
       description:
         "Unauthorized. Unauthenticated user attempts to send the request.",
       content: {

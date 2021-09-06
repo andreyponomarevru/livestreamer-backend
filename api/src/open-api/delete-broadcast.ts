@@ -28,6 +28,7 @@ export const deleteBroadcast = {
     },
 
     "401": {
+      headers: { "WWW-Authenticate": { schema: { type: "string" } } },
       description: "Unauthorized.",
       content: {
         "application/json": {
