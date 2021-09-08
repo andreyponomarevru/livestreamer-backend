@@ -1,19 +1,16 @@
 import util from "util";
 
-import { env } from "./../config/env";
+import { HTTP_PORT } from "./../config/env";
 import { logger } from "./../config/logger";
 import * as dbConnection from "./../config/postgres";
-
-// TODO: find a better place for this function, it shouldnt be here
-export function onServerListening(): void {
-  logger.debug(
-    `${__filename}: API HTTP Server is listening on port ${env.HTTP_PORT}`,
-  );
-}
 
 //
 // Error handlers
 //
+
+export function onWarning(err: Error): void {
+  logger.error(err.stack);
+}
 
 export function onUncaughtException(err: Error): void {
   logger.error(`uncaughtException: ${err.message} \n${err.stack}`);
@@ -29,9 +26,7 @@ export function onServerError(err: NodeJS.ErrnoException): void | never {
   if (err.syscall !== "listen") throw err;
 
   const bind =
-    typeof env.HTTP_PORT === "string"
-      ? `Pipe ${env.HTTP_PORT}`
-      : `Port ${env.HTTP_PORT}`;
+    typeof HTTP_PORT === "string" ? `Pipe ${HTTP_PORT}` : `Port ${HTTP_PORT}`;
 
   // Messages for listen errors
   switch (err.code) {

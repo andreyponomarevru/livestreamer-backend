@@ -8,9 +8,9 @@ import { HttpError } from "./middlewares/http-errors/HttpError";
 import * as db from "../models/user/queries";
 import { logger } from "../config/logger";
 import { showReadableStreamMode } from "../utils/utils";
-import { env } from "./../config/env";
+import { NODE_ENV, SAVED_STREAMS_DIR } from "./../config/env";
 
-const inoutStream = new Duplex({
+export const inoutStream = new Duplex({
   write(chunk, encoding, callback) {
     callback();
   },
@@ -24,7 +24,7 @@ async function push(req: Request, res: Response): Promise<void> {
     showReadableStreamMode(inoutStream, "broadcaster's push stream");
     // Push incoming request data into Readable stream in order to be able to consume it later on listener-client request (it doesn't accumulates in memory, it is just lost)
     inoutStream.push(chunk);
-    if (env.NODE_ENV === "production") {
+    if (NODE_ENV === "production") {
       // Also write incoming request data to disk i.e. push data into writable stream)
       writableStream.write(chunk);
     }
@@ -42,7 +42,7 @@ async function push(req: Request, res: Response): Promise<void> {
 
   logger.debug("Starting push stream from client to server...");
 
-  const writeTo = `${env.SAVED_STREAMS_DIR}/${uuidv4()}.mp3`;
+  const writeTo = `${SAVED_STREAMS_DIR}/${uuidv4()}.mp3`;
   const writableStream = fs.createWriteStream(writeTo);
   // When broadcast-client connects, switch the stream back into the 'flowing' mode, otherwise later we won't be able to push data to listener-clients requests
   inoutStream.resume();

@@ -1,4 +1,4 @@
-import { env } from "../config/env";
+import { APP_NAME } from "../config/env";
 import { getUsers } from "./get-users";
 import { postUser } from "./post-user";
 import { postSession } from "./post-session";
@@ -38,8 +38,8 @@ export const swaggerDocument = {
   openapi: "3.0.1",
   info: {
     version: "1.0.0",
-    title: `${env.APP_NAME} API Doc`,
-    description: `Documentation for ${env.APP_NAME} API`,
+    title: `${APP_NAME} API Doc`,
+    description: `Documentation for ${APP_NAME} API`,
     contact: {
       name: "Andrey Ponomarev",
       email: "info@andreyponomarev.ru",

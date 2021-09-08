@@ -1,6 +1,12 @@
 import { logger } from "../config/logger";
 import { Pool } from "pg";
-import { env } from "./env";
+import {
+  POSTGRES_DATABASE,
+  POSTGRES_HOST,
+  POSTGRES_PASSWORD,
+  POSTGRES_PORT,
+  POSTGRES_USER,
+} from "./env";
 
 let pool: Pool | undefined;
 
@@ -9,11 +15,11 @@ export async function connectDB(): Promise<Pool> {
     return pool;
   } else {
     pool = new Pool({
-      user: env.POSTGRES_USER,
-      host: env.POSTGRES_HOST,
-      database: env.POSTGRES_DATABASE,
-      password: env.POSTGRES_PASSWORD,
-      port: env.POSTGRES_PORT,
+      user: POSTGRES_USER,
+      host: POSTGRES_HOST,
+      database: POSTGRES_DATABASE,
+      password: POSTGRES_PASSWORD,
+      port: POSTGRES_PORT,
     });
     return pool;
   }
