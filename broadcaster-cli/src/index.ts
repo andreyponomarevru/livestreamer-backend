@@ -9,10 +9,10 @@ import WebSocket, { createWebSocketStream } from "ws";
 import { onMessage, onError, onConnectionOpen } from "./ws-client";
 import { APP_SERVER_URL, FFMPEG_ARGS } from "./config";
 
-function onProcessExit(wsClient: WebSocket) {
+function onProcessExit(wsClient: WebSocket, exitCode: number) {
   wsClient.close(1000, "Streaming is finished. Goodbye, App Server!");
   console.log("Streaming is finished. WS connection has been closed.");
-  process.exit(0);
+  process.exit(exitCode);
 }
 
 function onDuplexAudioStreamError(err: Error) {
@@ -31,8 +31,8 @@ wsClient.on("message", onMessage);
 wsClient.on("error", onError);
 wsClient.once("open", () => onConnectionOpen(wsClient));
 
-process.on("SIGINT", () => onProcessExit(wsClient)); // intercept Ctrl+C
-process.on("uncaughtException", () => onProcessExit(wsClient));
+process.on("SIGINT", () => onProcessExit(wsClient, 0)); // intercept Ctrl+C
+process.on("uncaughtException", () => onProcessExit(wsClient, 1));
 
 const child = spawn("ffmpeg", FFMPEG_ARGS);
 // NOTE: without piping to process.stderr, ffmpeg silently hangs
