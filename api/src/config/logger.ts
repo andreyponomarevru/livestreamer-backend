@@ -1,4 +1,11 @@
-import { env } from "./../config/env";
+import {
+  APP_NAME,
+  INFO_LOG_NAME,
+  ERROR_LOG_NAME,
+  DEBUG_LOG_NAME,
+  LOG_LOCATION,
+  NODE_ENV,
+} from "./../config/env";
 
 //
 // Winston logger
@@ -24,7 +31,7 @@ const consoleTransport = new transports.Console({
   level: "debug",
   //filename: `${LOG_LOCATION}/${DEBUG_LOG_NAME}`,
   format: combine(
-    label({ label: env.APP_NAME }),
+    label({ label: APP_NAME }),
     timestamp(),
     colorize({ all: true }),
     logFormat,
@@ -35,10 +42,10 @@ const consoleTransport = new transports.Console({
 // Write all logs with level 'info' and below to INFO_LOG_NAME
 const infoFileTransport = new transports.File({
   level: "info",
-  filename: `${env.LOG_LOCATION}/${env.INFO_LOG_NAME}`,
+  filename: `${LOG_LOCATION}/${INFO_LOG_NAME}`,
   maxsize: 5242880, // 5MB
   maxFiles: 2,
-  format: combine(label({ label: env.APP_NAME }), timestamp(), logFormat),
+  format: combine(label({ label: APP_NAME }), timestamp(), logFormat),
   silent: false,
 });
 
@@ -51,14 +58,14 @@ function createTransports(env = "development") {
 // Write all logs with level 'error' and below to file
 const errorFileTransport = new transports.File({
   level: "error",
-  filename: `${env.LOG_LOCATION}/${env.ERROR_LOG_NAME}`,
+  filename: `${LOG_LOCATION}/${ERROR_LOG_NAME}`,
   maxsize: 5242880, // 5MB
   maxFiles: 2,
-  format: combine(label({ label: env.APP_NAME }), timestamp(), logFormat),
+  format: combine(label({ label: APP_NAME }), timestamp(), logFormat),
 });
 
 const logger = createLogger({
-  transports: [...createTransports(env.NODE_ENV)],
+  transports: [...createTransports(NODE_ENV)],
   exitOnError: false, // do not exit on uncaughtException
 });
 

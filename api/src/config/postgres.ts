@@ -1,20 +1,29 @@
 import { logger } from "../config/logger";
 import { Pool } from "pg";
-import { env } from "./env";
+import {
+  POSTGRES_USER,
+  POSTGRES_PASSWORD,
+  POSTGRES_DATABASE,
+  POSTGRES_PORT,
+  POSTGRES_HOST,
+} from "./env";
 
+// Store the connection pool
 let pool: Pool | undefined;
 
 export async function connectDB(): Promise<Pool> {
   if (pool) {
     return pool;
   } else {
-    pool = new Pool({
-      user: env.POSTGRES_USER,
-      host: env.POSTGRES_HOST,
-      database: env.POSTGRES_DATABASE,
-      password: env.POSTGRES_PASSWORD,
-      port: env.POSTGRES_PORT,
-    });
+    const config = {
+      user: POSTGRES_USER,
+      host: POSTGRES_HOST,
+      database: POSTGRES_DATABASE,
+      password: POSTGRES_PASSWORD,
+      port: POSTGRES_PORT,
+    };
+
+    pool = new Pool(config);
     return pool;
   }
 }
