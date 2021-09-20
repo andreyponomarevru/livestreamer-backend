@@ -2,44 +2,42 @@
 // Broadcast Client
 //
 
+import http, { ClientRequest } from "http";
 import { spawn } from "child_process";
 
-import WebSocket, { createWebSocketStream } from "ws";
+import { httpReq } from "./http-client";
+import { FFMPEG_ARGS, REQUEST_OPTIONS } from "./config";
 
-import { onMessage, onError, onConnectionOpen } from "./ws-client";
-import { APP_SERVER_URL, FFMPEG_ARGS } from "./config";
+function onProcessExit(
+  exitCode: number,
+  httpReq: ClientRequest,
+  wsClient?: WebSocket,
+) {
+  // wsClient?.close(1000, "Streaming is finished. Goodbye, App Server!");
+  httpReq.end();
+  console.log(
+    "Streaming is finished.\nS connections has been closed.\nHTTP request ended.\n",
+  );
 
-function onProcessExit(wsClient: WebSocket, exitCode: number) {
-  wsClient.close(1000, "Streaming is finished. Goodbye, App Server!");
-  console.log("Streaming is finished. WS connection has been closed.");
   process.exit(exitCode);
 }
 
-function onDuplexAudioStreamError(err: Error) {
-  console.error(err);
-}
-
-//
-
-const wsClient = new WebSocket(APP_SERVER_URL);
-// To stream audio over WS we need to wrap the connection in a regular
-// Node's duplex stream
-const duplexAudioStream = createWebSocketStream(wsClient);
-duplexAudioStream.on("error", onDuplexAudioStreamError);
-
-wsClient.on("message", onMessage);
-wsClient.on("error", onError);
-wsClient.once("open", () => onConnectionOpen(wsClient));
-
-process.on("SIGINT", () => onProcessExit(wsClient, 0)); // intercept Ctrl+C
-process.on("uncaughtException", () => onProcessExit(wsClient, 1));
+// intercept Ctrl+C
+process.on("SIGINT", () => onProcessExit(0, httpReq));
+process.on("uncaughtException", () => onProcessExit(1, httpReq));
 
 const child = spawn("ffmpeg", FFMPEG_ARGS);
 // NOTE: without piping to process.stderr, ffmpeg silently hangs
 // after a few minutes
 child.stderr.pipe(process.stderr);
 // Push audio stream to App Server in regular WS messages
-child.stdout.pipe(duplexAudioStream);
+// child.stdout.pipe(duplexAudioStream);
+// Pass audio stream into request stream
+child.stdout.pipe(httpReq);
 
 // TODO: implement authentication. superagent can save cookies: https://stackoverflow.com/questions/11919737/how-can-you-use-cookies-with-superagent
 // import superagent from "superagent";
+
+console.log(
+  `HTTP Client is streaming audio to ${REQUEST_OPTIONS.host}:${REQUEST_OPTIONS.port}\n`,
+);
