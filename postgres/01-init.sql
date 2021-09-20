@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS role_resource_permission (
   resource_id          integer                     NOT NULL,
   permission_id        integer                     NOT NULL,
   
-  FOREIGN KEY (role_id) REFERENCES  ole (role_id) 
+  FOREIGN KEY (role_id) REFERENCES role (role_id) 
 		ON DELETE CASCADE,
 	FOREIGN KEY (resource_id) REFERENCES resource (resource_id) 
 		ON DELETE RESTRICT,
@@ -61,11 +61,11 @@ CREATE TABLE IF NOT EXISTS appuser (
   PRIMARY KEY (appuser_id),
   appuser_id           integer                     GENERATED ALWAYS AS IDENTITY,
   role_id              integer                     NOT NULL,
-  username             varchar(255)                NOT NULL, 
+  username             varchar(15)                 NOT NULL, 
 	                                                 UNIQUE (username), 
 																									 CHECK (username != ''),
   -- TODO: verify/edit the appropriate length of the password_hash field. The size of the field should exactly match the size of the output of your key derivation function
-  password_hash        varchar(255)                NOT NULL,
+  password_hash        varchar(60)                 NOT NULL,
   email                varchar(320)                NOT NULL, 
 	                                                 UNIQUE (email), 
 																									 CHECK (email != ''),
@@ -73,7 +73,9 @@ CREATE TABLE IF NOT EXISTS appuser (
   last_login_at        timestamp with time zone    DEFAULT CURRENT_TIMESTAMP,
   is_confirmed         boolean                     DEFAULT FALSE, 
   is_deleted           boolean                     DEFAULT FALSE,
-  
+	email_confirmation_token  varchar(128)           DEFAULT NULL,
+	password_reset_token      varchar(128)           DEFAULT NULL,
+
   FOREIGN KEY (role_id) REFERENCES role (role_id)
     ON DELETE RESTRICT
 );
@@ -103,7 +105,7 @@ CREATE TABLE IF NOT EXISTS allowed_setting_value (
   PRIMARY KEY (allowed_setting_value_id),
   allowed_setting_value_id      integer            GENERATED ALWAYS AS IDENTITY,
   setting_id                    integer            NOT NULL,
-  value                         varchar(15)        NOT NULL,                         
+  value                         varchar(15)        NOT NULL,
   
   FOREIGN KEY (setting_id) REFERENCES setting (setting_id)
     ON DELETE RESTRICT
