@@ -25,7 +25,10 @@ services:
       dockerfile: Dockerfile
     restart: "no"
     volumes:
-      # Recompile code on changes
+      # set the same timezone and time as on the host
+      - "/etc/timezone:/etc/timezone:ro"
+      - "/etc/localtime:/etc/localtime:ro"
+			# Recompile code on changes
       - ./api/src:/api/src
       - ./api/tsconfig.json:/api/tsconfig.json
       # Write live broadcast streams to disk
