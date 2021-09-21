@@ -71,8 +71,8 @@ CREATE TABLE IF NOT EXISTS appuser (
 																									 CHECK (email != ''),
   created_at           timestamp with time zone    DEFAULT CURRENT_TIMESTAMP,
   last_login_at        timestamp with time zone    DEFAULT CURRENT_TIMESTAMP,
-  is_confirmed         boolean                     DEFAULT FALSE, 
   is_deleted           boolean                     DEFAULT FALSE,
+  is_email_confirmed   boolean                     DEFAULT FALSE, 
 	email_confirmation_token  varchar(128)           DEFAULT NULL,
 	password_reset_token      varchar(128)           DEFAULT NULL,
 
@@ -303,3 +303,12 @@ INSERT INTO
   allowed_setting_value (setting_id, value)
 VALUES 
   (1, false), (1, true);  
+
+
+
+
+
+
+
+
+
