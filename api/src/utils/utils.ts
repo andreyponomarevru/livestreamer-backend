@@ -13,7 +13,8 @@ export function showReadableStreamMode(
   const mode = stream.isPaused()
     ? `${streamName} PAUSED`
     : `${streamName} FLOWING`;
-  console.log(mode);
+
+  console.log(`${mode} [${new Date().toISOString()}]`);
 }
 
 export function buildUsername(string: string) {
