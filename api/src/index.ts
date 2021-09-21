@@ -1,15 +1,25 @@
-import fs from "fs-extra";
-import { v4 as uuidv4 } from "uuid";
+import util from "util";
 
+import { logger } from "./config/logger";
 import { HTTP_PORT } from "./config/env";
 import { httpServer } from "./http-server";
-import { serverOptions } from "./config/ws-server";
+import * as dbConnection from "./config/postgres";
 
-import {
-  onUncaughtException,
-  onUnhandledRejection,
-  onWarning,
-} from "./event-handlers/process-handlers";
+function onWarning(err: Error) {
+  logger.error(err.stack);
+}
+
+function onUncaughtException(err: Error) {
+  logger.error(`uncaughtException: ${err.message} \n${err.stack}`);
+  dbConnection.close();
+  process.exit(1);
+}
+
+function onUnhandledRejection(reason: string, p: unknown) {
+  logger.error(`UnhandledRejection: ${util.inspect(p)}, reason "${reason}"`);
+}
+
+//
 
 process.once("uncaughtException", onUncaughtException);
 process.on("unhandledRejection", onUnhandledRejection);
