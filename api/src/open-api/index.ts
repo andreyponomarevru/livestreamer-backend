@@ -3,7 +3,7 @@ import { getUsers } from "./get-users";
 import { postUser } from "./post-user";
 import { postSession } from "./post-session";
 import { deleteSession } from "./delete-session";
-import { postPasswordReset } from "./post-password-reset";
+import { patchPasswordUpdate } from "./patch-password-reset";
 import { getUser } from "./get-user";
 import { deleteUser } from "./delete-user";
 import { patchUser } from "./patch-user";
@@ -31,7 +31,7 @@ import { deleteSchedule } from "./delete-schedule";
 import { getTracklist } from "./get-tracklist";
 import { postTracklist } from "./post-tracklist";
 import { putTracklist } from "./put-tracklist";
-import { getEmailConfirmation } from "./get-email-confirmation";
+import { postEmailConfirmation } from "./post-email-confirmation";
 
 // Spec: https://swagger.io/specification/
 
@@ -53,21 +53,13 @@ export const swaggerDocument = {
 
     "/sessions": { post: postSession, delete: deleteSession },
 
-    "/passsword-reset": { post: postPasswordReset },
+    "/verification": { post: postEmailConfirmation },
 
     "/users": { get: getUsers, post: postUser },
     "/users/{id}": { get: getUser, patch: patchUser, delete: deleteUser },
-    // TODO: to keep the things simple, currently I skip this route
+    "/users/settings/password": { patch: patchPasswordUpdate },
+    // TODO: currently I don't implement this route for simplicity sake. Also, for consistency it's better to exclcude the '../{userId}/..' from the route
     // "/users/{userId}/settings": { get: getSettings, patch: patchSettings },
-    //"/users/{userId}/settings/password": {
-    // TODO: implement the password reset:
-    // post: postUserSettingsPassword - send new password to this route — NO! Better send PATCH request with only 'password' property in json object to /users/:id,
-    // consider also this route:
-    // /users/{userId}/settings/password/reset
-    // https://gist.github.com/nasrulhazim/c9b5e2ae414ff3c004c388c485e4cb80
-    //},
-    "/users/{id}/verification": { get: getEmailConfirmation },
-
     "/users/{id}/bookmarks": {
       get: getBookmarks,
       post: postBookmark,
@@ -105,7 +97,9 @@ export const swaggerDocument = {
     },
 
     schemas: {
+      //
       // App Objects
+      //
 
       Permissions: {
         type: "object",
@@ -216,18 +210,27 @@ export const swaggerDocument = {
         },
       },
 
+      //
       // Request/Response Object
+      //
 
-      // username + password passed in Authorization header
       CreateSessionRequest: {
         type: "object",
         properties: { email: { type: "string" } },
       },
 
-      ResetPasswordRequest: {
+      GetPasswordResetTokenRequest: {
         type: "object",
         properties: {
           email: { type: "string" },
+        },
+      },
+
+      SaveNewPasswordRequest: {
+        type: "object",
+        properties: {
+          token: { type: "string" },
+          newPassword: { type: "string" },
         },
       },
 
