@@ -1,6 +1,60 @@
 import Joi from "joi";
 
+//
+// Joi Validation Schemas
+//
 // Joi props for validation messages: https://github.com/sideway/joi/blob/master/API.md#list-of-errors
+
+export const password = Joi.string().trim().required().min(6).max(50).messages({
+  "string.base": `Password should be a type of 'string'`,
+  "string.empty": `Password cannot be an empty string`,
+  "string.min": `Password is shorter than expected`,
+  "string.max": `Password is longer than expected`,
+  "any.required": `Password is required`,
+});
+
+export const username = Joi.string().trim().required().min(4).max(15).messages({
+  "string.base": `Username should be a type of 'string'`,
+  "string.empty": `Username cannot be an empty string`,
+  "string.min": `Username is shorter than expected`,
+  "string.max": `Username is longer than expected`,
+  "any.required": `Username is required`,
+});
+
+export const email = Joi.string().required().email().messages({
+  "string.base": `Email should be a type of 'string'`,
+  "string.empty": `Email cannot be an empty string`,
+  "string.email": `The string is not a valid e-mail`,
+  "any.required": `Email is required`,
+});
+
+export const jsonContentType = Joi.string()
+  .required()
+  .valid("application/json")
+  .messages({
+    "string.base": `'content-type' should be a type of 'string'`,
+    "string.empty": `'content-type' cannot be an empty string`,
+    "any.required": `'content-type' is required`,
+  });
+
+export const token = Joi.string().required().messages({
+  "string.base": `Token value should be a type of 'string'`,
+  "string.empty": `Token value cannot be an empty string`,
+  "any.required": `Token value is required`,
+});
+
+export const idStringSchema = Joi.number()
+  .positive()
+  .greater(1)
+  .required()
+  .messages({
+    "number.base": `ID should be a type of 'number'`,
+    "number.positive": `ID should be positive`,
+    "number.greater": `ID should be greater than 1`,
+    "any.required": `ID is required`,
+  });
+
+//
 
 export const basicAuthZHeaderSchema = Joi.object({
   basicauth: Joi.object()
@@ -16,42 +70,34 @@ export const basicAuthZHeaderSchema = Joi.object({
           "any.only": `Authorization header type must be set to [Basic] authentication scheme`,
           "any.required": `Authorization header is required`,
         }),
-      username: Joi.string().trim().required().min(4).max(15).messages({
-        "string.base": `Username should be a type of 'string'`,
-        "string.empty": `Username cannot be an empty string`,
-        "string.min": `Username is shorter than expected`,
-        "string.max": `Username is longer than expected`,
-        "any.required": `Username is required`,
-      }),
-      password: Joi.string().trim().required().min(6).max(50).messages({
-        "string.base": `Password should be a type of 'string'`,
-        "string.empty": `Password cannot be an empty string`,
-        "string.min": `Password is shorter than expected`,
-        "string.max": `Password is longer than expected`,
-        "any.required": `Password is required`,
-      }),
+      username: username,
+      password: password,
     })
     .required()
     .messages({
       "any.required": "Authorization header is required",
     }),
-  "content-type": Joi.string().required().valid("application/json").messages({
-    "string.base": `'content-type' should be a type of 'string'`,
-    "string.empty": `'content-type' cannot be an empty string`,
-    "any.required": `'content-type' is required`,
-  }),
+  "content-type": jsonContentType,
+})
+  .required()
+  .unknown(true);
+
+export const jsonContentTypeSchema = Joi.object({
+  "content-type": jsonContentType,
 })
   .required()
   .unknown(true);
 
 export const emailSchema = Joi.object({
-  email: Joi.string().required().email().messages({
-    "string.base": `Email should be a type of 'string'`,
-    "string.empty": `Email cannot be an empty string`,
-    "string.email": `The string is not a valid e-mail`,
-    "any.required": `Email is required`,
-  }),
+  email: email,
 });
+
+export const updatePasswordSchema = Joi.alternatives()
+  .try(
+    Joi.object({ email: email }),
+    Joi.object({ token: token, newPassword: password }),
+  )
+  .match("one");
 
 export const tokenSchema = Joi.object({
   token: Joi.string().required().messages({
@@ -63,14 +109,11 @@ export const tokenSchema = Joi.object({
   .required()
   .unknown(true);
 
-export const userIdSchema = Joi.object({
-  id: Joi.number().positive().greater(1).required().messages({
-    "number.base": `User ID should be a type of 'number'`,
-    "number.positive": `User ID should be positive`,
-    "number.greater": `User ID should be greater than 1`,
-    "any.required": `User ID is required`,
-  }),
-})
+export const idObjectSchema = Joi.object({ id: idStringSchema })
+  .required()
+  .unknown(true);
+
+export const usernameObjectSchema = Joi.object({ username: username })
   .required()
   .unknown(true);
 
