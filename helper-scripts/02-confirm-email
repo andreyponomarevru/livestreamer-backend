@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Sends email confirmation token (obtained via POST /users) to finish the sign up process
+
+curl \
+  --request POST \
+  --include \
+  http://localhost:5000/api/v1/verification?token=20b9baf4a8723fdcda9df72ada01c47ed403d9a457b1baf1ad3209c6925849c7c94da2784484b406cb54d28aa81ca3137606388df8222e2dbc3932515a5ea894
+  
+echo

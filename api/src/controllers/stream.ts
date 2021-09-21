@@ -4,8 +4,8 @@ import fs from "fs-extra";
 import { Request, Response, NextFunction } from "express";
 import { v4 as uuidv4 } from "uuid";
 
-import { HttpError } from "./middlewares/http-errors/HttpError";
-import * as db from "../models/user/queries";
+import { HttpError } from "../utils/http-errors/http-error";
+import * as broadcastDB from "./../models/broadcast/queries";
 import { logger } from "../config/logger";
 import { showReadableStreamMode } from "../utils/utils";
 import { NODE_ENV, SAVED_STREAMS_DIR } from "./../config/env";
@@ -16,6 +16,7 @@ export const inoutStream = new Duplex({
   },
   read(size) {},
 });
+
 // By default, new streams are set to the 'flowing' mode. But as there is no need to use the stream right after the app's start up, we pause it. This will ease the subsequent management of the stream.
 inoutStream.pause();
 

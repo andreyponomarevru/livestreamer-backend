@@ -3,7 +3,7 @@ import { getUsers } from "./get-users";
 import { postUser } from "./post-user";
 import { postSession } from "./post-session";
 import { deleteSession } from "./delete-session";
-import { postPasswordReset } from "./post-password-reset";
+import { patchPasswordUpdate } from "./patch-password-reset";
 import { getUser } from "./get-user";
 import { deleteUser } from "./delete-user";
 import { patchUser } from "./patch-user";
@@ -17,7 +17,7 @@ import { postBroadcast } from "./post-broadcast";
 import { getBroadcast } from "./get-broadcast";
 import { patchBroadcast } from "./patch-broadcast";
 import { deleteBroadcast } from "./delete-broadcast";
-import { postStreamLike } from "./post-stream-like";
+import { postBroadcastLike } from "./post-broadcast-like";
 import { getStream } from "./get-stream";
 import { postStream } from "./post-stream";
 import { getChatComments } from "./get-chat-comments";
@@ -31,6 +31,7 @@ import { deleteSchedule } from "./delete-schedule";
 import { getTracklist } from "./get-tracklist";
 import { postTracklist } from "./post-tracklist";
 import { putTracklist } from "./put-tracklist";
+import { postEmailConfirmation } from "./post-email-confirmation";
 
 // Spec: https://swagger.io/specification/
 
@@ -48,22 +49,18 @@ export const swaggerDocument = {
   },
   servers: [{ url: "localhost:8000/api/v1", description: "Local server" }],
   paths: {
-    "/session": { post: postSession, delete: deleteSession },
+    "/stream": { get: getStream, post: postStream },
 
-    "/passsword-reset": { post: postPasswordReset },
+    "/sessions": { post: postSession, delete: deleteSession },
+
+    "/verification": { post: postEmailConfirmation },
 
     "/users": { get: getUsers, post: postUser },
-    "/users/{userId}": { get: getUser, patch: patchUser, delete: deleteUser },
-    // TODO: to keep the things simple, currently I skip this route
+    "/users/{id}": { get: getUser, patch: patchUser, delete: deleteUser },
+    "/users/settings/password": { patch: patchPasswordUpdate },
+    // TODO: currently I don't implement this route for simplicity sake. Also, for consistency it's better to exclcude the '../{userId}/..' from the route
     // "/users/{userId}/settings": { get: getSettings, patch: patchSettings },
-    //"/users/{userId}/settings/password": {
-    // TODO: implement the password reset:
-    // post: postUserSettingsPassword - send new password to this route — NO! Better send PATCH request with only 'password' property in json object to /users/:id,
-    // consider also this route:
-    // /users/{userId}/settings/password/reset
-    // https://gist.github.com/nasrulhazim/c9b5e2ae414ff3c004c388c485e4cb80
-    //},
-    "/users/{userId}/bookmarks": {
+    "/users/{id}/bookmarks": {
       get: getBookmarks,
       post: postBookmark,
       delete: deleteBookmark,
@@ -73,23 +70,21 @@ export const swaggerDocument = {
     "/schedule/:scheduledBroadcastId": { delete: deleteSchedule },
 
     "/broadcasts": { get: getBroadcasts, post: postBroadcast },
-    "/broadcasts/{broadcastId}": {
+    "/broadcasts/{id}": {
       get: getBroadcast,
       patch: patchBroadcast,
       delete: deleteBroadcast,
     },
-    "/broadcast/{broadcastId}/tracklist": {
+    "/broadcasts/{id}/tracklist": {
       get: getTracklist,
       post: postTracklist,
       put: putTracklist,
     },
-
-    "/stream/like": { put: postStreamLike },
-    "/stream": { get: getStream, post: postStream },
+    "/broadcasts/{id}/like": { put: postBroadcastLike },
 
     "/chat-comments": { get: getChatComments, post: postChatComment },
-    "/chat-comments/{chatCommentId}": { delete: deleteChatComment },
-    "/chat-comments/{chatCommentId}/like": {
+    "/chat-comments/{id}": { delete: deleteChatComment },
+    "/chat-comments/{id}/like": {
       post: postChatCommentLike,
       delete: deleteChatCommentLike,
     },
@@ -102,23 +97,25 @@ export const swaggerDocument = {
     },
 
     schemas: {
+      //
       // App Objects
+      //
 
       Permissions: {
         type: "object",
         properties: {
-          user_profiles: { type: "array", items: { type: "string" } },
-          user_profile: { type: "array", items: { type: "string" } },
-          user_settings: { type: "array", items: { type: "string" } },
-          user_bookmarks: { type: "array", items: { type: "string" } },
+          userProfiles: { type: "array", items: { type: "string" } },
+          userProfile: { type: "array", items: { type: "string" } },
+          userSettings: { type: "array", items: { type: "string" } },
+          userBookmarks: { type: "array", items: { type: "string" } },
           broadcasts: { type: "array", items: { type: "string" } },
           broadcast: { type: "array", items: { type: "string" } },
-          broadcast_tracklist: { type: "array", items: { type: "string" } },
-          stream_like: { type: "array", items: { type: "string" } },
+          broadcastTracklist: { type: "array", items: { type: "string" } },
+          streamLike: { type: "array", items: { type: "string" } },
           stream: { type: "array", items: { type: "string" } },
-          chat_comments: { type: "array", items: { type: "string" } },
-          chat_comment: { type: "array", items: { type: "string" } },
-          chat_comment_like: { type: "array", items: { type: "string" } },
+          chatComments: { type: "array", items: { type: "string" } },
+          chatComment: { type: "array", items: { type: "string" } },
+          chatCommentLike: { type: "array", items: { type: "string" } },
         },
       },
 
@@ -128,20 +125,20 @@ export const swaggerDocument = {
           "id",
           "username",
           "email",
-          "created_at",
-          "last_login_at",
-          "is_confirmed",
-          "is_deleted",
+          "createdAt",
+          "lastLoginAt",
+          "isConfirmed",
+          "isDeleted",
           "permissions",
         ],
         properties: {
           id: { type: "number" },
           username: { type: "string" },
           email: { type: "string" },
-          created_at: { type: "string", format: "date-time" },
-          last_login_at: { type: "string", format: "date-time" },
-          is_confirmed: { type: "boolean" },
-          is_deleted: { type: "boolean" },
+          createdAt: { type: "string", format: "date-time" },
+          lastLoginAt: { type: "string", format: "date-time" },
+          isConfirmed: { type: "boolean" },
+          isDeleted: { type: "boolean" },
           permissions: { $ref: "#/components/schemas/Permissions" },
         },
       },
@@ -159,12 +156,12 @@ export const swaggerDocument = {
 
       ScheduledBroadcast: {
         type: "object",
-        required: ["title", "start_at", "end_at"],
+        required: ["title", "startAt", "endAt"],
         properties: {
           id: { type: "nunber" },
           title: { type: "string" },
-          start_at: { type: "string" },
-          end_at: { type: "string" },
+          startAt: { type: "string" },
+          endAt: { type: "string" },
         },
       },
 
@@ -173,23 +170,23 @@ export const swaggerDocument = {
         required: [
           "id",
           "title",
-          "start_at",
-          "end_at",
-          "top_listener_count",
-          "is_visible",
-          "likes",
+          "startAt",
+          "endAt",
+          "listenerPeakCount",
+          "isVisible",
+          "likesCount",
         ],
         properties: {
           id: { type: "number" },
           title: { type: "string" },
           description: { type: "string" },
-          start_at: { type: "string" },
-          end_at: { type: "string" },
-          top_listener_count: { type: "string" },
-          download_url: { type: "string" },
-          player_html: { type: "string" },
-          is_visible: { type: "boolean" },
-          likes: { type: "number" },
+          startAt: { type: "string" },
+          endAt: { type: "string" },
+          listenerPeakCount: { type: "string" },
+          downloadUrl: { type: "string" },
+          listenUrl: { type: "string" },
+          isVisible: { type: "boolean" },
+          likesCount: { type: "number" },
         },
       },
 
@@ -197,9 +194,9 @@ export const swaggerDocument = {
         type: "object",
         properties: {
           id: { type: "number" },
-          user_id: { type: "number" },
+          userId: { type: "number" },
           username: { type: "string" },
-          created_at: { type: "string" },
+          createdAt: { type: "string" },
           message: { type: "string" },
         },
       },
@@ -209,34 +206,41 @@ export const swaggerDocument = {
         properties: {
           status: { type: "number" },
           message: { type: "string" },
-          more_info: { type: "string" },
+          moreInfo: { type: "string" },
         },
       },
 
+      //
       // Request/Response Object
+      //
 
-      // username + password passed in Authorization header
       CreateSessionRequest: {
         type: "object",
         properties: { email: { type: "string" } },
       },
 
-      ResetPasswordRequest: {
+      GetPasswordResetTokenRequest: {
         type: "object",
         properties: {
           email: { type: "string" },
         },
       },
 
+      SaveNewPasswordRequest: {
+        type: "object",
+        properties: {
+          token: { type: "string" },
+          newPassword: { type: "string" },
+        },
+      },
+
       CreateUserRequest: {
         type: "object",
-        required: ["email", "username", "password"],
+        required: ["email"],
         properties: {
           email: { type: "string" },
-          username: { type: "string" },
-          password: { type: "string" },
-          role_name: { type: "number" },
-          is_confirmed: { type: "boolean" },
+          roleName: { type: "number" },
+          isConfirmed: { type: "boolean" },
           permissions: { $ref: "#/components/schemas/Permissions" },
         },
       },
@@ -247,8 +251,8 @@ export const swaggerDocument = {
           username: { type: "string" },
           password: { type: "string" },
           email: { type: "string" },
-          is_confirmed: { type: "boolean" },
-          is_deleted: { type: "boolean" },
+          isConfirmed: { type: "boolean" },
+          isDeleted: { type: "boolean" },
           permissions: { $ref: "#/components/schemas/Permissions" },
         },
       },
@@ -257,8 +261,8 @@ export const swaggerDocument = {
         type: "object",
         properties: {
           title: { type: "string" },
-          start_at: { type: "string" },
-          end_at: { type: "string" },
+          startAt: { type: "string" },
+          endAt: { type: "string" },
         },
       },
 
@@ -268,14 +272,14 @@ export const swaggerDocument = {
           "title",
           "start_at",
           "end_at",
-          "top_listener_count",
-          "likes",
+          "listenerPeakCount",
+          "likesCount",
         ],
         properties: {
           title: { type: "string" },
-          start_at: { type: "string" },
-          end_at: { type: "string" },
-          top_listener_count: { type: "string" },
+          startAt: { type: "string" },
+          endAt: { type: "string" },
+          topListenerCount: { type: "string" },
           likes: { type: "number" },
         },
       },
@@ -285,16 +289,16 @@ export const swaggerDocument = {
         properties: {
           title: { type: "string" },
           description: { type: "string" },
-          download_url: { type: "string" },
-          player_html: { type: "string" },
-          is_visible: { type: "boolean" },
+          downloadUrl: { type: "string" },
+          listenLink: { type: "string" },
+          isVisible: { type: "boolean" },
         },
       },
 
       CreateBookmarkRequest: {
         type: "object",
         properties: {
-          broadcast_id: { type: "number" },
+          broadcastId: { type: "number" },
         },
       },
 

@@ -8,6 +8,7 @@ import {
   POSTGRES_USER,
 } from "./env";
 
+// Store the connection pool
 let pool: Pool | undefined;
 
 export async function connectDB(): Promise<Pool> {

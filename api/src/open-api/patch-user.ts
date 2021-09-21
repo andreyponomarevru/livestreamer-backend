@@ -9,8 +9,7 @@ export const patchUser = {
   ],
 
   requestBody: {
-    description:
-      "Note that there are no required properties in JSON object, but you should specify at least one to update.\n\nNon-'superuser' users are allowed to update the following properties: 'username', 'email'.\n\n'superuser' is allowed to update additional properties: 'is_confirmed', 'is_deleted', 'permissions' and 'password'.",
+    description: "It is possible to update only one prop — 'username'.",
     content: {
       "application/json": {
         schema: {

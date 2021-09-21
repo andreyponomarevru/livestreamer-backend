@@ -3,28 +3,15 @@ import util from "util";
 import { Request, Response, NextFunction } from "express";
 import { ValidationError as JoiValidationError } from "joi";
 
-import { HttpError } from "./http-errors/HttpError";
+import { HttpError } from "../../utils/http-errors/http-error";
 import { logger } from "../../config/logger";
 
-//
-// Error handlers
-//
-
-// Forward 404 errors to Express custom error handler
-export function on404error(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): void {
-  logger.error(`Error 404 forwarded to Express custom error handler`);
-  next(new HttpError(404));
-}
-
-// Express custom error handler
+// Main error handler (this is a centralized error handler — all error handling logic is here)
 // - handle errors passed to next() handler
 // - handle errors thrown inside route handler
-export function expressCustomErrorHandler(
-  err: Error | HttpError,
+// - ...
+export function handleErrors(
+  err: Error | HttpError | any,
   req: Request,
   res: Response,
   next: NextFunction,
@@ -32,7 +19,7 @@ export function expressCustomErrorHandler(
   logger.error(`Express Custom Error Handler\n${util.inspect(err)}`);
 
   if (err instanceof HttpError) {
-    res.status(err.errorCode);
+    res.status(err.statusCode);
     res.json(err);
   } else if (err instanceof JoiValidationError) {
     res.status(400);
@@ -40,8 +27,12 @@ export function expressCustomErrorHandler(
       new HttpError(400, err.details.map((err) => err.message).join("; ")),
     );
   } else {
-    res.status(500);
-    res.json(new HttpError(500));
-    throw err;
+    if (err.statusCode) {
+      res.status(err.statusCode);
+      res.json(new HttpError(err.statusCode));
+    } else {
+      res.status(500);
+      res.json(new HttpError(500));
+    }
   }
 }

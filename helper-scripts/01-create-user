@@ -1,0 +1,11 @@
+#!/bin/bash
+
+curl \
+  --include \
+  --request POST \
+  --header "authorization: basic $(echo -n andreyponomarev:123456 | base64)" \
+  --header "content-type: application/json" \
+  --data '{"email":"info@andreyponomarev.ru"}' \
+  http://localhost:5000/api/v1/users
+
+echo

@@ -1,7 +1,7 @@
 export const getUser = {
   summary: "Returns the specific user.",
   description:
-    "For 'superadmin' returns the specified user as 'UserAccount'.\n\nFor all other users returns only their own data (i.e. the data of an authenticated user) as 'UserProfile'.",
+    "For 'superadmin' returns the specified user as 'UserAccount' object.\n\nFor all other users returns only their own data as 'UserProfile' object.",
 
   security: { cookieAuth: [] },
 
