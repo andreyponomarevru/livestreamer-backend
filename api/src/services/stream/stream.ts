@@ -64,16 +64,14 @@ async function pull(
   if (inoutStream.isPaused()) {
     next(new HttpError(404));
   } else {
-    const responseHeaders = {
+    res.writeHead(200, {
       "content-type": "audio/mpeg",
       "transfer-encoding": "chunked",
       connection: "keep-alive",
       "cache-control": "no-cache, no-store, must-revalidate",
       pragma: "no-cache",
       expires: 0,
-    };
-
-    res.writeHead(200, responseHeaders);
+    });
   }
 }
 
