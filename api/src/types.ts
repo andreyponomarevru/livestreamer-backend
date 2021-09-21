@@ -54,36 +54,24 @@ export type WSEvents =
 // API
 //
 
-export type SignUpCredentials = {
-  email: string;
-  username: string;
-  password: string;
-};
-
-export type SignUpConfirmation = {
-  userId: number;
-  token: string;
-};
-
-export interface UnconfirmedUserProfile {
-  id: number;
-}
-
 export type AuthNtedClient = { id: number; username: string };
 
 export type PermissionNames =
-  | "userProfiles"
-  | "userProfile"
-  | "userSettings"
-  | "userBookmarks"
-  | "broadcasts"
+  | "user_profiles"
+  | "user_profile"
+  | "user_settings"
+  | "user_bookmarks"
   | "broadcast"
-  | "broadcastTracklist"
-  | "streamLike"
+  | "broadcasts"
+  | "published_broadcasts"
+  | "hidden_broadcasts"
+  | "broadcast_tracklist"
+  | "stream_like"
   | "stream"
-  | "chatComments"
-  | "chatComment"
-  | "chatCommentLike";
+  | "chat_comments"
+  | "chat_comment"
+  | "chat_comment_like";
+
 export type Permissions = {
   [key in PermissionNames]: string[];
 };
