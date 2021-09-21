@@ -5,7 +5,6 @@ import { ValidationError as JoiValidationError } from "joi";
 
 import { HttpError } from "../../utils/http-errors/http-error";
 import { logger } from "../../config/logger";
-import { ServiceError } from "../../utils/service-error";
 
 // Main error handler (this is a centralized error handler — all error handling logic is here)
 // - handle errors passed to next() handler
@@ -27,12 +26,6 @@ export function handleErrors(
     res.json(
       new HttpError(400, err.details.map((err) => err.message).join("; ")),
     );
-  } else if (err instanceof ServiceError) {
-    switch (err.name) {
-      case "dublicate_user":
-        res.status(409);
-        res.json(new HttpError(409, err.message));
-    }
   } else {
     if (err.statusCode) {
       res.status(err.statusCode);
