@@ -26,6 +26,6 @@ export async function hashPassword(password: string, saltRounds = 10) {
   return await bcrypt.hash(password, salt);
 }
 
-export function generateEmailConfirmationToken(size = 64) {
+export function generateToken(size = 64) {
   return crypto.randomBytes(size).toString("hex");
 }
