@@ -1,21 +1,11 @@
-export const getBroadcast = {
-  summary: "Returns the specific broadcast.",
+export const getAccount = {
+  summary: "Returns the specific account.",
 
   security: { cookieAuth: [] },
 
   parameters: [
-    {
-      name: "cookie",
-      in: "header",
-      required: false,
-      description: "Session ID",
-    },
-    {
-      name: "broadcast id",
-      in: "path",
-      required: true,
-      description: "broadcast ID",
-    },
+    { name: "cookie", in: "header", required: true, description: "Session ID" },
+    { name: "user id", in: "path", required: true, description: "user ID" },
   ],
 
   responses: {
@@ -25,7 +15,7 @@ export const getBroadcast = {
           schema: {
             type: "object",
             properties: {
-              results: { $ref: "#/components/schemas/Broadcast" },
+              results: { $ref: "#/components/schemas/Account" },
             },
           },
         },

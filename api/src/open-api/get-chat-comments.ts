@@ -1,29 +1,31 @@
 export const getChatComments = {
   summary: "Returns comments (paginated, 50 per page).",
 
-  description: "Uses cursor pagination.",
+  description:
+    "Uses cursor pagination. Example: `/chat/messages?next_cursor=2&limit=2`",
 
   security: { cookieAuth: [] },
 
   parameters: [
     {
-      name: "cookie",
-      in: "header",
-      required: false,
-      description: "Session ID",
+      name: "next_cursor",
+      in: "query",
+      description: "Retrieve records starting from this cursor",
+      required: true,
+      schema: { type: "number" },
     },
     {
-      name: "page",
+      name: "limit",
       in: "query",
-      description: "Response page number",
-      required: false,
+      description: "Limit number of messages per page",
+      required: true,
       schema: { type: "number" },
     },
   ],
 
   responses: {
     "200": {
-      description: "A list of last 50 chat messages.",
+      description: "A list of last <limit> chat messages.",
       content: {
         "application/json": {
           schema: {

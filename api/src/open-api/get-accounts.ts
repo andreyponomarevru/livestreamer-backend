@@ -1,21 +1,10 @@
-export const getBroadcast = {
-  summary: "Returns the specific broadcast.",
+export const getAccounts = {
+  summary: "Returns all user accounts. Not paginated.",
 
   security: { cookieAuth: [] },
 
   parameters: [
-    {
-      name: "cookie",
-      in: "header",
-      required: false,
-      description: "Session ID",
-    },
-    {
-      name: "broadcast id",
-      in: "path",
-      required: true,
-      description: "broadcast ID",
-    },
+    { name: "cookie", in: "header", required: true, description: "Session ID" },
   ],
 
   responses: {
@@ -25,18 +14,12 @@ export const getBroadcast = {
           schema: {
             type: "object",
             properties: {
-              results: { $ref: "#/components/schemas/Broadcast" },
+              results: {
+                type: "array",
+                items: { $ref: "#/components/schemas/Account" },
+              },
             },
           },
-        },
-      },
-    },
-
-    "400": {
-      description: "Bad Request.",
-      content: {
-        "application/json": {
-          schema: { type: "object", $ref: "#/components/schemas/Error" },
         },
       },
     },
@@ -54,15 +37,6 @@ export const getBroadcast = {
     "403": {
       description:
         "Forbidden. Insufficient rights to a resource: client attempts a resource interaction that is outside of his role permissions.",
-      content: {
-        "application/json": {
-          schema: { type: "object", $ref: "#/components/schemas/Error" },
-        },
-      },
-    },
-
-    "404": {
-      description: "Not Found.",
       content: {
         "application/json": {
           schema: { type: "object", $ref: "#/components/schemas/Error" },

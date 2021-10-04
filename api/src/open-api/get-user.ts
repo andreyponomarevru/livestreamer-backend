@@ -1,7 +1,5 @@
 export const getUser = {
   summary: "Returns the specific user.",
-  description:
-    "For 'superadmin' returns the specified user as 'UserAccount' object.\n\nFor all other users returns only their own data as 'UserProfile' object.",
 
   security: { cookieAuth: [] },
 
@@ -15,20 +13,10 @@ export const getUser = {
       content: {
         "application/json": {
           schema: {
-            oneOf: [
-              {
-                type: "object",
-                properties: {
-                  results: { $ref: "#/components/schemas/UserAccount" },
-                },
-              },
-              {
-                type: "object",
-                properties: {
-                  results: { $ref: "#/components/schemas/UserProfile" },
-                },
-              },
-            ],
+            type: "object",
+            properties: {
+              results: { $ref: "#/components/schemas/User" },
+            },
           },
         },
       },

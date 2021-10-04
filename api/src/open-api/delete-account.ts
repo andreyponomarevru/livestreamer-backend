@@ -1,39 +1,20 @@
-export const getBroadcast = {
-  summary: "Returns the specific broadcast.",
+export const deleteAccount = {
+  summary: "Deletes account.",
 
   security: { cookieAuth: [] },
 
   parameters: [
-    {
-      name: "cookie",
-      in: "header",
-      required: false,
-      description: "Session ID",
-    },
-    {
-      name: "broadcast id",
-      in: "path",
-      required: true,
-      description: "broadcast ID",
-    },
+    { name: "cookie", in: "header", required: true, description: "Session ID" },
+    { name: "user id", in: "path", required: true, description: "user ID" },
   ],
 
   responses: {
-    "200": {
-      content: {
-        "application/json": {
-          schema: {
-            type: "object",
-            properties: {
-              results: { $ref: "#/components/schemas/Broadcast" },
-            },
-          },
-        },
-      },
+    "204": {
+      description: "Account deleted successfully.",
     },
 
     "400": {
-      description: "Bad Request.",
+      description: "Bad Request",
       content: {
         "application/json": {
           schema: { type: "object", $ref: "#/components/schemas/Error" },
@@ -52,8 +33,7 @@ export const getBroadcast = {
     },
 
     "403": {
-      description:
-        "Forbidden. Insufficient rights to a resource: client attempts a resource interaction that is outside of his role permissions.",
+      description: "Forbidden.",
       content: {
         "application/json": {
           schema: { type: "object", $ref: "#/components/schemas/Error" },
