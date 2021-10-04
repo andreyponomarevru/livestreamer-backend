@@ -13,7 +13,11 @@ export function validate(
     | Joi.ArraySchema,
   location: "body" | "headers" | "query" | "params",
 ) {
-  return async function (req: Request, res: Response, next: NextFunction) {
+  return async function (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
     logger.debug(
       `${__filename}: [before validation] ${util.inspect(req[location])}`,
     );
