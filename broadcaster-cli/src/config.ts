@@ -1,16 +1,5 @@
 export const WS_SERVER_URL = "ws://localhost:5000/stream";
 
-export const REQUEST_OPTIONS = {
-  host: "localhost",
-  port: 5000,
-  path: "/api/v1/stream",
-  method: "PUT",
-  headers: {
-    "content-type": "audio/mpeg",
-    "transfer-encoding": "chunked",
-  },
-};
-
 export const STREAM_AUDIO_CONFIG = {
   encoding: "mp3",
   bitrate: "192k",
