@@ -1,5 +1,5 @@
 import { logger } from "../config/logger";
-import { Pool } from "pg";
+import { Pool, types } from "pg";
 import {
   POSTGRES_USER,
   POSTGRES_PASSWORD,
@@ -7,6 +7,22 @@ import {
   POSTGRES_PORT,
   POSTGRES_HOST,
 } from "./env";
+
+//
+// Custom timestamp parsing
+//
+// Doc: https://github.com/brianc/node-pg-types
+
+// When we fetch timezone from postgres, 'pg' driver implicitly converts all timestamps to 'Date' object and that results in timestamps being converted to LOCAL timezone. So, in order to prevent this implicit convertion, and preserve the original UTC timestamp without timezone we need to use our own timestamp parser — it will fetch timestamps as is i.e. as regular strings:
+function parseTimestamp(val: string) {
+  return val === null ? null : val;
+}
+// 'TIMESTAMPT' is 'timestamp without time zone'.
+types.setTypeParser(types.builtins.TIMESTAMP, parseTimestamp);
+
+//
+// Pg connection
+//
 
 // Store the connection pool
 let pool: Pool | undefined;
