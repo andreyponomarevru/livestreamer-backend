@@ -349,7 +349,7 @@ FROM chat_message_like AS c_m_l
 
 
 
-CREATE VIEW chat_message_likes AS
+CREATE VIEW view_chat_message_likes AS
 SELECT 
   c_m.chat_message_id,
   array_remove(array_agg(c_m_l.appuser_id), NULL) AS liked_by_user_id
