@@ -1,7 +1,5 @@
 export const getBroadcast = {
   summary: "Returns the specific broadcast.",
-  description:
-    "For 'superadmin' returns any existing specified broadcast, no matter whether it is hidden or published.\n\nFor all other users returns only 'published' broadcasts.",
 
   security: { cookieAuth: [] },
 

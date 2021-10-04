@@ -1,14 +1,23 @@
 import { Request, Response, NextFunction } from "express";
 
+import { HttpError } from "../../utils/http-errors/http-error";
+import { User } from "../../models/user/user";
+
+declare module "express-session" {
+  interface SessionData {
+    authenticatedUser: User;
+    liveBroadcastId: number;
+  }
+}
+
 export function isAuthenticated(
   req: Request,
   res: Response,
   next: NextFunction,
-) {
-  if (false! /*req.session.authenticatedUser*/) {
+): void {
+  if (req.session.authenticatedUser) {
     next();
   } else {
-    // TODO: return 401/403/...
-    res.redirect("login");
+    throw new HttpError(401);
   }
 }

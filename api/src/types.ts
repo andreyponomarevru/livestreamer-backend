@@ -4,14 +4,19 @@ import WebSocket from "ws";
 // Web Socket
 //
 
-export interface WSClient extends AuthNtedClient {
-  socket: WebSocket;
-}
-export type SanitizedWSClient = {
+export type WSClientStoreStats = {
+  clientCount: number;
+  clientPeakCount: number;
+};
+export interface WSClient {
   id: number;
   username: string;
-};
-
+  socket: WebSocket;
+}
+export interface ExposedWSClient {
+  id: number;
+  username: string;
+}
 export type WSSysMsg<Data> = {
   event: WSEvents;
   data?: Data;
@@ -24,28 +29,29 @@ export type WSUserMsg<Data> = {
 };
 export type BroadcastUpdateStatsPayload = {
   currentListenerCount: number;
-  peakListenerCount: number;
+  listenerPeakCount: number;
   broadcastLikeCount: number;
 };
 export interface WSMsgPayload {
-  broadcastLike: { commentId: number };
+  broadcastLike: { msgId: number };
   chatRemoveUser: { username: string };
   chatAddUser: { username: string };
-  chatCreateCommentPayload: { message: string };
-  chatDeleteCommentPayload: { commentId: number };
-  chatLikeCommentPayload: { commentId: number };
-  chatUnlikeCommentPayload: { commentId: number };
+  chatCreateMsgPayload: { msg: string };
+  chatDeleteMsgPayload: { msgId: number };
+  chatLikeMsgPayload: { msgId: number };
+  chatUnlikeMsgPayload: { msgId: number };
   chatConnectedClientsPayload: { userId: number };
 }
 export type WSEvents =
   | "broadcast:updatestats"
+  | "chat:updatestats"
   | "chat:deleteclient"
   | "broadcast:like"
   | "chat:addclient"
-  | "chat:createcomment"
-  | "chat:deletecomment"
-  | "chat:likecomment"
-  | "chat:unlikecomment"
+  | "chat:createmessage"
+  | "chat:deletemessage"
+  | "chat:likemessage"
+  | "chat:unlikemessage"
   | "chat:connectedclients"
   | "stream:online"
   | "stream:offline";
@@ -54,29 +60,26 @@ export type WSEvents =
 // API
 //
 
-export type AuthNtedClient = { id: number; username: string };
-
-export type PermissionNames =
-  | "user_profiles"
-  | "user_profile"
-  | "user_settings"
-  | "user_bookmarks"
-  | "broadcast"
-  | "broadcasts"
-  | "published_broadcasts"
-  | "hidden_broadcasts"
-  | "broadcast_tracklist"
-  | "stream_like"
-  | "stream"
-  | "chat_comments"
-  | "chat_comment"
-  | "chat_comment_like";
-
-export type Permissions = {
-  [key in PermissionNames]: string[];
+export type CursorPagination = {
+  nextCursor?: string;
+  limit: number;
 };
 
-export interface Account {
+export type SavedBroadcastLike = {
+  broadcastId: number;
+  likedByUserId: number;
+  likesCount: number;
+};
+export type NewBroadcastLike = {
+  broadcastId: number;
+  userId: number;
+};
+export type Bookmark = {
+  userId: number;
+  broadcastId: number;
+};
+
+export interface UserAccount {
   id: number;
   username: string;
   email: string;
@@ -86,12 +89,11 @@ export interface Account {
   isDeleted: boolean;
   permissions: Permissions;
 }
-
-export interface Profile {
+export interface SanitizedUser {
   id: number;
-  username: string;
   email: string;
-  permissions: Permissions;
+  username: string;
+  permissions: { [key: string]: string[] };
 }
 
 export interface Schedule {
@@ -101,40 +103,80 @@ export interface Schedule {
   endAt: string;
 }
 
+export interface BroadcastDraft {
+  id: number;
+  title: string;
+  startAt: string;
+  listenerPeakCount: number;
+}
+export interface NewBroadcast {
+  title: string;
+  listenerPeakCount: number;
+  downloadUrl?: string;
+  isVisible?: boolean;
+}
 export interface Broadcast {
   id: number;
   title: string;
-  description?: string;
   startAt: string;
   endAt: string;
-  listenerPeakCount: string;
+  listenerPeakCount: number;
+  downloadUrl: string;
+  listenUrl: string;
+  likesCount: number;
+  isVisible: boolean;
+  tracklist: string;
+}
+export interface BroadcastUpdate {
+  id: number;
+  title?: string;
+  tracklist?: string;
   downloadUrl?: string;
   listenUrl?: string;
-  isVisible: boolean;
-  likesCount: number;
+  listenerPeakCount?: number;
+  isVisible?: boolean;
+  endAt?: Date | string;
+}
+export interface BroadcastDBResponse {
+  broadcast_id: number;
+  title: string;
+  tracklist: string;
+  start_at: string;
+  end_at: string;
+  listener_peak_count: number;
+  download_url: string;
+  listen_url: string;
+  is_visible: boolean;
+  likes_count: number;
 }
 
-export interface ChatCommentConstructor {
+export interface ChatMsg {
   id: number;
   userId: number;
   username: string;
   createdAt: string;
   message: string;
+  likedByUserId: number[];
 }
-
-// Requests
-
-export type ChatCommentGETPaginatedReq = {
-  page: number;
+export type ChatMsgId = {
+  id: number;
+  userId: number;
 };
-export interface ChatCommentPOSTReq {
+export type NewChatMsg = {
   userId: number;
   message: string;
-}
-export interface ChatCommentDELETEReq {
-  commentId: number;
-}
-export type ChatCommentLikePOSTReq = {
-  commentId: number;
+};
+export type ChatMsgLike = {
+  messageId: number;
   likedByUserId: number;
+  likedByUserIds: number[];
+};
+export type ChatMsgUnlike = {
+  messageId: number;
+  unlikedByUserId: number;
+  likedByUserIds: number[];
+};
+export type PaginatedChatMsgs = {
+  nextCursor: string | null;
+  messages: ChatMsg[];
 };

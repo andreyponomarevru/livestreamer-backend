@@ -6,17 +6,3 @@ export const serverOptions = {
 };
 
 export const STATS_MSG_TIME_INTERVAL = 30000;
-
-export const WS_ALLOWED_EVENTS = {
-  broadcastStart: "broadcast:start",
-  broadcastEnd: "broadcast:end",
-  broadcastError: "broadcast:error",
-  broadcastUpdateStats: "broadcast:updatestats",
-  broadcastLike: "broadcast:like",
-  chatRemoveUser: "chat:deleteclient",
-  chatAddUser: "chat:addclient",
-  chatCreateComment: "chat:createcomment",
-  chatDeleteComment: "chat:deletecomment",
-  chatLikeComment: "chat:likecomment",
-  chatUnlikeComment: "chat:unlikecomment",
-};

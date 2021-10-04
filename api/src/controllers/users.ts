@@ -1,8 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 
-import * as authService from "../services/auth/auth";
+import * as authnService from "../services/authn/authn";
 import { logger } from "../config/logger";
 import { HttpError } from "../utils/http-errors/http-error";
+import { COOKIE_NAME } from "../config/env";
+import { clientStore } from "./../services/chat/ws-client-store";
 
 export async function createUser(
   req: Request,
@@ -13,11 +15,13 @@ export async function createUser(
     const username = req.headers.basicauth.username;
     const email = req.body.email;
 
-    if (await authService.isUserExists({ username, email })) {
+    if (req.session.authenticatedUser) {
+      throw new HttpError(403);
+    } else if (await authnService.isUserExists({ username, email })) {
       throw new HttpError(409, "Username or email already exists");
     }
 
-    await authService.createUser({
+    await authnService.createUser({
       username: req.headers.basicauth.username,
       password: req.headers.basicauth.password,
       email: req.body.email,
@@ -39,9 +43,9 @@ export async function confirmUserSignUp(
   try {
     const token = req.query.token as string;
 
-    const { userId } = await authService.findByEmailConfirmationToken(token);
+    const { userId } = await authnService.findByEmailConfirmationToken(token);
     if (!userId) throw new HttpError(401);
-    await authService.confirmEmail(userId);
+    await authnService.confirmEmail(userId);
     res.set("location", `/users/${userId}`);
     res.status(204).end();
   } catch (err) {
@@ -60,19 +64,19 @@ export async function updatePassword(
     const newPassword = req.body.newPassword as string;
 
     if (email) {
-      if (!(await authService.isEmailConfirmed({ email }))) {
+      if (!(await authnService.isEmailConfirmed({ email }))) {
         res.status(202).end();
         return;
-      } else if (await authService.isUserDeleted({ email })) {
+      } else if (await authnService.isUserDeleted({ email })) {
         res.status(202).end();
         return;
       }
-      await authService.handlePasswordReset(email);
+      await authnService.handlePasswordReset(email);
       res.status(202).end();
     } else if (token && newPassword) {
-      const { userId } = await authService.findByPasswordResetToken(token);
+      const { userId } = await authnService.findByPasswordResetToken(token);
       if (!userId) throw new HttpError(401, "Invalid Token");
-      await authService.updatePassword({ userId, newPassword });
+      await authnService.updatePassword({ userId, newPassword });
       res.status(204).end();
     }
   } catch (err) {
@@ -86,18 +90,8 @@ export async function readUser(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const userId = req.params.id as unknown as number;
-
-    if (!(await authService.isUserExists({ userId }))) {
-      throw new HttpError(404);
-    } else if (!(await authService.isEmailConfirmed({ userId }))) {
-      throw new HttpError(404, "Pending Account. Please Verify Your Email!");
-    } else if (await authService.isUserDeleted({ userId })) {
-      throw new HttpError(404);
-    }
-
-    const user = await authService.readUser(userId);
-    res.json({ results: user });
+    const user = await authnService.readUser(req.session.authenticatedUser!.id);
+    res.json({ results: user.sanitized });
   } catch (err) {
     next(err);
   }
@@ -109,7 +103,7 @@ export async function readAllUsers(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const users = await authService.readAllUsers();
+    const users = await authnService.readAllUsers();
     res.json({ results: users });
   } catch (err) {
     next(err);
@@ -122,20 +116,23 @@ export async function updateUser(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const userId = req.params.id as unknown as number;
+    const userId = req.params.userId as unknown as number;
     const username = req.body.username;
 
-    if (!(await authService.isUserExists({ userId }))) {
+    if (!(await authnService.isUserExists({ userId }))) {
       throw new HttpError(404);
-    } else if (!(await authService.isEmailConfirmed({ userId }))) {
+    } else if (!(await authnService.isEmailConfirmed({ userId }))) {
       throw new HttpError(404, "Pending Account. Please Verify Your Email!");
-    } else if (await authService.isUserDeleted({ userId })) {
+    } else if (await authnService.isUserDeleted({ userId })) {
       throw new HttpError(404);
-    } else if (await authService.isUserExists({ username })) {
+    } else if (await authnService.isUserExists({ username })) {
       throw new HttpError(409);
     }
 
-    const updatedUser = await authService.updateUser({ userId, username });
+    const updatedUser = await authnService.updateUser({
+      userId,
+      username,
+    });
     res.set("location", `/users/${userId}`);
     res.status(200);
     res.json({ results: updatedUser });
@@ -150,45 +147,33 @@ export async function destroyUser(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const userId = req.params.id as unknown as number;
+    const userId = req.params.userId as unknown as number;
 
-    if (!(await authService.isUserExists({ userId }))) {
+    if (!(await authnService.isUserExists({ userId }))) {
       throw new HttpError(404);
-    } else if (!(await authService.isEmailConfirmed({ userId }))) {
+    } else if (!(await authnService.isEmailConfirmed({ userId }))) {
       throw new HttpError(404, "Pending Account. Please Verify Your Email!");
-    } else if (await authService.isUserDeleted({ userId })) {
+    } else if (await authnService.isUserDeleted({ userId })) {
       throw new HttpError(404);
     }
 
-    await authService.destroyUser(userId);
-    res.status(204).end();
+    await authnService.destroyUser(userId);
+
+    const wsClient = clientStore.getClient(req.session.authenticatedUser!.id);
+
+    req.session.destroy((err) => {
+      // You cannot access session here, it has been already destroyed
+      if (err) logger.error(`${__filename}: ${err}`);
+
+      if (wsClient) wsClient.socket.close();
+      res.clearCookie(COOKIE_NAME);
+      res.status(204).end();
+
+      logger.debug(
+        `${__filename}: Session Destroyed! Account has been signed out.`,
+      );
+    });
   } catch (err) {
     next(err);
   }
-}
-
-//
-
-export async function createBookmark(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): Promise<void> {
-  // TODO
-}
-
-export async function readAllBookmarks(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): Promise<void> {
-  // TODO
-}
-
-export async function destroyBookmark(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): Promise<void> {
-  // TODO
 }

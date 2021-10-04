@@ -23,7 +23,6 @@ export function createConfirmationEmail({
   username,
   email,
   userToken,
-  userId,
 }: EmailConfirmationEmail) {
   const emailConfirmationlink = `http://localhost:5000/api/v1/verification?token=${userToken}`;
 

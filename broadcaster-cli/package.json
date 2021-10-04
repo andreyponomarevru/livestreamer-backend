@@ -12,21 +12,31 @@
   "license": "ISC",
   "devDependencies": {
     "@types/express": "^4.17.13",
-    "@types/node": "^14.17.14",
+    "@types/node": "^14.17.20",
     "@types/ws": "^7.4.7",
-    "nodemon": "^2.0.12",
+    "nodemon": "^2.0.13",
     "ts-node": "^9.1.1",
-    "typescript": "^4.4.2"
+    "typescript": "^4.4.3"
   },
   "dependencies": {
-    "@types/fs-extra": "^9.0.12",
-    "@types/superagent": "^4.1.12",
+    "@types/axios": "^0.14.0",
+    "@types/fs-extra": "^9.0.13",
+    "@types/superagent": "^4.1.13",
+    "@types/tough-cookie": "^4.0.1",
     "@types/uuid": "^8.3.1",
     "@types/wav": "^1.0.1",
+    "@typescript-eslint/eslint-plugin": "^4.32.0",
+    "@typescript-eslint/parser": "^4.32.0",
+    "axios": "^0.21.4",
+    "axios-cookiejar-support": "^2.0.2",
+    "eslint": "^7.32.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^4.0.0",
     "express": "^4.17.1",
     "fs-extra": "^10.0.0",
-    "superagent": "^6.1.0",
+    "prettier": "^2.4.1",
+    "tough-cookie": "^4.0.0",
     "wav": "^1.0.2",
-    "ws": "^8.2.1"
+    "ws": "^8.2.2"
   }
 }

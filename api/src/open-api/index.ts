@@ -32,6 +32,9 @@ import { getTracklist } from "./get-tracklist";
 import { postTracklist } from "./post-tracklist";
 import { putTracklist } from "./put-tracklist";
 import { postEmailConfirmation } from "./post-email-confirmation";
+import { getAccounts } from "./get-accounts";
+import { getAccount } from "./get-account";
+import { deleteAccount } from "./delete-account";
 
 // Spec: https://swagger.io/specification/
 
@@ -49,25 +52,27 @@ export const swaggerDocument = {
   },
   servers: [{ url: "localhost:8000/api/v1", description: "Local server" }],
   paths: {
-    "/stream": { get: getStream, post: postStream },
-
     "/sessions": { post: postSession, delete: deleteSession },
-
     "/verification": { post: postEmailConfirmation },
 
     "/users": { get: getUsers, post: postUser },
-    "/users/{id}": { get: getUser, patch: patchUser, delete: deleteUser },
     "/users/settings/password": { patch: patchPasswordUpdate },
-    // TODO: currently I don't implement this route for simplicity sake. Also, for consistency it's better to exclcude the '../{userId}/..' from the route
-    // "/users/{userId}/settings": { get: getSettings, patch: patchSettings },
+
+    "/users/accounts": { get: getAccounts },
+    "/users/accounts/{id}": { get: getAccount, delete: deleteAccount },
+
+    "/users/{id}": { get: getUser, patch: patchUser, delete: deleteUser },
     "/users/{id}/bookmarks": {
       get: getBookmarks,
       post: postBookmark,
       delete: deleteBookmark,
     },
 
+    // TODO: currently I don't implement this route for simplicity sake. Also, for consistency it's better to exclcude the '../{userId}/..' from the route
+    // "/users/{userId}/settings": { get: getSettings, patch: patchSettings },
+
     "/schedule": { get: getSchedule, post: postSchedule },
-    "/schedule/:scheduledBroadcastId": { delete: deleteSchedule },
+    "/schedule/{id}": { delete: deleteSchedule },
 
     "/broadcasts": { get: getBroadcasts, post: postBroadcast },
     "/broadcasts/{id}": {
@@ -88,6 +93,8 @@ export const swaggerDocument = {
       post: postChatCommentLike,
       delete: deleteChatCommentLike,
     },
+
+    "/stream": { get: getStream, post: postStream },
   },
 
   components: {
@@ -119,7 +126,7 @@ export const swaggerDocument = {
         },
       },
 
-      UserAccount: {
+      Account: {
         type: "object",
         required: [
           "id",
@@ -143,13 +150,12 @@ export const swaggerDocument = {
         },
       },
 
-      UserProfile: {
+      SanitizedUser: {
         type: "object",
         required: ["id", "username", "email", "permissions"],
         properties: {
           id: { type: "number" },
           username: { type: "string" },
-          email: { type: "string" },
           permissions: { $ref: "#/components/schemas/Permissions" },
         },
       },
@@ -216,7 +222,12 @@ export const swaggerDocument = {
 
       CreateSessionRequest: {
         type: "object",
-        properties: { email: { type: "string" } },
+        required: ["password"],
+        properties: {
+          username: { type: "string" },
+          password: { type: "string" },
+          email: { type: "string" },
+        },
       },
 
       GetPasswordResetTokenRequest: {

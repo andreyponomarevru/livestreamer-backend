@@ -1,6 +1,6 @@
 export const getUsers = {
-  summary: "Returns all users (not paginated).",
-  description: "non-'superadmin' users are not allowed to access this route.",
+  summary:
+    "Returns all users as SanitizedUser object (i.e. doesn't contain any sensitive data). Not paginated.",
 
   security: { cookieAuth: [] },
 
@@ -13,26 +13,13 @@ export const getUsers = {
       content: {
         "application/json": {
           schema: {
-            oneOf: [
-              {
-                type: "object",
-                properties: {
-                  results: {
-                    type: "array",
-                    items: { $ref: "#/components/schemas/UserAccount" },
-                  },
-                },
+            type: "object",
+            properties: {
+              results: {
+                type: "array",
+                items: { $ref: "#/components/schemas/SanitizedUser" },
               },
-              {
-                type: "object",
-                properties: {
-                  results: {
-                    type: "array",
-                    items: { $ref: "#/components/schemas/UserProfile" },
-                  },
-                },
-              },
-            ],
+            },
           },
         },
       },

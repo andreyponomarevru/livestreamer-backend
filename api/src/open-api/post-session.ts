@@ -2,22 +2,23 @@ export const postSession = {
   summary: "Creates a session: logs in and returns the authentication cookie.",
 
   description:
-    "Put username + password in Authroization (Basic) header, and email in json body",
+    "Put all data (login + password) in JSON body, NOT in Authroization (Basic) header!\n\nNote, that for convinience, you can pass as login either your email or username (but not both at the same time).",
 
   security: [], // no authentication
 
-  parameters: [
+  /*parameters: [
     {
       name: "authorization",
       in: "header",
       requried: true,
       description: "Basic username:password",
     },
-  ],
+  ],*/
 
   requestBody: {
     required: true,
-    description: "A JSON object containing the login and password.",
+    description:
+      "A JSON object containing the login (email or username) and password.",
     content: {
       "application/json": {
         schema: {
@@ -60,9 +61,9 @@ export const postSession = {
     },
 
     "401": {
-      headers: { "WWW-Authenticate": { schema: { type: "string" } } },
+      // headers: { "WWW-Authenticate": { schema: { type: "string" } } },
       description:
-        "Unauthorized. User authentication failed due to invalid credentials: wrong username or password",
+        "Unauthorized. User authentication failed due to invalid credentials: wrong email/username or password",
       content: {
         "application/json": {
           schema: { type: "object", $ref: "#/components/schemas/Error" },

@@ -3,56 +3,48 @@
 //
 // (completely independent of HTTP Server)
 //
-import { IncomingMessage } from "http";
 import util from "util";
 
 import WebSocket, { Server } from "ws";
-import { v4 as uuidv4 } from "uuid";
 
+import { Request } from "express";
 import { logger } from "./config/logger";
-import { WS_ALLOWED_EVENTS } from "./config/ws-server";
-import { WSClientsStore } from "./services/chat/ws-client-store";
+import { clientStore } from "./services/chat/ws-client-store";
+import { WSUserMsg, WSSysMsg, ExposedWSClient } from "./types";
 import { serverOptions } from "./config/ws-server";
-import { inoutStream } from "./services/stream/stream";
-import {
-  WSUserMsg,
-  Broadcast,
-  AuthNtedClient,
-  WSSysMsg,
-  SanitizedWSClient,
-  WSMsgPayload,
-} from "./types";
-import broadcastEvents from "./services/broadcast/broadcast-events";
-import chatEvents from "./services/chat/chat-events";
-import streamEvents from "./services/stream/stream-events";
-import { WSClientStoreStats } from "./services/chat/ws-client-store";
+import inoutStream from "./services/stream/inout-stream";
 
 class WSServer extends Server {
   constructor(options?: WebSocket.ServerOptions) {
     super(options);
   }
 
-  send<Data>(msg: WSSysMsg<Data> | WSUserMsg<Data>, toClientUUID: string) {
-    logger.info(`${__filename}: send to ${toClientUUID}: ${util.inspect(msg)}`);
-    clientStore.clients[toClientUUID].socket.send(JSON.stringify(msg));
-  }
+  send<Data>(msg: WSSysMsg<Data> | WSUserMsg<Data>, toClientId: number): void {
+    const client = clientStore.getClient(toClientId);
 
-  sendToAll<Data>(msg: WSSysMsg<Data> | WSUserMsg<Data>) {
-    logger.info(`${__filename}: sendToAll: ${util.inspect(msg)}`);
-    for (const id in clientStore.clients) {
-      clientStore.clients[id].socket.send(JSON.stringify(msg));
+    if (client) {
+      client.socket.send(JSON.stringify(msg));
+      logger.info(
+        `${__filename}: [send] To ${client.username}: ${util.inspect(msg)}`,
+      );
+    } else {
+      logger.error(`${__filename} [send] Client doesn't exist`);
     }
   }
 
-  // TODO: when you will call this functin from other places in code, user senderId retrieved from Redis Session
+  sendToAll<Data>(msg: WSSysMsg<Data> | WSUserMsg<Data>): void {
+    logger.info(`${__filename}: [sendToAll] ${util.inspect(msg)}`);
+    for (const [id, wsClient] of clientStore.getAllClients()) {
+      wsClient.socket.send(JSON.stringify(msg));
+    }
+  }
+
   sendToAllExceptSender<Data>(
     msg: WSSysMsg<Data> | WSUserMsg<Data>,
-    senderClientUUID: string,
-  ) {
-    for (const id in clientStore.clients) {
-      if (id !== senderClientUUID) {
-        clientStore.clients[id].socket.send(msg);
-      }
+    senderId: number,
+  ): void {
+    for (const [id, wsClient] of clientStore.getAllClients()) {
+      if (id !== senderId) wsClient.socket.send(msg);
     }
   }
 }
@@ -61,106 +53,50 @@ class WSServer extends Server {
 // WebSocket Server event handlers
 //
 
-function onConnection(
-  newSocket: WebSocket,
-  req: IncomingMessage,
-  client: AuthNtedClient,
-) {
-  // `req` is the http GET request sent by the client. Useful for parsing authority headers, cookie headers, and other information. But you've probably done it already before this function is executed
+function onConnection(newSocket: WebSocket, req: Request) {
+  // TODO: when new user connect we have to send him a bunch of data that will sinchornyze him with already connected users. Here are the piecies of data we need to send him on connection:
+  // - list of all connected users // get from wsStore
+  //   update users cpunter (send it to client) only when new user conects, send all clients this:
+  // { event: "adduser", data: { newUser: { username, .. }, totalUsers: 4 }}
+  // - current clients count // get from wsSrore
+  // - stream status (online/offline) // get from inoutStream
+  // - when the stream started (`started_at` in UTC) // ?? — emit event in Model
+  // - broadcast likes counter // ?? — get from http req > save in db > emit event in model. This data should also be updates every 30sec
+  //
+  // Idea: on connection, here, get all necessary data from db and cache it in Redis (not in session, because there will be unauthenticeted users), justin a key 'broadcast:live'. Then in other places you can access it as redis["broadcast:live"].likesCount/startedAt
 
-  const newClient = { id: 0, username: "from DB", socket: newSocket };
-  const msg: WSSysMsg<SanitizedWSClient[]> = {
+  const userId = req.session.authenticatedUser!.id;
+  const username = req.session.authenticatedUser!.username;
+
+  // TODO: probbly you need to edit code in onUpgrade function, to alow unauthenticated users to be added to clientStore too. Just don't let them to send messages
+
+  clientStore.addClient({ id: userId, username: username, socket: newSocket });
+
+  const msg: WSSysMsg<ExposedWSClient[]> = {
     event: "chat:connectedclients",
     data: clientStore.sanitizedClients,
   };
+  wsServer.send(msg, userId);
 
-  const clientUUID = clientStore.addClient(newClient);
-  wsServer.send(msg, clientUUID);
   inoutStream.isPaused()
-    ? wsServer.send({ event: "stream:offline" }, clientUUID)
-    : wsServer.send({ event: "stream:online" }, clientUUID);
+    ? wsServer.send({ event: "stream:offline" }, userId)
+    : wsServer.send({ event: "stream:online" }, userId);
 
   newSocket.on("message", (inboundMsg) => {
     logger.debug(
-      `Inbound message ${util.inspect(inboundMsg.toString())} from: ${client}`,
+      `Inbound message ${util.inspect(
+        inboundMsg.toString(),
+      )} from: ${username}`,
     );
   });
-  newSocket.on("close", (socket: WebSocket) => {
-    // TODO: this function causes an error because you need to pass real id/uuid/etc
-    // clientStore.deleteClient(clientUUID);
-  });
-}
-function onClose(clientUUID: string) {
-  logger.debug(`${__filename}: WebSocket Server is closing. Bye.`);
 }
 
-//
-// Service event handlers
-//
-
-// WS Client Store event handlers
-
-function onUpdateStats(stats: WSClientStoreStats) {
-  const { clientCount, peakClientCount } = stats;
-  const counters = { clientCount, peakClientCount, broadcastLikeCount: 0 };
-  wsServer.sendToAll({ event: "broadcast:updatestats", data: counters });
-}
-function onAddClient(clientUUID: string) {
-  wsServer.sendToAll({
-    event: "chat:addclient",
-    data: clientStore.getSanitizedClient(clientUUID),
-  });
-}
-function onDeleteClient(clientUUID: string) {
-  wsServer.sendToAll({
-    event: "chat:deleteclient",
-    data: clientStore.getSanitizedClient(clientUUID),
-  });
-}
-
-// Other service event handlers
-
-function onStreamStart(newBroadcast: Broadcast) {
-  wsServer.sendToAll({ event: "stream:online", data: newBroadcast });
-}
-function onStreamEnd() {
-  wsServer.sendToAll({ event: "stream:offline" });
-}
-
-function onCreateChatComment(comment: any) {
-  wsServer.sendToAll({ event: "chat:createcomment", data: comment });
-}
-function onDestroyChatComment(commentId: any) {
-  wsServer.sendToAll({ event: "chat:deletecomment", data: commentId });
-}
-function onLikeChatComment(commentId: any) {
-  wsServer.sendToAll({ event: "chat:likecomment", data: commentId });
-}
-function onUnlikeChatComment(commentId: any) {
-  wsServer.sendToAll({ event: "chat:unlikecomment", data: commentId });
-}
-
-function onBroadcastStreamLike(likeCount: any) {
-  wsServer.sendToAll({ event: "broadcast:like", data: likeCount });
+function onClose() {
+  logger.info(`${__filename}: WebSocket Server closed, bye.`);
 }
 
 //
 
-const wsServer = new WSServer(serverOptions);
+export const wsServer = new WSServer(serverOptions);
 wsServer.on("connection", onConnection);
 wsServer.on("close", onClose);
-
-const clientStore = new WSClientsStore();
-clientStore.on("addclient", onAddClient);
-clientStore.on("deleteclient", onDeleteClient);
-clientStore.on("updatestats", onUpdateStats);
-
-streamEvents.on("start", onStreamStart);
-streamEvents.on("end", onStreamEnd);
-chatEvents.on("createcomment", onCreateChatComment);
-chatEvents.on("deletecomment", onDestroyChatComment);
-chatEvents.on("likecomment", onLikeChatComment);
-chatEvents.on("unlikecomment", onUnlikeChatComment);
-broadcastEvents.on("like", onBroadcastStreamLike);
-
-export { wsServer };

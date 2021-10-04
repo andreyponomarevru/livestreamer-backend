@@ -1,6 +1,6 @@
 import util from "util";
 
-import * as userDB from "../../models/user-profile/queries";
+import * as usersDB from "../../models/user/queries";
 import { logger } from "../../config/logger";
 import { hashPassword, generateToken } from "../../utils/utils";
 import { sendEmail } from "./send-email";
@@ -9,15 +9,14 @@ import {
   createConfirmationEmail,
   createResetPasswordEmail,
 } from "./email-templates";
-import { HttpError } from "../../utils/http-errors/http-error";
 import { SignUpData } from "./types";
 
 export async function findByEmailConfirmationToken(token: string) {
-  return await userDB.findByEmailConfirmationToken(token);
+  return await usersDB.findByEmailConfirmationToken(token);
 }
 
 export async function findByPasswordResetToken(token: string) {
-  return await userDB.findByPasswordResetToken(token);
+  return await usersDB.findByPasswordResetToken(token);
 }
 
 export async function isUserExists({
@@ -29,7 +28,7 @@ export async function isUserExists({
   username?: string;
   email?: string;
 }) {
-  return await userDB.isUserExists({ userId, username, email });
+  return await usersDB.isUserExists({ userId, username, email });
 }
 
 export async function isUserDeleted({
@@ -39,7 +38,7 @@ export async function isUserDeleted({
   userId?: number;
   email?: string;
 }) {
-  return await userDB.isUserDeleted({ userId, email });
+  return await usersDB.isUserDeleted({ userId, email });
 }
 
 export async function isEmailConfirmed({
@@ -49,11 +48,11 @@ export async function isEmailConfirmed({
   userId?: number;
   email?: string;
 }) {
-  return await userDB.isEmailConfirmed({ userId, email });
+  return await usersDB.isEmailConfirmed({ userId, email });
 }
 
 export async function confirmEmail(userId: number) {
-  const { username, email } = await userDB.confirmEmail(userId);
+  const { username, email } = await usersDB.confirmEmail(userId);
   const welcomeEmail = createWelcomeEmail({ username, email });
   logger.debug(welcomeEmail);
   // await sendEmail(welcomeEmail);
@@ -61,7 +60,7 @@ export async function confirmEmail(userId: number) {
 
 export async function handlePasswordReset(email: string) {
   const token = generateToken();
-  await userDB.savePasswordResetToken({ email, token });
+  await usersDB.savePasswordResetToken({ email, token });
   const userEmail = createResetPasswordEmail({ email, token });
   logger.debug(`${__filename}: ${util.inspect(userEmail)}`);
   // await sendEmail(userEmail);
@@ -75,7 +74,7 @@ export async function updatePassword({
   newPassword: string;
 }) {
   const hash = await hashPassword(newPassword);
-  await userDB.updatePassword({ userId, newPassword: hash });
+  await usersDB.updatePassword({ userId, newPassword: hash });
 }
 
 export async function createUser(signupData: SignUpData) {
@@ -83,7 +82,7 @@ export async function createUser(signupData: SignUpData) {
 
   const userToken = generateToken();
 
-  const { userId } = await userDB.createUser({
+  const { userId } = await usersDB.createUser({
     username,
     email,
     password: await hashPassword(password),
@@ -98,17 +97,16 @@ export async function createUser(signupData: SignUpData) {
     userId,
     userToken,
   });
-  logger.debug(`${__filename}: ${util.inspect(userEmail)}`);
 
   // await sendEmail(confirmationEmail);
 }
 
 export async function readUser(userId: number) {
-  return await userDB.readUser(userId);
+  return await usersDB.readUser(userId);
 }
 
 export async function readAllUsers() {
-  return await userDB.readAllUsers();
+  return await usersDB.readAllUsers();
 }
 
 export async function updateUser({
@@ -118,9 +116,23 @@ export async function updateUser({
   userId: number;
   username: string;
 }) {
-  return await userDB.updateUser({ userId, username });
+  return await usersDB.updateUser({ userId, username });
 }
 
 export async function destroyUser(userId: number) {
-  await userDB.destroyUser(userId);
+  await usersDB.destroyUser(userId);
+}
+
+export async function findByUsernameOrEmail({
+  username,
+  email,
+}: {
+  username?: string;
+  email?: string;
+}) {
+  return await usersDB.findByUsernameOrEmail({ username, email });
+}
+
+export async function updateLastLoginTime(userId: number) {
+  return await usersDB.updateLastLoginTime(userId);
 }

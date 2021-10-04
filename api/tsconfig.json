@@ -1,7 +1,10 @@
 {
+ "ts-node": {
+    "files": true
+  },
   "compilerOptions": {
     "types": ["node"],
-    
+
     "target": "es6",
     "module": "commonjs",
     "sourceMap": true,

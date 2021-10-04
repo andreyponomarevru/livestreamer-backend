@@ -17,14 +17,14 @@ export const deleteSession = {
     "204": {
       description: "Session successfully deleted.",
     },
-  },
 
-  "401": {
-    headers: { "WWW-Authenticate": { schema: { type: "string" } } },
-    description: "Unauthorized. User is not authenticated.",
-    content: {
-      "application/json": {
-        schema: { type: "object", $ref: "#/components/schemas/Error" },
+    "401": {
+      //headers: { "WWW-Authenticate": { schema: { type: "string" } } },
+      description: "Unauthorized. User is not authenticated.",
+      content: {
+        "application/json": {
+          schema: { type: "object", $ref: "#/components/schemas/Error" },
+        },
       },
     },
   },

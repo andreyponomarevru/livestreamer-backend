@@ -1,5 +1,3 @@
-import { PermissionNames } from "../../types";
-
 export type SignUpData = {
   email: string;
   username: string;
@@ -16,7 +14,7 @@ export type ConfirmSignUpDBResponse = {
 };
 export type UserPermissionsDBResponse = {
   appuser_id?: number;
-  resource: PermissionNames;
+  resource: string;
   permissions: string[];
 };
 export interface CreateUserDBResponse {
@@ -24,8 +22,10 @@ export interface CreateUserDBResponse {
 }
 export type ReadUserDBResponse = {
   appuser_id: number;
+  role_id: number;
   username: string;
   email: string;
+  password_hash: string;
   is_email_confirmed: boolean;
   is_deleted: boolean;
   created_at: string;

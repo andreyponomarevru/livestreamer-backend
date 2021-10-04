@@ -1,9 +1,6 @@
 export const getBroadcasts = {
   summary: "Returns a list of broadcasts.",
 
-  description:
-    "For non-'superuser' users returns all publicly available broadcasts.\n\nFor 'superuser' returns all publicly available broadcasts AND currently hidden broadcasts. 'superuser' can also request broadcasts by type.",
-
   parameters: [
     {
       name: "cookie",

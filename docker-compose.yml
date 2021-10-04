@@ -28,7 +28,7 @@ services:
       # set the same timezone and time same as on the host
       - "/etc/timezone:/etc/timezone:ro"
       - "/etc/localtime:/etc/localtime:ro"
-			# Recompile code on changes
+      # Recompile code on changes
       - ./api/src:/api/src
       - ./api/tsconfig.json:/api/tsconfig.json
       # Write live broadcast streams to disk
@@ -61,14 +61,15 @@ services:
     ports:
       - 54323:5432
     volumes:
-      - ./postgres/01-init.sql:/docker-entrypoint-initdb.d/01-init.sql
-      - ./postgres/02-create-first-app-user.sh:/docker-entrypoint-initdb.d/02-create-first-app-user.sh
-
+      - ./postgres/seed.sh:/docker-entrypoint-initdb.d/seed.sh
+      - ./postgres/schema.sql:/schema.sql
+      - ./postgres/fake-data.sql:/fake-data.sql
+ 
   redis:
-    container_name: 'redis'
+    container_name: redis
     image: redis
     volumes:
-      - ./redis_data/:/opt/redis_data
+     - ./redis/redis_data/:/opt/redis_data
     ports:
       - '6379:6379'
 

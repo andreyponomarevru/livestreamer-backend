@@ -1,19 +1,28 @@
-import Joi from "joi";
-
 //
 // Joi Validation Schemas
 //
-// Joi props for validation messages: https://github.com/sideway/joi/blob/master/API.md#list-of-errors
 
-export const password = Joi.string().trim().required().min(6).max(50).messages({
-  "string.base": `Password should be a type of 'string'`,
-  "string.empty": `Password cannot be an empty string`,
-  "string.min": `Password is shorter than expected`,
-  "string.max": `Password is longer than expected`,
-  "any.required": `Password is required`,
-});
+// TODO: add descriptive error messages
 
-export const username = Joi.string().trim().required().min(4).max(15).messages({
+import Joi from "joi";
+
+import { asciiRegex } from "../utils/utils";
+
+export const password = Joi.string()
+  .trim()
+  .required()
+  .min(6)
+  .max(50)
+  .pattern(asciiRegex)
+  .messages({
+    "string.base": `Password should be a type of 'string'`,
+    "string.empty": `Password cannot be an empty string`,
+    "string.min": `Password is shorter than expected`,
+    "string.max": `Password is longer than expected`,
+    "any.required": `Password is required`,
+  });
+
+export const username = Joi.string().trim().required().min(3).max(15).messages({
   "string.base": `Username should be a type of 'string'`,
   "string.empty": `Username cannot be an empty string`,
   "string.min": `Username is shorter than expected`,
@@ -37,24 +46,42 @@ export const jsonContentType = Joi.string()
     "any.required": `'content-type' is required`,
   });
 
+export const audioContentType = Joi.string()
+  .required()
+  .valid("audio/mpeg")
+  .messages({
+    "string.base": `'content-type' should be a type of 'string'`,
+    "string.empty": `'content-type' cannot be an empty string`,
+    "any.required": `'content-type' is required`,
+  });
+
 export const token = Joi.string().required().messages({
   "string.base": `Token value should be a type of 'string'`,
   "string.empty": `Token value cannot be an empty string`,
   "any.required": `Token value is required`,
 });
 
-export const idStringSchema = Joi.number()
-  .positive()
-  .greater(1)
-  .required()
-  .messages({
-    "number.base": `ID should be a type of 'number'`,
-    "number.positive": `ID should be positive`,
-    "number.greater": `ID should be greater than 1`,
-    "any.required": `ID is required`,
-  });
+export const idSchema = Joi.number().positive().greater(0).required().messages({
+  "number.base": `ID should be a type of 'number'`,
+  "number.positive": `ID should be positive`,
+  "number.greater": `ID should be greater than 1`,
+  "any.required": `ID is required`,
+});
 
 //
+
+export const paginationSchema = Joi.object({
+  next_cursor: Joi.string().base64().min(1).max(100).optional(),
+  limit: Joi.number().integer().positive().min(1).max(50).optional(),
+});
+
+export const chatMsgSchema = Joi.object({
+  message: Joi.string().min(1).max(500).required().messages({
+    "string.base": `'message' should be a type of 'string'`,
+    "string.empty": `'message' cannot be an empty string`,
+    "any.required": `'message' is required`,
+  }),
+});
 
 export const basicAuthZHeaderSchema = Joi.object({
   basicauth: Joi.object()
@@ -88,9 +115,22 @@ export const jsonContentTypeSchema = Joi.object({
   .required()
   .unknown(true);
 
+export const audioContentTypeSchema = Joi.object({
+  "content-type": audioContentType,
+})
+  .required()
+  .unknown(true);
+
 export const emailSchema = Joi.object({
   email: email,
 });
+
+export const sessionSchema = Joi.alternatives()
+  .try(
+    Joi.object({ email: email, password: password }),
+    Joi.object({ username: username, password: password }),
+  )
+  .match("one");
 
 export const updatePasswordSchema = Joi.alternatives()
   .try(
@@ -109,7 +149,17 @@ export const tokenSchema = Joi.object({
   .required()
   .unknown(true);
 
-export const idObjectSchema = Joi.object({ id: idStringSchema })
+export const userIdObjectSchema = Joi.object({ userId: idSchema })
+  .required()
+  .unknown(true);
+
+export const broadcastIdSchema = Joi.object({
+  broadcastId: idSchema,
+})
+  .required()
+  .unknown(true);
+
+export const idObjectSchema = Joi.object({ id: idSchema })
   .required()
   .unknown(true);
 
@@ -117,100 +167,66 @@ export const usernameObjectSchema = Joi.object({ username: username })
   .required()
   .unknown(true);
 
-/*
-import { CreateTrack, UpdateTrack } from "./types";
-
-export const schemaCreateTrack = Joi.object<CreateTrack & UpdateTrack>({
-  releaseId: Joi.number().integer().min(1),
-  filePath: Joi.string().min(1).max(255).allow(null),
-  extension: Joi.string().valid(...SUPPORTED_CODEC),
-  artist: Joi.array().items(Joi.string().min(0).max(200)),
-  duration: Joi.number().min(0),
-  bitrate: Joi.number().min(0).allow(null),
-  trackNo: Joi.number().integer().allow(null),
-  title: Joi.string().min(0).max(200),
-  diskNo: Joi.number().integer().allow(null),
-  genre: Joi.array().items(Joi.string()),
-}).options({ presence: "required" });
-
-export const schemaUpdateTrack = schemaCreateTrack.keys({
-  trackId: Joi.number().min(1).required().required,
-});
-
-
-import { SORT_BY, SORT_ORDER, PER_PAGE_NUMS } from "./constants";
-import { FilterParams } from "../types";
-
-export const schemaSort = Joi.object()
-  .keys({
-    sortBy: Joi.string()
-      .valid(...SORT_BY)
-      .messages({
-        "string.base": `"sort" must be a type of 'string'`,
-        "any.only": `"sort" must be one of [${SORT_BY.join(", ")}]`,
-        "any.required": `"sort" is required`,
-      }),
-    sortOrder: Joi.string()
-      .valid(...SORT_ORDER)
-      .messages({
-        "string.base": `"sort" must be a type of 'string'`,
-        "any.only": `Sort order in "sort" must be one of [${SORT_ORDER.join(
-          ", ",
-        )}]`,
-        "any.required": `Sort order in "sort" is required`,
-      }),
-  })
-  .options({ presence: "required" });
-
-export const schemaPaginate = Joi.object<{
-  page: number;
-  itemsPerPage: number;
-}>({
-  page: Joi.number().integer().min(1).messages({
-    "number.base": `"page" must be a type of 'number'`,
-    "number.integer": `"page" must be an integer`,
-    "number.min": `"page" minimum value is "1"`,
-    "any.required": `"page" is required`,
+export const updateBroadcastSchema = Joi.object({
+  title: Joi.string().trim().min(5).max(70).optional().messages({
+    "string.base": `'title' should be a type of 'string'`,
+    "string.empty": `'title' cannot be an empty string`,
+    "string.min": `'title' is shorter than expected`,
+    "string.max": `'title' is longer than expected`,
   }),
-  itemsPerPage: Joi.number()
+  tracklist: Joi.string().trim().max(800).optional().messages({
+    "string.base": `'tracklist' should be a type of 'string'`,
+    "string.empty": `'tracklist' cannot be an empty string`,
+    "string.max": `'tracklist' is longer than expected`,
+  }),
+  downloadUrl: Joi.string().trim().max(1000).optional().messages({
+    "string.base": `'downloadUrl' should be a type of 'string'`,
+    "string.empty": `'downloadUrl' cannot be an empty string`,
+    "string.max": `'downloadUrl' is longer than expected`,
+  }),
+  listenUrl: Joi.string().trim().max(1000).optional().messages({
+    "string.base": `'listenUrl' should be a type of 'string'`,
+    "string.empty": `'listenUrl' cannot be an empty string`,
+    "string.max": `'listenUrl' is longer than expected`,
+  }),
+  listenerPeakCount: Joi.number()
+    .positive()
     .integer()
-    .valid(...PER_PAGE_NUMS)
+    .min(0)
+    .max(50000)
+    .optional()
     .messages({
-      "number.base": `"limit" must be a type of 'number'`,
-      "number.integer": `"limit" must be an integer`,
-      "any.only": `"limit" must be one of [${PER_PAGE_NUMS.join(", ")}]`,
-      "any.required": `"limit" is required`,
+      "number.base": `'listenerPeakCount' should be a type of 'number'`,
+      "number.integer": `'listenerPeakCount' must be an integer`,
+      "number.positive": `'listenerPeakCount' should be positive`,
+      "number.min": `'listenerPeakCount' minimum value is '0'`,
+      "number.max": `'listenerPeakCount' max length is 50000 characters`,
     }),
-}).options({ presence: "required" });
+  isVisible: Joi.boolean()
+    .optional()
+    .messages({ "boolean.base": `'isVisible' should be a type of 'boolean'` }),
+  endAt: Joi.date().iso().optional().messages({
+    "date.format":
+      "'endAt' timestamp is in invalid format, string should be in ISO-8601",
+  }),
+}).min(1); // at least one key is required
 
-//
-
-export const schemaId = Joi.number().integer().min(1).required().messages({
-  "number.base": `"id" must be a type of 'number'`,
-  "number.integer": `"id" must be an integer`,
-  "number.min": `"id" minimum value is "1"`,
-  "any.required": `"id" is required`,
+export const scheduleSchema = Joi.object({
+  title: Joi.string().trim().min(5).max(70).required(),
+  startAt: Joi.date().iso().required().messages({
+    "date.format":
+      "'startAt' timestamp is in invalid format, string should be in ISO-8601",
+  }),
+  endAt: Joi.date().iso().required().messages({
+    "date.format":
+      "'endAt' timestamp is in invalid format, string should be in ISO-8601",
+  }),
 });
 
-export const schemaCatNo = Joi.string().min(1).max(255).required().messages({
-  "string.base": `"catNo" must be a type of 'string'`,
-  "number.min": `"catNo" min length is 1 symbol`,
-  "number.max": `"catNo" max length is 255 symbols`,
-  "any.required": `"id" is required`,
-});
-
-export const schemaFilterParams = Joi.object<FilterParams>()
-  .keys({
+/*
+ .keys({
     yearIds: Joi.array().items(Joi.number()).allow(null),
     artistIds: Joi.array().items(Joi.number()).allow(null),
     labelIds: Joi.array().items(Joi.number()).allow(null),
     genreIds: Joi.array().items(Joi.number()).allow(null),
-  })
-  .options({ presence: "required" });
-
-export const schemaSearchQuery = Joi.string()
-  .min(2)
-  .max(30)
-  .lowercase()
-  .required();
 */
