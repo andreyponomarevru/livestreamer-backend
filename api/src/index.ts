@@ -1,9 +1,9 @@
 import util from "util";
 
 import { logger } from "./config/logger";
-import { HTTP_PORT } from "./config/env";
-import { httpServer } from "./http-server";
 import * as dbConnection from "./config/postgres";
+import * as env from "./config/env";
+import { httpServer } from "./http-server";
 
 function onWarning(err: Error) {
   logger.error(err.stack);
@@ -19,12 +19,9 @@ function onUnhandledRejection(reason: string, p: unknown) {
   logger.error(`UnhandledRejection: ${util.inspect(p)}, reason "${reason}"`);
 }
 
-//
-
 process.once("uncaughtException", onUncaughtException);
 process.on("unhandledRejection", onUnhandledRejection);
 process.on("warning", onWarning);
 
-httpServer.listen(HTTP_PORT);
-
-export { httpServer };
+logger.debug(env);
+httpServer.listen(env.HTTP_PORT);

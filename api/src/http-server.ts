@@ -1,35 +1,19 @@
-//
-// REST API Server
-//
-
-import util from "util";
-import http, { IncomingMessage } from "http";
-import path from "path";
 import { Socket } from "net";
+import http from "http";
 
-import express from "express";
-import WebSocket from "ws";
-import cors from "cors";
-import morganLogger from "morgan";
-
+import { Request, Response } from "express";
+import { logger } from "./config/logger";
 import { HTTP_PORT } from "./config/env";
-import { logger, morganSettings } from "./config/logger";
-import { handleErrors } from "./controllers/middlewares/handle-errors";
-import { handle404Error } from "./controllers/middlewares/handle-404-error";
-import { router } from "./controllers/index";
+import { expressApp, sessionParser } from "./express-app";
 import { wsServer } from "./ws-server";
 
-//
-// Server Event Handlers
-//
-
-function onServerListening(): void {
+export function onServerListening(): void {
   logger.debug(
     `${__filename}: API HTTP Server is listening on port ${HTTP_PORT}`,
   );
 }
 
-function onServerError(err: NodeJS.ErrnoException): void | never {
+export function onServerError(err: NodeJS.ErrnoException): void | never {
   if (err.syscall !== "listen") throw err;
 
   const bind =
@@ -50,58 +34,33 @@ function onServerError(err: NodeJS.ErrnoException): void | never {
   }
 }
 
-async function authenticate(req: IncomingMessage) {
-  return { id: 1, username: "johndoe" };
-}
-
+// For example of WebSocket authentication using express-session, refer to
+// https://github.com/websockets/ws#client-authentication (just a basic idea)
+// https://github.com/websockets/ws/blob/master/examples/express-session-parse/index.js — this is what i've based my code on
 export async function onServerUpgrade(
-  req: IncomingMessage,
+  req: Request,
   socket: Socket,
   head: Buffer,
 ): Promise<void> {
-  // This function is not defined on purpose. Implement it with your own logic.
-  // TODO: Refer for Cookie auth example https://github.com/websockets/ws#client-authentication
-  logger.debug("WS Server: performing AuthN...");
+  logger.debug("WS Server parsing session from request...");
 
-  try {
-    const authenedClient = await authenticate(req);
+  sessionParser(req, {} as Response, () => {
+    if (!req.session.authenticatedUser) {
+      logger.error("WS Server [upgrade] User authentication failed.");
+      socket.write("HTTP/1.1 401 Unauthorized\r\n\r\n");
+      socket.destroy();
+      return;
+    }
+
     logger.debug("WS Server: user successfully authenticated.");
-    wsServer.handleUpgrade(req, socket, head, function (newSocket, request) {
-      wsServer.emit("connection", newSocket, request, authenedClient);
+
+    wsServer.handleUpgrade(req, socket, head, (newSocket) => {
+      wsServer.emit("connection", newSocket, req);
     });
-  } catch (err) {
-    logger.error(util.inspect(err));
-    logger.error("WS Server: user authentication failed.");
-    socket.write("HTTP/1.1 401 Unauthorized\r\n\r\n");
-    socket.destroy();
-    return;
-  }
+  });
 }
 
-//
-// Express App
-//
-
-const expressApp = express();
-expressApp.set("port", HTTP_PORT);
-
-expressApp.use(morganLogger("combined", morganSettings));
-expressApp.use(cors());
-expressApp.use(express.json());
-expressApp.use(express.urlencoded({ extended: true }));
-expressApp.use(express.static(path.join(__dirname, "public")));
-expressApp.use("/api/v1", router);
-// if request doesn't match the routes above, it is past to 404 error handler
-expressApp.use(handle404Error);
-expressApp.use(handleErrors);
-
-//
-// Node.js HTTP Server
-//
-
-const httpServer = http.createServer(expressApp);
+export const httpServer = http.createServer(expressApp);
 httpServer.on("error", onServerError);
 httpServer.on("listening", onServerListening);
 httpServer.on("upgrade", onServerUpgrade);
-
-export { httpServer };
