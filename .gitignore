@@ -1,0 +1,23 @@
+#
+# Project files
+#
+
+build/
+node_modules/
+package-lock.json
+*.wav
+*.env
+
+#
+# Whitelisted files (track these files if they exist)
+#
+
+!.gitignore
+!.gitattributes
+
+!.prettierrc
+
+!.eslintrc.js
+!.eslintignore
+
+!.dockerignore
