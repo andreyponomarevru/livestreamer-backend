@@ -1,9 +1,9 @@
-import { errorCodes } from "./error-codes";
+import { errorCodes } from "./http-error-codes";
 
 export class HttpError {
   statusCode: number;
   message?: string;
-  more_info?: string;
+  moreInfo?: string;
 
   constructor(
     errorCode: number,
@@ -12,7 +12,7 @@ export class HttpError {
   ) {
     this.statusCode = errorCode;
     this.message = message;
-    this.more_info = more_info;
+    this.moreInfo = more_info;
 
     if (this.message === undefined) this.message = errorCodes[errorCode];
   }
