@@ -17,7 +17,6 @@ export function SignInForm(
   props: React.HTMLAttributes<HTMLDivElement>
 ): ReactElement {
   const handleSignIn = async ({ emailOrUsername, password }: SignInForm) => {
-    console.log("handleSignIn", emailOrUsername);
     isEmail(emailOrUsername)
       ? signin({ email: emailOrUsername, password })
       : signin({ username: emailOrUsername, password });
@@ -35,9 +34,7 @@ export function SignInForm(
   const { user, signin, setErr, err } = useAuthN();
 
   useEffect(() => {
-    return () => {
-      setErr(null);
-    };
+    if (err) setErr(null);
   }, []);
 
   return (
