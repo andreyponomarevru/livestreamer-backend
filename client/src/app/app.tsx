@@ -63,7 +63,7 @@ export function App(): ReactElement {
               <Route path="/schedule" element={<PagesSchedule />} />
               <Route path="/archive" element={<PagesArchive />} />
               <Route path="/signin" element={<PagesAuth />} />
-              <Route path="/signup" element={<PagesAuth />} />
+              <Route path="/register" element={<PagesAuth />} />
               <Route path="/drafts" element={<PagesDrafts />} />
               <Route path="/account" element={<PagesAccount />} />
               <Route path="/users" element={<PagesUsers />} />

@@ -21,7 +21,7 @@ function AuthBox(props: any) {
     location.pathname === "/signin" ? "box__header-link_active" : "";
 
   const activeSignUpClassName =
-    location.pathname === "/signup" ? "box__header-link_active" : "";
+    location.pathname === "/register" ? "box__header-link_active" : "";
 
   return (
     <Box className={`auth-box ${props.className || ""}`}>
@@ -33,7 +33,7 @@ function AuthBox(props: any) {
           Log In
         </Link>
         <Link
-          to="/signup"
+          to="/register"
           className={`box__header-link ${activeSignUpClassName}`}
         >
           Sign Up
