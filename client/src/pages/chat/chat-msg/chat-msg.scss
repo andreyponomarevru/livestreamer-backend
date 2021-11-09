@@ -1,0 +1,94 @@
+@import "../../../global.scss";
+
+.chat-msg {
+  display: grid;
+  grid-template-areas:
+    "Header Controls"
+    "Body   Controls";
+
+  font-size: 14px;
+  border-radius: $border_radius_block;
+  background-color: $color_gray-darkest;
+  padding: 1rem;
+  row-gap: 0.4rem;
+  column-gap: 0.4rem;
+
+  &__header {
+    grid-area: Header;
+
+    display: grid;
+    grid-template-areas: "Meta Controls";
+    justify-content: space-between;
+    font-size: $font-size_sm;
+  }
+
+  // Meta
+
+  &__meta {
+    grid-area: Meta;
+
+    color: $color_brand_gray-20;
+    display: grid;
+    grid-template-areas: "Username Dot Timestamp";
+    column-gap: 0.4rem;
+    align-items: center;
+  }
+
+  &__username {
+    grid-area: Username;
+
+    color: $color_bleu;
+    justify-content: flex-start;
+    border-radius: 5px;
+  }
+
+  &__timestamp {
+    grid-area: Timestamp;
+
+    font-size: $font-size_xs;
+    color: $color_pink;
+  }
+
+  // Controls
+
+  &__body {
+    grid-area: Body;
+
+    font-weight: normal;
+    color: $color_gray-lighten;
+    overflow: hidden;
+  }
+
+  &__like-box {
+    grid-area: Controls;
+
+    grid-auto-flow: row;
+    display: grid;
+    row-gap: 0.3rem;
+    align-items: center;
+    justify-items: center;
+    align-self: end;
+    justify-content: flex-end;
+  }
+
+  &__like-counter {
+    font-size: $font-size_sm;
+  }
+
+  &__delete-btn {
+    font-size: $font-size_sm;
+    color: $color_brand_gray-20;
+    margin-left: 0.4rem;
+    background-color: $color_brand_gray-60;
+    border: none;
+    border-radius: 3px;
+    padding: 0.2rem 0.4rem;
+    justify-self: flex-end;
+    align-self: flex-end;
+    cursor: pointer;
+
+    &:hover {
+      background-color: $color_brand_gray-50;
+    }
+  }
+}

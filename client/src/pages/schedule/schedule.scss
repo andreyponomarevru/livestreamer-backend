@@ -1,10 +1,15 @@
 @import "../../global.scss";
 
 .schedule-page {
-  &__description {
-    padding: 1rem 0.8rem;
-    border-bottom: 1px solid $color_gray-darken;
+  &__timezone {
+    padding: 0.5rem 1rem;
+    margin-bottom: 1rem;
+    justify-self: center;
+
+    background-color: gold;
     text-align: center;
-    color: white;
+    color: black;
+    font-weight: bold;
+    border-radius: $border_radius_block;
   }
 }

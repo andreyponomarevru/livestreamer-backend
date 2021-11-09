@@ -3,7 +3,7 @@
     "jsx": "react",
     "preserveConstEnums": true,
     "types": ["node"],
-     
+
     "outDir": "./build" /* Redirect output structure to the directory. */,
     "rootDir": "./src" /* Specify the root directory of input files. Use to control the output directory structure with --outDir. */,
     "baseUrl": "./src/" /* Base directory to resolve non-absolute module names. */,
@@ -23,6 +23,6 @@
     "skipLibCheck": true /* Skip type checking of declaration files. */,
     "forceConsistentCasingInFileNames": true /* Disallow inconsistently-cased references to the same file. */
   },
-  "include": ["src/**/*", "src/custom.d.ts"],
+  "include": ["src/**/*", "src/custom.d.ts", "../api/inputRules.tsx"],
   "exclude": ["node_modules", "**/*.test.ts"]
 }

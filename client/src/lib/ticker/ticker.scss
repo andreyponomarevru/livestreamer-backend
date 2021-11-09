@@ -1,0 +1,16 @@
+@import "../../global.scss";
+
+.ticker {
+  display: grid;
+  padding: 0.6rem 0.8rem;
+  align-content: center;
+  line-height: $line-height_sm;
+  background-color: #b1ad9a;
+  text-align: center;
+  letter-spacing: 1px;
+  border-radius: 0 0 10px 10px;
+
+  font-weight: 800;
+  font-size: $font-size_sm;
+  color: white;
+}
