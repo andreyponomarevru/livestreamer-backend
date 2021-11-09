@@ -37,11 +37,7 @@ describe("WSClientStore class", () => {
 
       const uuid = uuidv4();
       const username = "testusername";
-      const user = {
-        uuid,
-        username,
-        sanitized: { uuid, username },
-      } as WSClient;
+      const user = { uuid, username } as WSClient;
 
       clientStore.addClient(user);
 
