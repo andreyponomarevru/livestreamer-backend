@@ -1,11 +1,11 @@
-FROM node:alpine
+FROM node:14
 
-WORKDIR /api
+WORKDIR /client
 
 COPY package*.json ./
 RUN npm install
 
-# Bundle app source
+# Bundle app source 
 COPY . .
 
 CMD npm run serve
