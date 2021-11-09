@@ -5,7 +5,7 @@ import { PageHeading } from "../../lib/page-heading/page-heading";
 import { ProtectedComponent } from "../../lib/protected-component/protected-component";
 import { API_ROOT_URL } from "../../config/env";
 import { useIsMounted } from "../../hooks/use-is-mounted";
-import { useFetch } from "../../hooks/useFetch";
+import { useFetch } from "../../hooks/use-fetch";
 import { ScheduledBroadcastResponse } from "../../types";
 import { Loader } from "../../lib/loader/loader";
 import { Message } from "../../lib/message/message";

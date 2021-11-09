@@ -7,7 +7,7 @@ import { API_ROOT_URL } from "../../config/env";
 import { Loader } from "../../lib/loader/loader";
 import { Page } from "../../lib/page/page";
 import { useIsMounted } from "../../hooks/use-is-mounted";
-import { useFetch } from "../../hooks/useFetch";
+import { useFetch } from "../../hooks/use-fetch";
 import { Help } from "../../lib/help/help";
 
 export function ConfirmRegistrationPage(

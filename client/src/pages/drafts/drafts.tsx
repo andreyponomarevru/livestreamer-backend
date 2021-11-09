@@ -3,7 +3,7 @@ import React, { ReactElement, Fragment, useState, useEffect } from "react";
 import { ArchiveItem } from "../archive/archive-item/archive-item";
 import { PageHeading } from "../../lib/page-heading/page-heading";
 import { BroadcastResponse } from "../../types";
-import { useFetch } from "../../hooks/useFetch";
+import { useFetch } from "../../hooks/use-fetch";
 import { API_ROOT_URL } from "../../config/env";
 import { Loader } from "../../lib/loader/loader";
 import { useIsMounted } from "../../hooks/use-is-mounted";

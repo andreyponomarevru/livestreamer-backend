@@ -2,7 +2,7 @@ import React, { ReactElement, useEffect } from "react";
 
 import { PageHeading } from "../../lib/page-heading/page-heading";
 import { UserMeta } from "./user-meta/user-meta";
-import { useFetch } from "../../hooks/useFetch";
+import { useFetch } from "../../hooks/use-fetch";
 import { API_ROOT_URL } from "../../config/env";
 import { UsersResponse } from "../../types";
 import { Loader } from "../../lib/loader/loader";

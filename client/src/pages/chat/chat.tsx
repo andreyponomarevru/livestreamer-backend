@@ -9,7 +9,7 @@ import React, {
 
 import { API_ROOT_URL } from "../../config/env";
 import { ChatMsgsPageResponse, BroadcastState, ChatMsg } from "../../types";
-import { useFetch } from "../../hooks/useFetch";
+import { useFetch } from "../../hooks/use-fetch";
 import { Loader } from "../../lib/loader/loader";
 import { ChatControls } from "./chat-controls/chat-controls";
 import { ChatMsg as ChatMessage } from "./chat-msg/chat-msg";

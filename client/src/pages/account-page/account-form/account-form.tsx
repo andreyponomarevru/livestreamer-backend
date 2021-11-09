@@ -2,7 +2,7 @@ import React, { ReactElement, useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 
 import { inputRules, InputTypes } from "../../../config/input-rules";
-import { useFetch } from "../../../hooks/useFetch";
+import { useFetch } from "../../../hooks/use-fetch";
 import { API_ROOT_URL } from "../../../config/env";
 import { useAuthN } from "../../../hooks/use-authn";
 import { User, UserResponse } from "../../../types";

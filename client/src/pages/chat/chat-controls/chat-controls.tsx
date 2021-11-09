@@ -6,7 +6,7 @@ import { HeartBtn } from "../heart-btn/heart-btn";
 import { BroadcastState, ChatMsg, ChatMessageResponse } from "../../../types";
 import { API_ROOT_URL } from "../../../config/env";
 import { useIsMounted } from "../../../hooks/use-is-mounted";
-import { useFetch } from "../../../hooks/useFetch";
+import { useFetch } from "../../../hooks/use-fetch";
 
 import "./chat-controls.scss";
 import icons from "./../../../icons.svg";

@@ -11,7 +11,7 @@ import { inputRules, InputTypes } from "../../../config/input-rules";
 import { API_ROOT_URL } from "../../../config/env";
 import { Message } from "../../../lib/message/message";
 import { useIsMounted } from "../../../hooks/use-is-mounted";
-import { useFetch } from "../../../hooks/useFetch";
+import { useFetch } from "../../../hooks/use-fetch";
 import { Loader } from "../../../lib/loader/loader";
 import { Help } from "../../../lib/help/help";
 

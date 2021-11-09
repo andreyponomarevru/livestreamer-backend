@@ -11,7 +11,7 @@ import { API_ROOT_URL } from "../../../config/env";
 import { parseResponse } from "../../../utils/parse-response";
 import { handleResponseErr } from "../../../utils/handle-response-err";
 import { Message } from "../../../lib/message/message";
-import { ConfirmRegistrationMsg } from "../../confirm-registration/confirm-registration";
+import { AskToConfirmRegistrationPage } from "../../ask-to-confirm-registration/ask-to-confirm-registration";
 import { RegisterForm } from "../../../types";
 
 // TODO: fix, this var is undefined
@@ -59,9 +59,10 @@ export function SignUpForm(
   const [errResponse, setErrResponse] = useState<null | string>(null);
 
   if (successResponse) {
+    // TODOL instead of rendering this code, redirect to this page: AskToConfirmRegistrationPage
     return (
       <div className={`form ${props.className || ""}`}>
-        <ConfirmRegistrationMsg />
+        <AskToConfirmRegistrationPage />
       </div>
     );
   } else {

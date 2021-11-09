@@ -15,7 +15,7 @@ import "../../../lib/form/form.scss";
 import { inputRules, InputTypes } from "../../../config/input-rules";
 import { API_ROOT_URL } from "../../../config/env";
 import { Message } from "../../../lib/message/message";
-import { useFetch } from "../../../hooks/useFetch";
+import { useFetch } from "../../../hooks/use-fetch";
 import { Loader } from "../../../lib/loader/loader";
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
