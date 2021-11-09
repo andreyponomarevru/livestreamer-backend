@@ -10,7 +10,6 @@ export interface WSClient {
   readonly id?: number;
   readonly username: string;
   readonly socket: WebSocket;
-  sanitized: { uuid: string; username: string };
 }
 export type SanitizedWSChatClient = { uuid: string; username: string };
 export type AppState = { isStreamPaused: boolean };
@@ -93,6 +92,7 @@ export interface UserAccount {
   permissions: Permissions;
 }
 export interface SanitizedUser {
+  uuid: string;
   id: number;
   email: string;
   username: string;
