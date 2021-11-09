@@ -52,6 +52,27 @@ describe("Sign In and Sign Out", () => {
           });
         });
     });
+
+    it("return 401 when the user has been already authenticated and sends the seconds request with valid credentials but without session attached", async () => {
+      throw new Error();
+      /*await request(httpServer)
+        .post("/sessions")
+        .set("accept", "application/json")
+        .set("content-type", "application/json")
+        .send({
+          username: testuser.username,
+          password: testuser.password + ".",
+        })
+        .expect("content-type", /application\/json/)
+        .expect(401)
+        .then((res) => {
+          expect(res.body).toStrictEqual({
+            message: expect.any(String),
+            moreInfo: expect.any(String),
+            statusCode: expect.any(Number),
+          });
+        });*/
+    });
   });
 
   describe("DELETE /sessions", () => {
