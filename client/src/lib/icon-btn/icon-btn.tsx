@@ -17,7 +17,7 @@ export function IconBtn(props: Props): ReactElement {
       className={`icon-btn ${className}`}
       onClick={() => props.handleBtnClick()}
     >
-      <Icon className="icon-btn__icon" iconName={iconName} />
+      <Icon className="icon-btn__icon" name={iconName} />
     </button>
   );
 }

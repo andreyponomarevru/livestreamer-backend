@@ -28,7 +28,7 @@ export function AccountBtn(props: Props): ReactElement {
         className={`account-btn ${className}`}
         onClick={() => props.handleBtnClick()}
       >
-        <Icon className="account-btn__icon" iconName="user-in-circle" />
+        <Icon className="account-btn__icon" name="user-in-circle" />
       </span>
     </NavLink>
   );

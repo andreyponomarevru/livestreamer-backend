@@ -13,7 +13,7 @@ export function Counter(props: Props): ReactElement | null {
   return (
     <div className={`counter ${props.idDisabled ? "counter_disabled" : ""}`}>
       <span className="counter__number">{props.count}</span>
-      <Icon iconName={props.icon} color="white" className="counter__icon" />
+      <Icon name={props.icon} color="white" className="counter__icon" />
     </div>
   );
 }

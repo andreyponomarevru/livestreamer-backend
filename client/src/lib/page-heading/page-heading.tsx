@@ -11,7 +11,7 @@ interface Props {
 export function PageHeading(props: Props): ReactElement {
   return (
     <div className="page-heading">
-      <Icon className="page-heading__icon" iconName={props.iconName} />
+      <Icon className="page-heading__icon" name={props.iconName} />
       <h2 className="page-heading__heading">{props.name}</h2>
     </div>
   );

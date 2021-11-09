@@ -5,7 +5,7 @@ import icons from "./../../icons.svg";
 import "./icon.scss";
 
 interface Props extends React.HTMLAttributes<SVGAElement> {
-  iconName: string;
+  name: string;
   color?: "black" | "white" | "grey";
 }
 
@@ -16,7 +16,7 @@ export function Icon(props: Props): ReactElement {
 
   return (
     <svg className={`icon ${colorClassName} ${className}`}>
-      <use href={`${icons}#${props.iconName}`} />
+      <use href={`${icons}#${props.name}`} />
     </svg>
   );
 }
