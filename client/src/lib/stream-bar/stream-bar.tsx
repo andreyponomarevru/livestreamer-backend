@@ -6,7 +6,7 @@ import { WebSocketContext } from "../../ws-client";
 import { useWSClientCount } from "../../hooks/use-ws-client-count";
 import { Counter } from "../counter/counter";
 import { API_STREAM_URL, API_ROOT_URL } from "../../config/env";
-import { usePlayer } from "../../hooks/usePlayer";
+import { usePlayer } from "../../hooks/use-player";
 import { PlayToggleBtn } from "../play-toggle-btn/play-toggle-btn";
 import { useWSStreamLike } from "../../hooks/use-ws-stream-like";
 
