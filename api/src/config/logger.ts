@@ -39,6 +39,18 @@ const consoleTransport = new transports.Console({
   silent: false,
 });
 
+const debugFileTransport = new transports.File({
+  level: "debug",
+  filename: `${LOG_LOCATION}/${DEBUG_LOG_NAME}`,
+  format: combine(
+    label({ label: APP_NAME }),
+    timestamp(),
+    colorize({ all: true }),
+    logFormat,
+  ),
+  silent: false,
+});
+
 // Write all logs with level 'info' and below to INFO_LOG_NAME
 const infoFileTransport = new transports.File({
   level: "info",
@@ -49,8 +61,8 @@ const infoFileTransport = new transports.File({
   silent: false,
 });
 
-function createTransports(env = "development") {
-  return env === "development"
+function createTransports(env = "dev") {
+  return env === "dev"
     ? [consoleTransport]
     : [errorFileTransport, infoFileTransport];
 }

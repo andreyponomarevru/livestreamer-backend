@@ -1,10 +1,15 @@
 {
  "ts-node": {
-    "files": true
+    "transpileOnly": true,
+    "files": true,
+    "compilerOptions": {
+    "rootDir": "."
+    }
   },
   "compilerOptions": {
     "types": ["node"],
 
+    "rootDirs": ["unit-tests", "integration-tests"],
     "target": "es6",
     "module": "commonjs",
     "sourceMap": true,
@@ -20,9 +25,11 @@
     "forceConsistentCasingInFileNames": true,
     "allowJs": true,
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "emitDecoratorMetadata": true,
+    "useUnknownInCatchVariables": false
   },
   "compileOnSave": true,
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "**/*.test.ts"]
+  "include": ["src/**/*", "unit-tests/**/*", "integration-tests/**/*"],
+  "exclude": ["node_modules"]
 }
+

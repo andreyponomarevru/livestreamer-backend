@@ -1,84 +1,86 @@
 import WebSocket from "ws";
+import { Permissions } from "./config/constants";
 
 //
 // Web Socket
 //
 
-export type WSClientStoreStats = {
-  clientCount: number;
-  clientPeakCount: number;
-};
 export interface WSClient {
-  id: number;
-  username: string;
-  socket: WebSocket;
+  readonly uuid: string;
+  readonly id?: number;
+  readonly username: string;
+  readonly socket: WebSocket;
 }
-export interface ExposedWSClient {
-  id: number;
-  username: string;
-}
-export type WSSysMsg<Data> = {
-  event: WSEvents;
-  data?: Data;
-};
+export type SanitizedWSChatClient = { uuid: string; username: string };
+export type AppState = { isStreamPaused: boolean };
+export type WebSocketUUID = { uuid: string };
+export type UnauthenticatedWSClient = { id: string; socket: WebSocket };
 export type WSUserMsg<Data> = {
-  event: WSEvents;
+  event: string;
   clientUUID: string;
   username: string;
   data?: Data;
 };
-export type BroadcastUpdateStatsPayload = {
-  currentListenerCount: number;
-  listenerPeakCount: number;
-  broadcastLikeCount: number;
+export type DeletedWSClient = { uuid: string; id: number; username: string };
+export type ClientCount = { count: number };
+export type WSMsg =
+  | AddClientMsg
+  | ClientsListMsg
+  | StreamStateMsg
+  | CreateChatMsg
+  | DeleteChatMsg
+  | LikeChatMsg
+  | UnlikeChatMsg
+  | StreamLikeMsg
+  | DeleteClientMsg
+  | UpdateClientCountMsg;
+export type AddClientMsg = {
+  event: "chat:new_client";
+  data: SanitizedWSChatClient;
 };
-export interface WSMsgPayload {
-  broadcastLike: { msgId: number };
-  chatRemoveUser: { username: string };
-  chatAddUser: { username: string };
-  chatCreateMsgPayload: { msg: string };
-  chatDeleteMsgPayload: { msgId: number };
-  chatLikeMsgPayload: { msgId: number };
-  chatUnlikeMsgPayload: { msgId: number };
-  chatConnectedClientsPayload: { userId: number };
-}
-export type WSEvents =
-  | "broadcast:updatestats"
-  | "chat:updatestats"
-  | "chat:deleteclient"
-  | "broadcast:like"
-  | "chat:addclient"
-  | "chat:createmessage"
-  | "chat:deletemessage"
-  | "chat:likemessage"
-  | "chat:unlikemessage"
-  | "chat:connectedclients"
-  | "stream:online"
-  | "stream:offline";
+export type ClientsListMsg = {
+  event: "chat:client_list";
+  data: SanitizedWSChatClient[];
+};
+export type StreamStateMsg = {
+  event: "stream:state";
+  data: BroadcastState;
+};
+export type StreamLikeMsg = { event: "stream:like"; data: SavedBroadcastLike };
+export type CreateChatMsg = { event: "chat:created_message"; data: ChatMsg };
+export type DeleteChatMsg = {
+  event: "chat:deleted_message";
+  data: ChatMsgId;
+};
+export type LikeChatMsg = { event: "chat:liked_message"; data: ChatMsgLike };
+export type UnlikeChatMsg = {
+  event: "chat:unliked_message";
+  data: ChatMsgUnlike;
+};
+export type DeleteClientMsg = {
+  event: "chat:deleted_client";
+  data: DeletedWSClient;
+};
+export type UpdateClientCountMsg = {
+  event: "chat:client_count";
+  data: ClientCount;
+};
 
 //
 // API
 //
 
-export type CursorPagination = {
-  nextCursor?: string;
-  limit: number;
+export type BroadcastState = {
+  isOnline: boolean;
+  broadcast?: {
+    likeCount: number;
+    id: number;
+    title: string;
+    startAt: string;
+    listenerPeakCount: number;
+  };
 };
-
-export type SavedBroadcastLike = {
-  broadcastId: number;
-  likedByUserId: number;
-  likesCount: number;
-};
-export type NewBroadcastLike = {
-  broadcastId: number;
-  userId: number;
-};
-export type Bookmark = {
-  userId: number;
-  broadcastId: number;
-};
-
+export type Bookmark = { userId: number; broadcastId: number };
 export interface UserAccount {
   id: number;
   username: string;
@@ -90,30 +92,30 @@ export interface UserAccount {
   permissions: Permissions;
 }
 export interface SanitizedUser {
+  uuid: string;
   id: number;
   email: string;
   username: string;
-  permissions: { [key: string]: string[] };
+  permissions: Permissions;
 }
-
 export interface Schedule {
   id?: number;
   title: string;
   startAt: string;
   endAt: string;
 }
-
 export interface BroadcastDraft {
   id: number;
   title: string;
   startAt: string;
   listenerPeakCount: number;
+  likeCount: number;
 }
 export interface NewBroadcast {
   title: string;
   listenerPeakCount: number;
-  downloadUrl?: string;
   isVisible?: boolean;
+  startAt: string;
 }
 export interface Broadcast {
   id: number;
@@ -123,7 +125,7 @@ export interface Broadcast {
   listenerPeakCount: number;
   downloadUrl: string;
   listenUrl: string;
-  likesCount: number;
+  likeCount: number;
   isVisible: boolean;
   tracklist: string;
 }
@@ -147,9 +149,14 @@ export interface BroadcastDBResponse {
   download_url: string;
   listen_url: string;
   is_visible: boolean;
-  likes_count: number;
+  like_count: number;
 }
-
+export type SavedBroadcastLike = {
+  broadcastId: number;
+  likedByUserId: number;
+  likedByUsername: string;
+  likeCount: number;
+};
 export interface ChatMsg {
   id: number;
   userId: number;
@@ -158,14 +165,8 @@ export interface ChatMsg {
   message: string;
   likedByUserId: number[];
 }
-export type ChatMsgId = {
-  id: number;
-  userId: number;
-};
-export type NewChatMsg = {
-  userId: number;
-  message: string;
-};
+export type ChatMsgId = { id: number; userId: number };
+export type NewChatMsg = { userId: number; message: string };
 export type ChatMsgLike = {
   messageId: number;
   likedByUserId: number;
@@ -176,7 +177,35 @@ export type ChatMsgUnlike = {
   unlikedByUserId: number;
   likedByUserIds: number[];
 };
-export type PaginatedChatMsgs = {
+export type PaginatedItems<T> = {
   nextCursor: string | null;
-  messages: ChatMsg[];
+  items: T[];
+};
+export type SignUpData = {
+  roleId: number;
+  email: string;
+  username: string;
+  password: string;
+  isEmailConfirmed: boolean;
+};
+
+// DB
+export type ScheduledBroadcastDBResponse = {
+  scheduled_broadcast_id: number;
+  title: string;
+  start_at: string;
+  end_at: string;
+};
+export type ReadMsgDBResponse = {
+  chat_message_id: number;
+  appuser_id: number;
+  username: string;
+  message: string;
+  created_at: string;
+  liked_by_user_id: number[];
+};
+
+export type CreateMsgLikeDBResponse = {
+  chat_message_id: number;
+  liked_by_user_id: number[];
 };
