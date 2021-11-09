@@ -50,7 +50,7 @@ export function AccountForm(): ReactElement {
 
   const { user, updateUser } = useAuthN();
 
-  const [username, setUsername] = useState(user?.username);
+  const [username, setUsername] = useState<string>("");
 
   const isMounted = useIsMounted();
   const [updatedUser, fetchUpdatedUserNow] = useFetch<UserResponse>();
@@ -64,6 +64,10 @@ export function AccountForm(): ReactElement {
 
   //const [successResponse, setSuccessResponse] = useState<string | null>(null);
   //const [errResponse, setErrResponse] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (isMounted && user) setUsername(user.username);
+  }, [isMounted, user]);
 
   return (
     <form
