@@ -29,7 +29,7 @@ export function PagesUsers(
   }, [isMounted]);
 
   return (
-    <Page>
+    <Page className="page_list">
       <PageHeading iconName="users" name="Users" />
 
       {users.isLoading && <Loader />}

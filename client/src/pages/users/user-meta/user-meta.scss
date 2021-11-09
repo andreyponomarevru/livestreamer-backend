@@ -1,6 +1,8 @@
 @import "../../../global.scss";
 
 .user-meta {
+  overflow: hidden;
+
   &__btn {
     display: flex;
     justify-content: space-between;
@@ -30,7 +32,7 @@
   &__details-row {
     display: grid;
     grid-template-areas: "Key Value";
-    grid-template-columns: 8rem auto;
+    grid-template-columns: 5rem auto;
     justify-content: space-between;
   }
 
