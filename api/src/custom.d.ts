@@ -1,3 +1,4 @@
+// We need to import something otherwise TypeScript throws an error
 import { Request } from "express";
 
 declare global {
