@@ -6,10 +6,10 @@
 
 import Joi from "joi";
 
-import { asciiRegex } from "../utils/utils";
+export const asciiRegex = new RegExp("^[\x00-\x7F]+$");
+export const alphaNumericRegex = new RegExp("^[a-zA-Z0-9]+$");
 
-export const password = Joi.string()
-  .trim()
+const password = Joi.string()
   .required()
   .min(6)
   .max(50)
@@ -22,22 +22,28 @@ export const password = Joi.string()
     "any.required": `Password is required`,
   });
 
-export const username = Joi.string().trim().required().min(3).max(15).messages({
-  "string.base": `Username should be a type of 'string'`,
-  "string.empty": `Username cannot be an empty string`,
-  "string.min": `Username is shorter than expected`,
-  "string.max": `Username is longer than expected`,
-  "any.required": `Username is required`,
-});
+const username = Joi.string()
+  .trim()
+  .required()
+  .min(3)
+  .max(15)
+  .pattern(alphaNumericRegex)
+  .messages({
+    "string.base": `Username should be a type of 'string'`,
+    "string.empty": `Username cannot be an empty string`,
+    "string.min": `Username is shorter than expected`,
+    "string.max": `Username is longer than expected`,
+    "any.required": `Username is required`,
+  });
 
-export const email = Joi.string().required().email().messages({
+const email = Joi.string().required().email().messages({
   "string.base": `Email should be a type of 'string'`,
   "string.empty": `Email cannot be an empty string`,
   "string.email": `The string is not a valid e-mail`,
   "any.required": `Email is required`,
 });
 
-export const jsonContentType = Joi.string()
+const jsonContentType = Joi.string()
   .required()
   .valid("application/json")
   .messages({
@@ -46,22 +52,19 @@ export const jsonContentType = Joi.string()
     "any.required": `'content-type' is required`,
   });
 
-export const audioContentType = Joi.string()
-  .required()
-  .valid("audio/mpeg")
-  .messages({
-    "string.base": `'content-type' should be a type of 'string'`,
-    "string.empty": `'content-type' cannot be an empty string`,
-    "any.required": `'content-type' is required`,
-  });
+const audioContentType = Joi.string().required().valid("audio/mpeg").messages({
+  "string.base": `'content-type' should be a type of 'string'`,
+  "string.empty": `'content-type' cannot be an empty string`,
+  "any.required": `'content-type' is required`,
+});
 
-export const token = Joi.string().required().messages({
+const token = Joi.string().required().messages({
   "string.base": `Token value should be a type of 'string'`,
   "string.empty": `Token value cannot be an empty string`,
   "any.required": `Token value is required`,
 });
 
-export const idSchema = Joi.number().positive().greater(0).required().messages({
+const id = Joi.number().positive().greater(0).required().messages({
   "number.base": `ID should be a type of 'number'`,
   "number.positive": `ID should be positive`,
   "number.greater": `ID should be greater than 1`,
@@ -130,14 +133,16 @@ export const sessionSchema = Joi.alternatives()
     Joi.object({ email: email, password: password }),
     Joi.object({ username: username, password: password }),
   )
-  .match("one");
+  .match("one")
+  .messages({ "alternatives.any": `Invalid email, username or password` });
 
 export const updatePasswordSchema = Joi.alternatives()
   .try(
     Joi.object({ email: email }),
     Joi.object({ token: token, newPassword: password }),
   )
-  .match("one");
+  .match("one")
+  .messages({ "alternatives.any": `Invalid email or token` });
 
 export const tokenSchema = Joi.object({
   token: Joi.string().required().messages({
@@ -149,19 +154,13 @@ export const tokenSchema = Joi.object({
   .required()
   .unknown(true);
 
-export const userIdObjectSchema = Joi.object({ userId: idSchema })
-  .required()
+export const userIdSchema = Joi.object({ userId: id }).required().unknown(true);
+
+export const destroyChatMsgSchema = Joi.object({ user_id: id })
+  .optional()
   .unknown(true);
 
-export const broadcastIdSchema = Joi.object({
-  broadcastId: idSchema,
-})
-  .required()
-  .unknown(true);
-
-export const idObjectSchema = Joi.object({ id: idSchema })
-  .required()
-  .unknown(true);
+export const idSchema = Joi.object({ id: id }).required().unknown(true);
 
 export const usernameObjectSchema = Joi.object({ username: username })
   .required()
@@ -222,11 +221,3 @@ export const scheduleSchema = Joi.object({
       "'endAt' timestamp is in invalid format, string should be in ISO-8601",
   }),
 });
-
-/*
- .keys({
-    yearIds: Joi.array().items(Joi.number()).allow(null),
-    artistIds: Joi.array().items(Joi.number()).allow(null),
-    labelIds: Joi.array().items(Joi.number()).allow(null),
-    genreIds: Joi.array().items(Joi.number()).allow(null),
-*/
