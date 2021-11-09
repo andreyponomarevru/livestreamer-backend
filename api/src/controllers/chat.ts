@@ -1,116 +1,103 @@
 import { Request, Response, NextFunction } from "express";
 
+import { HttpError } from "../utils/http-error";
 import * as chatService from "../services/chat/chat";
-import { wsServer } from "./../ws-server";
-import { User } from "../models/user/user";
-import * as authzService from "../services/authz/authz";
-import chatEvents from "./../services/chat/chat-events";
-import { ChatMsg, ChatMsgId, ChatMsgLike, ChatMsgUnlike } from "../types";
+import { ChatMsg } from "../types";
 
-// Events are triggered in service layer
-
-function onCreateChatMsg(msg: ChatMsg) {
-  wsServer.sendToAllExceptSender(
-    { event: "chat:createmessage", data: msg },
-    msg.userId,
-  );
-}
-function onDestroyChatMsg(msg: ChatMsgId) {
-  wsServer.sendToAllExceptSender(
-    { event: "chat:deletemessage", data: msg },
-    msg.userId,
-  );
-}
-function onLikeChatMsg(like: ChatMsgLike) {
-  wsServer.sendToAllExceptSender(
-    { event: "chat:likemessage", data: like },
-    like.likedByUserId,
-  );
-}
-function onUnlikeChatMsg(unlike: ChatMsgUnlike) {
-  wsServer.sendToAllExceptSender(
-    { event: "chat:unlikemessage", data: unlike },
-    unlike.unlikedByUserId,
-  );
-}
-chatEvents.on("createmessage", onCreateChatMsg);
-chatEvents.on("deletemessage", onDestroyChatMsg);
-chatEvents.on("likemessage", onLikeChatMsg);
-chatEvents.on("unlikemessage", onUnlikeChatMsg);
+type CreateMessageReqBody = { message: string };
+type CreateMessageResBody = { results: ChatMsg };
+type CursorPaginationReqQuery = {
+  next_cursor?: string;
+  limit?: number;
+};
+type CursorPaginationResBody = {
+  results: {
+    nextCursor: string | null;
+    messages: ChatMsg[];
+  };
+};
+type DestroyAnyMsgQuery = { id?: number };
+type DestroyAnyMsgParams = { user_id?: number };
+type DestroyOwnMsgReqParams = { id?: number };
+type LikeMsgParams = { id?: number };
+type UnlikeMsgParams = { id?: number };
 
 export async function createMsg(
-  req: Request,
-  res: Response,
+  req: Request<
+    Record<string, unknown>,
+    Record<string, unknown>,
+    CreateMessageReqBody
+  >,
+  res: Response<CreateMessageResBody>,
   next: NextFunction,
 ): Promise<void> {
   try {
     const savedMsg = await chatService.createMsg({
+      userUUID: req.session.authenticatedUser!.uuid!,
       userId: req.session.authenticatedUser!.id,
-      message: String(req.body.message),
+      message: req.body.message,
     });
 
-    res.status(201);
-    res.json({ results: savedMsg });
+    res.status(201).json({ results: savedMsg });
   } catch (err) {
     next(err);
   }
 }
 
 export async function readMsgsPaginated(
-  req: Request,
-  res: Response,
+  req: Request<
+    Record<string, unknown>,
+    Record<string, unknown>,
+    Record<string, unknown>,
+    CursorPaginationReqQuery
+  >,
+  res: Response<CursorPaginationResBody>,
   next: NextFunction,
 ): Promise<void> {
   try {
-    const limit =
-      typeof req.query.limit === "number" ? Number(req.query.limit) : 50;
-    const nextCursor =
-      typeof req.query.next_cursor === "string"
-        ? req.query.next_cursor
-        : undefined;
+    const limit = req.query.limit || 50;
+    const nextCursor = req.query.next_cursor;
 
-    const msgs = await chatService.readMsgsPaginated({ limit, nextCursor });
+    const msgs = await chatService.readMsgsPaginated(limit, nextCursor);
 
-    res.status(200);
-    res.json({ results: msgs });
+    res.status(200).json({ results: msgs });
   } catch (err) {
     next(err);
   }
 }
-/*
-function isAuthorized(action: string, resource: string) {
-  return async function (req: Request, res: Response, next: NextFunction) {
-    const user = req.session.authenticatedUser!;
 
-    let hasPermission = false;
-
-    hasPermission = await authzService.isAllowed(user, action, "chat_message");
-
-    if (hasPermission) next();
-    else res.status(403).end();
-  };
-}
-isAuthorized("delete", "chat_message");
-hasObjectPermission();
-
-There are two cases we need to handle to answere the question 
-
-* "isAllowed to delete 'any_chat_message'?" > delete > 204
-* "isAllowed to delete 'user_own_chat_message"? 
-  > Yes > isUserIdMatch?
-  > No > 403
-*/
-
-export async function destroyMsg(
-  req: Request,
+export async function destroyOwnMsg(
+  req: Request<DestroyOwnMsgReqParams>,
   res: Response,
   next: NextFunction,
 ): Promise<void> {
   try {
-    // TODO: this should be invoked after authZ
     await chatService.destroyMsg({
+      userUUID: req.session.authenticatedUser!.uuid!,
       userId: req.session.authenticatedUser!.id,
-      id: Number(req.params.id),
+      id: req.params.id!,
+    });
+    res.status(204).end();
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function destroyAnyMsg(
+  req: Request<
+    DestroyAnyMsgQuery,
+    Record<string, unknown>,
+    Record<string, unknown>,
+    DestroyAnyMsgParams
+  >,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    await chatService.destroyMsg({
+      userUUID: req.session.authenticatedUser!.uuid!,
+      userId: req.query.user_id as unknown as number,
+      id: req.params.id as number,
     });
     res.status(204).end();
   } catch (err) {
@@ -119,31 +106,35 @@ export async function destroyMsg(
 }
 
 export async function likeMsg(
-  req: Request,
+  req: Request<LikeMsgParams>,
   res: Response,
   next: NextFunction,
 ): Promise<void> {
   try {
-    // TODO: this should be invoked after authZ
     await chatService.likeMsg({
-      id: Number(req.params.id),
+      userUUID: req.session.authenticatedUser!.uuid!,
       userId: req.session.authenticatedUser!.id,
+      id: req.params.id!,
     });
     res.status(204).end();
   } catch (err) {
-    next(err);
+    if ("23503" === err.code) {
+      next(new HttpError({ code: 422 }));
+    } else {
+      next(err);
+    }
   }
 }
 
 export async function unlikeMsg(
-  req: Request,
+  req: Request<UnlikeMsgParams>,
   res: Response,
   next: NextFunction,
 ): Promise<void> {
   try {
-    // TODO: this should be invoked after authZ
     await chatService.unlikeMsg({
-      id: Number(req.params.id),
+      id: req.params.id!,
+      userUUID: req.session.authenticatedUser!.uuid!,
       userId: req.session.authenticatedUser!.id,
     });
     res.status(204).end();

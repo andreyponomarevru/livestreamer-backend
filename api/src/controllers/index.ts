@@ -1,13 +1,10 @@
 import { Router } from "express";
-
 import swaggerUI from "swagger-ui-express";
-import { swaggerDocument } from "./../open-api/index";
 
+import { swaggerDocument } from "./../open-api/index";
 import { parseBasicAuthorizationHeader } from "./middlewares/parse-basic-authorization-header";
 import { isAuthenticated } from "./middlewares/is-authenticated";
-import { isAuthorized } from "./middlewares/authorization/is-authorized";
-import { isOwnUserId } from "./middlewares/authorization/is-own-user-id";
-
+import { isAuthorized } from "./middlewares/is-authorized";
 import * as sessionsController from "./sessions";
 import * as chatController from "./chat";
 import * as usersController from "./users";
@@ -17,38 +14,28 @@ import * as streamController from "./stream";
 
 import {
   basicAuthZHeaderSchema,
-  userIdObjectSchema,
+  userIdSchema,
   emailSchema,
   tokenSchema,
   updatePasswordSchema,
   jsonContentTypeSchema,
-  broadcastIdSchema,
   sessionSchema,
   usernameObjectSchema,
   scheduleSchema,
   updateBroadcastSchema,
-  idObjectSchema,
+  idSchema,
   audioContentTypeSchema,
   paginationSchema,
   chatMsgSchema,
+  destroyChatMsgSchema,
 } from "../config/validation-schemas";
 import { validate } from "./middlewares/validate";
 
 const router = Router();
 
-router.get("/", (req, res) => {
-  res.send("Ola!\n");
-});
+// AuthN
 
-//
-// Doc
-//
-
-router.use("/doc", swaggerUI.serve, swaggerUI.setup(swaggerDocument));
-
-//
-// Auth
-//
+// TODO: add .get("/sessions") to retrieve a list of all logged in users
 
 router.post(
   "/sessions",
@@ -57,91 +44,61 @@ router.post(
   sessionsController.createSession,
 );
 router.delete("/sessions", isAuthenticated, sessionsController.destroySession);
-
 router.post(
   "/verification",
   validate(tokenSchema, "query"),
   usersController.confirmUserSignUp,
 );
 
-//
-// Accounts
-//
+// Admin
 
 router.get(
-  "/user-management/users",
+  "/admin/users",
   isAuthenticated,
   isAuthorized("read", "all_user_accounts"),
   usersController.readAllUsers,
 );
+router.delete(
+  "/admin/chat/messages/:id",
+  isAuthenticated,
+  isAuthorized("delete", "any_chat_message"),
+  validate(idSchema, "params"),
+  validate(destroyChatMsgSchema, "query"),
+  chatController.destroyAnyMsg,
+);
 
-//
 // Users
-//
 
 router.post(
-  "/users",
+  "/user",
   parseBasicAuthorizationHeader,
   validate(basicAuthZHeaderSchema, "headers"),
   validate(emailSchema, "body"),
   usersController.createUser,
 );
-router.get(
-  "/users/:userId",
-  isAuthenticated,
-  isAuthorized("read", "user_own_profile", [isOwnUserId]),
-  validate(userIdObjectSchema, "params"),
-  usersController.readUser,
-);
+router.get("/user", isAuthenticated, usersController.readUser);
 router.patch(
-  "/users/:userId",
+  "/user",
   isAuthenticated,
-  isAuthorized("partially_update", "user_own_account", [isOwnUserId]),
-  validate(userIdObjectSchema, "params"),
+  isAuthorized("update_partially", "user_own_account"),
   validate(jsonContentTypeSchema, "headers"),
   validate(usernameObjectSchema, "body"),
   usersController.updateUser,
 );
 router.delete(
-  "/users/:userId",
+  "/user",
   isAuthenticated,
-  isAuthorized("delete", "user_own_account", [isOwnUserId]),
-  validate(userIdObjectSchema, "params"),
+  isAuthorized("delete", "user_own_account"),
   usersController.destroyUser,
 );
 router.patch(
-  "/users/settings/password",
+  "/user/settings/password",
   validate(jsonContentTypeSchema, "headers"),
   validate(updatePasswordSchema, "body"),
   usersController.updatePassword,
 );
 
-//
-
-router.get(
-  "/users/:userId/bookmarks",
-  isAuthenticated,
-  isAuthorized("read", "user_own_bookmarks", [isOwnUserId]),
-  broadcastsController.readAllBookmarked,
-);
-router.post(
-  "/users/:userId/bookmarks",
-  isAuthenticated,
-  isAuthorized("create", "user_own_bookmarks", [isOwnUserId]),
-  validate(jsonContentTypeSchema, "headers"),
-  validate(broadcastIdSchema, "body"),
-  broadcastsController.bookmark,
-);
-router.delete(
-  "/users/:userId/bookmarks/:broadcastId",
-  isAuthenticated,
-  isAuthorized("delete", "user_own_bookmarks", [isOwnUserId]),
-  broadcastsController.unbookmark,
-);
-
-//
 // Schedule
-//
 
 router.get("/schedule", scheduleController.readAllScheduledBroadcasts);
 router.post(
@@ -156,20 +113,23 @@ router.delete(
   "/schedule/:id",
   isAuthenticated,
   isAuthorized("delete", "scheduled_broadcast"),
-  validate(idObjectSchema, "params"),
+  validate(idSchema, "params"),
   scheduleController.destroyScheduledBroadcast,
 );
 
-//
 // Broadcast
-//
 
 router.get("/broadcasts", broadcastsController.readAllPublished);
+router.get(
+  "/user/broadcasts/bookmarked",
+  isAuthenticated,
+  broadcastsController.readAllBookmarked,
+);
 router.patch(
   "/broadcasts/:id",
   isAuthenticated,
   isAuthorized("update_partially", "broadcast"),
-  validate(idObjectSchema, "params"),
+  validate(idSchema, "params"),
   validate(jsonContentTypeSchema, "headers"),
   validate(updateBroadcastSchema, "body"),
   broadcastsController.updatePublished,
@@ -178,8 +138,22 @@ router.delete(
   "/broadcasts/:id",
   isAuthenticated,
   isAuthorized("delete", "broadcast"),
-  validate(idObjectSchema, "params"),
+  validate(idSchema, "params"),
   broadcastsController.softDestroy,
+);
+router.post(
+  "/broadcasts/:id/bookmark",
+  isAuthenticated,
+  isAuthorized("create", "user_own_bookmarks"),
+  validate(idSchema, "params"),
+  broadcastsController.bookmark,
+);
+router.delete(
+  "/broadcasts/:id/bookmark",
+  isAuthenticated,
+  isAuthorized("delete", "user_own_bookmarks"),
+  validate(idSchema, "params"),
+  broadcastsController.unbookmark,
 );
 
 router.get(
@@ -192,7 +166,7 @@ router.patch(
   "/broadcasts/drafts/:id",
   isAuthenticated,
   isAuthorized("update_partially", "broadcast_draft"),
-  validate(idObjectSchema, "params"),
+  validate(idSchema, "params"),
   validate(jsonContentTypeSchema, "headers"),
   validate(updateBroadcastSchema, "body"),
   broadcastsController.updateHidden,
@@ -201,26 +175,23 @@ router.delete(
   "/broadcasts/drafts/:id",
   isAuthenticated,
   isAuthorized("delete", "broadcast_draft"),
-  validate(idObjectSchema, "params"),
+  validate(idSchema, "params"),
   broadcastsController.destroy,
 );
 
-//
 // Stream
-//
+
+router.get("/stream", streamController.pull);
 router.put(
   "/stream",
   isAuthenticated,
   isAuthorized("create", "audio_stream"),
   validate(audioContentTypeSchema, "headers"),
-  streamController.start,
+  streamController.push,
 );
-router.get("/stream", streamController.read);
 router.put("/stream/like", isAuthenticated, broadcastsController.like);
 
-//
 // Chat
-//
 
 router.get(
   "/chat/messages",
@@ -234,25 +205,29 @@ router.post(
   validate(chatMsgSchema, "body"),
   chatController.createMsg,
 );
-// TODO everyoone who has permission to delete comment should be able to do it (both role superadmin and listener role i.e. author of the comment)
+
 router.delete(
   "/chat/messages/:id",
   isAuthenticated,
   isAuthorized("delete", "user_own_chat_message"),
-  validate(idObjectSchema, "params"),
-  chatController.destroyMsg,
+  validate(idSchema, "params"),
+  chatController.destroyOwnMsg,
 );
 router.post(
   "/chat/messages/:id/like",
   isAuthenticated,
-  validate(idObjectSchema, "params"),
+  validate(idSchema, "params"),
   chatController.likeMsg,
 );
 router.delete(
   "/chat/messages/:id/like",
   isAuthenticated,
-  validate(idObjectSchema, "params"),
+  validate(idSchema, "params"),
   chatController.unlikeMsg,
 );
+
+// Doc
+
+router.use("/doc", swaggerUI.serve, swaggerUI.setup(swaggerDocument));
 
 export { router };

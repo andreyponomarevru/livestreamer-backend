@@ -1,65 +1,98 @@
 import util from "util";
 
 import { Request, Response, NextFunction } from "express";
+import { v4 as uuidv4 } from "uuid";
 
 import * as authService from "../services/authn/authn";
-import { HttpError } from "../utils/http-errors/http-error";
+import * as userService from "../services/user/user";
+import { HttpError } from "../utils/http-error";
 import { logger } from "../config/logger";
-import { isPasswordMatch } from "../utils/utils";
 import { COOKIE_NAME } from "../config/env";
-import { clientStore } from "./../services/chat/ws-client-store";
+import * as wsService from "../services/ws/ws";
+import { SanitizedUser, WSClient } from "../types";
+import { sanitizeUser } from "../models/user/sanitize-user";
+
+type CreateSessionReqBody = {
+  username: string;
+  email: string;
+  password: string;
+};
 
 export async function createSession(
-  req: Request,
-  res: Response,
+  req: Request<
+    Record<string, unknown>,
+    Record<string, unknown>,
+    CreateSessionReqBody
+  >,
+  res: Response<{ results: SanitizedUser }>,
   next: NextFunction,
 ): Promise<void> {
-  // TODO: update 'lastLogin' prop of userc object stored in session. Or maybe it is updated automatically or you can take it from cookie properrty? But you need to save it in database as well - do it on successful session creation
-
   try {
     if (req.body.username && req.body.email) {
-      throw new HttpError(400, "Specify either email or username");
+      throw new HttpError({
+        code: 400,
+        message: "Specify either email OR username",
+      });
     }
 
     if (req.session.authenticatedUser) {
       logger.debug(
         `${__filename} [createSession] User is already authenticated `,
       );
-      res.status(200).json(req.session.authenticatedUser.sanitized);
+      res
+        .status(200)
+        .json({ results: sanitizeUser(req.session.authenticatedUser) });
+
       return;
     }
 
-    const user = await authService.findByUsernameOrEmail({
+    const user = await userService.findByUsernameOrEmail({
       email: req.body.email,
       username: req.body.username,
     });
 
     if (!user) {
-      throw new HttpError(401, "Invalid credentials");
+      throw new HttpError({
+        code: 401,
+        message: "Invalid email, username or password",
+      });
     }
 
     if (!user.isEmailConfirmed) {
-      throw new HttpError(404, "Pending account. Please verify your email");
+      throw new HttpError({
+        code: 404,
+        message: "Pending account. Please verify your email",
+      });
     }
 
     if (user.isDeleted) {
       logger.error(
         `${__filename} [createSession] Deleted user ${user.username} tries to sign in`,
       );
-      throw new HttpError(401, "Invalid credentials");
+      throw new HttpError({
+        code: 401,
+        message: "Invalid email, username or password",
+      });
     }
 
-    if (await isPasswordMatch(req.body.password, user.password)) {
-      const { lastLoginAt } = await authService.updateLastLoginTime(user.id);
+    if (await authService.isPasswordMatch(req.body.password, user.password)) {
+      // We need to save uuid in session to be able to use it later when client ends the session by signing out: using this uuid we find the closed socket in WSClientStore and remove this socket. This is the only purpose of storing uuid in user object/in session.
+      // TODO: move lastLoginTime update to Model level, call 'updateLastLoginTime' from 'readUser' or something like that
+      const { lastLoginAt } = await userService.updateLastLoginTime(user.id);
       user.lastLoginAt = lastLoginAt;
+      user.uuid = uuidv4();
       req.session.authenticatedUser = user;
       logger.debug(
         `${__filename} [createSession] User ${user.username} is authenticated and saved in session`,
       );
       logger.debug(user);
-      res.status(200).json(user);
+
+      res.status(200).json({ results: sanitizeUser(user) });
     } else {
-      throw new HttpError(401, "Invalid credentials");
+      throw new HttpError({
+        code: 401,
+        message: "Invalid email, username or password",
+      });
     }
   } catch (err) {
     next(err);
@@ -72,7 +105,17 @@ export async function destroySession(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const wsClient = clientStore.getClient(req.session.authenticatedUser!.id);
+    let wsClient: WSClient | undefined;
+
+    if (
+      req.session &&
+      req.session.authenticatedUser &&
+      req.session.authenticatedUser.uuid
+    ) {
+      wsClient = wsService.clientStore.getClient(
+        req.session.authenticatedUser.uuid,
+      );
+    }
 
     logger.debug(
       `${__filename} [destroySession] Authenticated user is signing out: `,
@@ -80,11 +123,11 @@ export async function destroySession(
     );
     logger.debug(
       `${__filename} [destroySession] clients in store: ${util.inspect(
-        clientStore.getAllClients(),
+        wsService.clientStore.clients,
       )}`,
     );
 
-    // Handle situation when the client has signed in, but hadn't connected over WS
+    // Handle situation when the client has signed in, but hadn't connected over WS (for example, when the client is 'broadcaster' who connected only over HTTP through CLI)
     if (wsClient) {
       logger.debug(
         `WSClient ${util.inspect(
