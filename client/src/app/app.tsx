@@ -21,8 +21,8 @@ import { useAuthN, AuthNProvider } from "../hooks/use-authn";
 import { NavBar } from "../lib/nav-bar/nav-bar";
 import { StreamBar } from "../lib/stream-bar/stream-bar";
 import { PassResetPage } from "../pages/pass-reset/pass-reset";
-import { ConfirmRegistrationMsg } from "../pages/confirm-registration/confirm-registration";
-import { ConfirmSignUpPage } from "../pages/confirm-signup/confirm-signup";
+import { AskToConfirmRegistrationPage } from "../pages/ask-to-confirm-registration/ask-to-confirm-registration";
+import { ConfirmRegistrationPage } from "../pages/confirm-registration/confirm-registration";
 import { PagesDrafts } from "../pages/drafts/drafts";
 import { WebSocketContext } from "../ws-client";
 import { useWSStreamState } from "../hooks/use-ws-stream-state";
@@ -52,11 +52,14 @@ export function App(): ReactElement {
             <Routes>
               <Route
                 path="/confirmation-required"
-                element={<ConfirmRegistrationMsg />}
+                element={<AskToConfirmRegistrationPage />}
               />
               <Route path="/password-reset" element={<PassResetPage />} />
               <Route path="/forgot-pass" element={<ForgotPassPage />} />
-              <Route path="/confirm-signup" element={<ConfirmSignUpPage />} />
+              <Route
+                path="/confirm-signup"
+                element={<ConfirmRegistrationPage />}
+              />
               <Route path="/schedule" element={<PagesSchedule />} />
               <Route path="/archive" element={<PagesArchive />} />
               <Route path="/signin" element={<PagesAuth />} />
