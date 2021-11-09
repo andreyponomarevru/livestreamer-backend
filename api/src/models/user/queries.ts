@@ -1,47 +1,91 @@
-import util from "util";
-
-import pg from "pg";
+import { v4 as uuidv4 } from "uuid";
 
 import { logger } from "../../config/logger";
 import { User } from "./user";
 import { connectDB } from "../../config/postgres";
-import { UserAccount } from "../../types";
-import {
-  SignUpData,
-  ConfirmSignUpDBResponse,
-  UserPermissionsDBResponse,
-  CreateUserDBResponse,
-  ReadUserDBResponse,
-} from "./types";
+import { Permissions, RESOURCES, PERMISSIONS } from "../../config/constants";
+
+type IsEmailConfirmedDBResponse = { is_email_confirmed: boolean };
+type FindByEmailConfirmationTokenDBResponse = { appuser_id: number };
+type UpdateLastLoginTimeDBResponse = { last_login_at: string };
+type IsUserDeletedDBResponse = { is_deleted: boolean };
+type ConfirmSignUpDBResponse = {
+  appuser_id: number;
+  username: string;
+  email: string;
+};
+type IsUserExistsDBResponse = { exists: boolean };
+type UserPermissionsDBResponse = {
+  appuser_id?: number;
+  resource: typeof RESOURCES[number];
+  permissions: typeof PERMISSIONS[number][];
+};
+interface CreateUserDBResponse {
+  appuser_id: number;
+}
+type ReadUserDBResponse = {
+  appuser_id: number;
+  username: string;
+  email: string;
+  password_hash: string;
+  is_email_confirmed: boolean;
+  is_deleted: boolean;
+  created_at: string;
+  last_login_at: string;
+};
+type CreateAllowedSettingValueDBResponse = {
+  allowed_setting_value: string;
+  value: string;
+};
+type CreateSettingDBResponse = {
+  setting_id: number;
+  name: string;
+  is_constrained: boolean;
+  data_type: string;
+  value: string;
+  min_value: string;
+  max_value: string;
+};
+
+type DefaultUser = {
+  username: string;
+  password: string;
+  email: string;
+  isEmailConfirmed: boolean;
+  isDeleted: boolean;
+};
+type UserSetting = {
+  userId: number;
+  settingId: number;
+  allowedSettingValueId: number;
+  unconstrainedValue: string | null;
+};
+type AppSetting = {
+  name: string;
+  isConstrained: boolean;
+  dataType: string;
+  allowedSettingValues: string[];
+};
+type ConfirmedEmail = {
+  userId: number;
+  username: string;
+  email: string;
+};
+
+type SignUpData = {
+  email: string;
+  username: string;
+  password: string;
+  roleId: number;
+  isEmailConfirmed: boolean;
+  emailConfirmationToken: string;
+};
 
 //
 
-export async function findByUsernameOrEmail({
-  username,
-  email,
-}: {
-  username?: string;
-  email?: string;
-}): Promise<User | null> {
-  const selectUserSql =
-    "SELECT appuser_id, username, email, password_hash, created_at, last_login_at, is_email_confirmed, is_deleted FROM appuser WHERE username=$1 OR email=$2";
-  const selectUserValues = [username, email];
-
-  const pool = await connectDB();
-  const usersRes = await pool.query<{
-    appuser_id: number;
-    username: string;
-    email: string;
-    password_hash: string;
-    is_email_confirmed: boolean;
-    is_deleted: boolean;
-    created_at: string;
-    last_login_at: string;
-  }>(selectUserSql, selectUserValues);
-
-  if (usersRes.rowCount === 0) return null;
-
-  const selectUserPermissionsSql =
+// TODO: move this function to authorization model module and retrieve permissions via service layer
+async function readUserPermissions(userId: number): Promise<Permissions> {
+  const sql =
     "SELECT \
 			re.name AS resource, \
 			array_agg(pe.name) AS permissions \
@@ -59,46 +103,109 @@ export async function findByUsernameOrEmail({
 			r_r_p.resource_id, \
 			re.name, \
 			us.username";
-  const selectUserPermissionsValues = [usersRes.rows[0].appuser_id];
-  const userPermissionsRes = await pool.query<UserPermissionsDBResponse>(
-    selectUserPermissionsSql,
-    selectUserPermissionsValues,
-  );
+  const values = [userId];
+  const pool = await connectDB();
+  const res = await pool.query<UserPermissionsDBResponse>(sql, values);
 
-  const permissions: { [key: string]: string[] } = {};
-  userPermissionsRes.rows.forEach((row) => {
+  const permissions = {} as Permissions;
+  res.rows.forEach((row) => {
     permissions[row.resource] = row.permissions;
   });
 
+  return permissions;
+}
+// TODO: move this function to authorization model module and retrieve permissions via service layer
+async function readAllUsersPermission(userId: number) {
+  const sql =
+    "SELECT \
+			us.appuser_id, \
+			re.name AS resource, \
+			array_agg(pe.name) AS permissions \
+		FROM appuser AS us \
+			INNER JOIN role_resource_permission AS r_r_p \
+				ON us.role_id = r_r_p.role_id \
+			INNER JOIN role AS rol \
+				ON rol.role_id = r_r_p.role_id \
+			INNER JOIN permission AS pe \
+				ON pe.permission_id = r_r_p.permission_id \
+			INNER JOIN resource AS re \
+				ON re.resource_id = r_r_p.resource_id \
+		GROUP BY \
+			r_r_p.resource_id, \
+			re.name, \
+			us.username,\
+      us.appuser_id";
+  const values = [userId];
+  const pool = await connectDB();
+  const res = await pool.query<UserPermissionsDBResponse[]>(sql, values);
+
+  return res.rows;
+}
+
+async function findByUsernameOrEmail({
+  username,
+  email,
+}: {
+  username?: string;
+  email?: string;
+}): Promise<User | null> {
+  const sql =
+    "SELECT \
+      appuser_id, \
+      username, \
+      email, \
+      password_hash, \
+      created_at, \
+      last_login_at, \
+      is_email_confirmed, \
+      is_deleted \
+    FROM \
+      appuser \
+    WHERE \
+      username=$1 OR \
+      email=$2";
+  const values = [username, email];
+
+  const pool = await connectDB();
+  const res = await pool.query<ReadUserDBResponse>(sql, values);
+
+  if (res.rowCount === 0) return null;
+
+  const permissions = await readUserPermissions(res.rows[0].appuser_id);
+
   const user = new User({
-    id: usersRes.rows[0].appuser_id,
-    email: usersRes.rows[0].email,
-    username: usersRes.rows[0].username,
-    password: usersRes.rows[0].password_hash,
-    isEmailConfirmed: usersRes.rows[0].is_email_confirmed,
-    isDeleted: usersRes.rows[0].is_deleted,
-    createdAt: usersRes.rows[0].created_at,
-    lastLoginAt: usersRes.rows[0].last_login_at,
+    uuid: uuidv4(),
+    id: res.rows[0].appuser_id,
+    email: res.rows[0].email,
+    username: res.rows[0].username,
+    password: res.rows[0].password_hash,
+    isEmailConfirmed: res.rows[0].is_email_confirmed,
+    isDeleted: res.rows[0].is_deleted,
+    createdAt: res.rows[0].created_at,
+    lastLoginAt: res.rows[0].last_login_at,
     permissions,
   });
 
   return user;
 }
 
-export async function findByEmailConfirmationToken(
+async function findByEmailConfirmationToken(
   token: string,
 ): Promise<{ userId: number | null }> {
   const sql =
     "SELECT appuser_id FROM appuser WHERE email_confirmation_token=$1";
   const values = [token];
   const pool = await connectDB();
-  const res = await pool.query<{ appuser_id: number }>(sql, values);
+  const res = await pool.query<FindByEmailConfirmationTokenDBResponse>(
+    sql,
+    values,
+  );
 
   if (res.rowCount === 0) return { userId: null };
   else return { userId: res.rows[0].appuser_id };
 }
 
-export async function findByPasswordResetToken(
+async function findByPasswordResetToken(
   token: string,
 ): Promise<{ userId: number | null }> {
   const sql = "SELECT appuser_id FROM appuser WHERE password_reset_token=$1";
@@ -110,7 +217,7 @@ export async function findByPasswordResetToken(
   else return { userId: res.rows[0].appuser_id };
 }
 
-export async function updatePassword({
+async function updatePassword({
   userId,
   newPassword,
 }: {
@@ -144,13 +251,19 @@ export async function updatePassword({
   }
 }
 
-export async function confirmEmail(userId: number): Promise<{
-  userId: number;
-  username: string;
-  email: string;
-}> {
+async function confirmEmail(userId: number): Promise<ConfirmedEmail> {
   const sql =
-    "UPDATE appuser SET is_email_confirmed=true, email_confirmation_token=NULL WHERE appuser_id=$1 RETURNING appuser_id, username, email";
+    "UPDATE \
+      appuser \
+    SET \
+      is_email_confirmed = true, \
+      email_confirmation_token = NULL \
+    WHERE \
+      appuser_id=$1 \
+    RETURNING \
+      appuser_id, \
+      username, \
+      email";
   const values = [userId];
   const pool = await connectDB();
   const res = await pool.query<ConfirmSignUpDBResponse>(sql, values);
@@ -162,7 +275,7 @@ export async function confirmEmail(userId: number): Promise<{
   };
 }
 
-export async function isUserExists({
+async function isUserExists({
   userId,
   username,
   email,
@@ -178,12 +291,12 @@ export async function isUserExists({
 			)";
   const values = [userId, username, email];
   const pool = await connectDB();
-  const res = await pool.query<{ exists: boolean }>(sql, values);
+  const res = await pool.query<IsUserExistsDBResponse>(sql, values);
 
   return res.rows[0].exists;
 }
 
-export async function isEmailConfirmed({
+async function isEmailConfirmed({
   userId,
   email,
 }: {
@@ -194,7 +307,7 @@ export async function isEmailConfirmed({
     "SELECT is_email_confirmed FROM appuser WHERE email=$1 OR appuser_id=$2";
   const values = [email, userId];
   const pool = await connectDB();
-  const res = await pool.query<{ is_email_confirmed: boolean }>(sql, values);
+  const res = await pool.query<IsEmailConfirmedDBResponse>(sql, values);
 
   if (res.rowCount > 0 && res.rows[0].is_email_confirmed) {
     return res.rows[0].is_email_confirmed;
@@ -203,7 +316,7 @@ export async function isEmailConfirmed({
   }
 }
 
-export async function isUserDeleted({
+async function isUserDeleted({
   userId,
   email,
 }: {
@@ -213,7 +326,7 @@ export async function isUserDeleted({
   const sql = "SELECT is_deleted FROM appuser WHERE email=$1 OR appuser_id=$2";
   const values = [email, userId];
   const pool = await connectDB();
-  const res = await pool.query<{ is_deleted: boolean }>(sql, values);
+  const res = await pool.query<IsUserDeletedDBResponse>(sql, values);
 
   if (res.rowCount > 0) {
     return res.rows[0].is_deleted;
@@ -224,7 +337,7 @@ export async function isUserDeleted({
   }
 }
 
-export async function savePasswordResetToken({
+async function savePasswordResetToken({
   email,
   token,
 }: {
@@ -237,9 +350,7 @@ export async function savePasswordResetToken({
   await pool.query(sql, values);
 }
 
-export async function createUser(
-  signupData: SignUpData,
-): Promise<{ userId: number }> {
+async function createUser(signupData: SignUpData): Promise<{ userId: number }> {
   const {
     email,
     username,
@@ -249,13 +360,13 @@ export async function createUser(
     emailConfirmationToken,
   } = signupData;
 
-  const insertUserSql =
+  const sql =
     "INSERT INTO \
 			appuser (role_id, username, password_hash, email, is_email_confirmed, email_confirmation_token) \
 		VALUES \
 			($1, $2, $3, $4, $5, $6)\
 		RETURNING appuser_id";
-  const insertUserValues = [
+  const values = [
     roleId,
     username,
     password,
@@ -264,69 +375,29 @@ export async function createUser(
     emailConfirmationToken,
   ];
 
-  // TODO: allow passing user settings from service layer
-  const insertUserSettingsSql =
-    "INSERT INTO \
-			appuser_setting (appuser_id, setting_id, allowed_setting_value_id, 	unconstrained_value)\
-		VALUES (1, 1, 1, NULL)";
-  const insertUserSettingsValues = [];
-
   const pool = await connectDB();
-  const res = await pool.query<CreateUserDBResponse>(
-    insertUserSql,
-    insertUserValues,
-  );
+  const res = await pool.query<CreateUserDBResponse>(sql, values);
 
   const user = { userId: res.rows[0].appuser_id };
   return user;
 }
 
-export async function readUser(userId: number): Promise<User> {
+async function readUser(userId: number): Promise<User> {
   // TODO: include user settings in response
 
-  const selectUserSql =
+  const sql =
     "SELECT \
 			appuser_id, username, email, password_hash, created_at, last_login_at,  is_email_confirmed, is_deleted \
 		FROM appuser \
 		WHERE appuser_id=$1";
-  const selectUserProfileValues = [userId];
-
-  const selectUserPermissionsSql =
-    "SELECT \
-			re.name AS resource, \
-			array_agg(pe.name) AS permissions \
-		FROM appuser AS us \
-			INNER JOIN role_resource_permission AS r_r_p \
-				ON us.role_id = r_r_p.role_id \
-			INNER JOIN role AS rol \
-				ON rol.role_id = r_r_p.role_id \
-			INNER JOIN permission AS pe \
-				ON pe.permission_id = r_r_p.permission_id \
-			INNER JOIN resource AS re \
-				ON re.resource_id = r_r_p.resource_id \
-		WHERE us.appuser_id=$1 \
-		GROUP BY \
-			r_r_p.resource_id, \
-			re.name, \
-			us.username";
-  const selectUserPermissionsValues = [userId];
-
+  const values = [userId];
   const pool = await connectDB();
-  const userRes = await pool.query<ReadUserDBResponse>(
-    selectUserSql,
-    selectUserProfileValues,
-  );
-  const userPermissionsRes = await pool.query<UserPermissionsDBResponse>(
-    selectUserPermissionsSql,
-    selectUserPermissionsValues,
-  );
+  const userRes = await pool.query<ReadUserDBResponse>(sql, values);
+  const permissions = await readUserPermissions(userId);
 
-  const permissions: { [key: string]: string[] } = {};
-  userPermissionsRes.rows.forEach((row) => {
-    permissions[row.resource] = row.permissions;
-  });
-
+  // TODO: set uuid in service layer, it's not the responsibility of the model
   const user = new User({
+    uuid: uuidv4(),
     id: userRes.rows[0].appuser_id,
     email: userRes.rows[0].email,
     username: userRes.rows[0].username,
@@ -341,72 +412,42 @@ export async function readUser(userId: number): Promise<User> {
   return user;
 }
 
-export async function readAllUsers(): Promise<User[]> {
-  const selectUserSql =
+async function readAllUsers(): Promise<User[]> {
+  const sql =
     "SELECT \
 			appuser_id, username, email, password_hash, created_at, last_login_at,  is_email_confirmed, is_deleted \
 		FROM appuser";
-  const selectUserPermissionsSql =
-    "SELECT \
-			us.appuser_id, \
-			re.name AS resource, \
-			array_agg(pe.name) AS permissions \
-		FROM appuser AS us \
-			INNER JOIN role_resource_permission AS r_r_p \
-				ON us.role_id = r_r_p.role_id \
-			INNER JOIN role AS rol \
-				ON rol.role_id = r_r_p.role_id \
-			INNER JOIN permission AS pe \
-				ON pe.permission_id = r_r_p.permission_id \
-			INNER JOIN resource AS re \
-				ON re.resource_id = r_r_p.resource_id \
-		GROUP BY \
-			r_r_p.resource_id, \
-			re.name, \
-			us.username,\
-			us.appuser_id";
+
   const pool = await connectDB();
-  const usersRes = await pool.query<ReadUserDBResponse>(selectUserSql);
-  const userPermissionsRes = await pool.query<UserPermissionsDBResponse>(
-    selectUserPermissionsSql,
-  );
+  const res = await pool.query<ReadUserDBResponse>(sql);
 
-  if (usersRes.rowCount === 0) {
-    return [];
-  } else {
-    const users = usersRes.rows.map((userRow) => {
-      const permissions: { [key: string]: string[] } = {};
-      userPermissionsRes.rows.forEach((permissionsRow) => {
-        if (permissionsRow.appuser_id !== userRow.appuser_id) return;
-        else permissions[permissionsRow.resource] = permissionsRow.permissions;
-      });
-      return new User({
-        id: userRow.appuser_id,
-        email: userRow.email,
-        username: userRow.username,
-        password: userRow.password_hash,
-        createdAt: userRow.created_at,
-        lastLoginAt: userRow.last_login_at,
-        isEmailConfirmed: userRow.is_email_confirmed,
-        isDeleted: userRow.is_deleted,
-        permissions,
-      });
+  const users = res.rows.map((user) => {
+    return new User({
+      uuid: uuidv4(),
+      id: user.appuser_id,
+      email: user.email,
+      username: user.username,
+      password: user.password_hash,
+      createdAt: user.created_at,
+      lastLoginAt: user.last_login_at,
+      isEmailConfirmed: user.is_email_confirmed,
+      isDeleted: user.is_deleted,
+      // TODO: either add permissions to response to make it consistent with 'readUser' response or better retrieve only important data, for example  create an interface UserWithOnlyEssentialData { uuid, id, email, username }
+      permissions: [] as unknown as Permissions,
     });
+  });
 
-    return users;
-  }
+  return users;
 }
 
-export async function updateUser({
+async function updateUser({
   userId,
   username,
 }: {
   userId: number;
   username: string;
 }): Promise<User | null> {
-  // TODO: refactor into a single query
-
-  const updateUserSql =
+  const sql =
     "UPDATE \
 			appuser \
 		SET \
@@ -415,75 +456,131 @@ export async function updateUser({
 			appuser_id=$2 \
 		RETURNING \
 			appuser_id, username, email, password_hash, created_at, last_login_at,  is_email_confirmed, is_deleted";
-  const updateUserValues = [username, userId];
-
-  const selectUserPermissionsSql =
-    "SELECT \
-			re.name AS resource, \
-			array_agg(pe.name) AS permissions \
-		FROM appuser AS us \
-			INNER JOIN role_resource_permission AS r_r_p \
-				ON us.role_id = r_r_p.role_id \
-			INNER JOIN role AS rol \
-				ON rol.role_id = r_r_p.role_id \
-			INNER JOIN permission AS pe \
-				ON pe.permission_id = r_r_p.permission_id \
-			INNER JOIN resource AS re \
-				ON re.resource_id = r_r_p.resource_id \
-		WHERE us.appuser_id=$1 \
-		GROUP BY \
-			r_r_p.resource_id, \
-			re.name, \
-			us.username";
-  const userPermissionsValues = [userId];
-
+  const values = [username, userId];
   const pool = await connectDB();
-  const updatedUserRes = await pool.query<ReadUserDBResponse>(
-    updateUserSql,
-    updateUserValues,
-  );
-  const userPermissionsRes = await pool.query<UserPermissionsDBResponse>(
-    selectUserPermissionsSql,
-    userPermissionsValues,
-  );
+  const res = await pool.query<ReadUserDBResponse>(sql, values);
 
-  if (updatedUserRes.rowCount > 0) {
-    const permissions: { [key: string]: string[] } = {};
-    userPermissionsRes.rows.forEach((row) => {
-      permissions[row.resource] = row.permissions;
-    });
+  if (res.rowCount === 0) return null;
 
-    const user = new User({
-      id: updatedUserRes.rows[0].appuser_id,
-      email: updatedUserRes.rows[0].email,
-      username: updatedUserRes.rows[0].username,
-      password: updatedUserRes.rows[0].password_hash,
-      createdAt: updatedUserRes.rows[0].created_at,
-      lastLoginAt: updatedUserRes.rows[0].last_login_at,
-      isEmailConfirmed: updatedUserRes.rows[0].is_email_confirmed,
-      isDeleted: updatedUserRes.rows[0].is_deleted,
-      permissions,
-    });
+  const permissions = await readUserPermissions(userId);
+  const user = new User({
+    uuid: uuidv4(),
+    id: res.rows[0].appuser_id,
+    email: res.rows[0].email,
+    username: res.rows[0].username,
+    password: res.rows[0].password_hash,
+    createdAt: res.rows[0].created_at,
+    lastLoginAt: res.rows[0].last_login_at,
+    isEmailConfirmed: res.rows[0].is_email_confirmed,
+    isDeleted: res.rows[0].is_deleted,
+    permissions,
+  });
 
-    return user;
-  } else {
-    return null;
-  }
+  return user;
 }
 
-export async function destroyUser(userId: number): Promise<void> {
+async function destroyUser(userId: number): Promise<void> {
   const sql = "UPDATE appuser SET is_deleted=true WHERE appuser_id=$1";
   const values = [userId];
   const pool = await connectDB();
   await pool.query(sql, values);
 }
 
-export async function updateLastLoginTime(userId: number) {
+async function updateLastLoginTime(userId: number) {
   const sql =
     "UPDATE appuser SET last_login_at=NOW() WHERE appuser_id = $1 RETURNING last_login_at";
   const values = [userId];
   const pool = await connectDB();
-  const res = await pool.query<{ last_login_at: string }>(sql, values);
+  const res = await pool.query<UpdateLastLoginTimeDBResponse>(sql, values);
 
   return { lastLoginAt: res.rows[0].last_login_at };
 }
+
+async function assignSettingToUser(usetSetting: UserSetting) {
+  const sql =
+    "INSERT INTO \
+      appuser_setting (\
+        appuser_id, \
+        setting_id, \
+        allowed_setting_value_id, \
+        unconstrained_value\
+      )\
+    VALUES ($1, $2, $3, $4)";
+  const values = [
+    usetSetting.userId,
+    usetSetting.settingId,
+    usetSetting.allowedSettingValueId,
+    usetSetting.unconstrainedValue,
+  ];
+  const pool = await connectDB();
+  await pool.query(sql, values);
+}
+
+async function createAllowedSettingValue(
+  settingId: number,
+  valueName: string,
+): Promise<void> {
+  const sql =
+    "INSERT INTO allowed_setting_value (setting_id, value)\
+		VALUES ($1, $2) RETURNING	*";
+  const values = [settingId, valueName];
+  const pool = await connectDB();
+  await pool.query<CreateAllowedSettingValueDBResponse>(sql, values);
+}
+
+async function createSetting(setting: AppSetting) {
+  const sql =
+    "INSERT INTO setting (name, is_constrained, data_type) \
+    VALUES ($1, $2, $3) RETURNING *";
+  const values = [setting.name, setting.isConstrained, setting.dataType];
+  const pool = await connectDB();
+  const settingRes = await pool.query<CreateSettingDBResponse>(sql, values);
+  const settingId = settingRes.rows[0].setting_id;
+
+  for (const valueName of setting.allowedSettingValues) {
+    await createAllowedSettingValue(settingId, valueName);
+  }
+}
+
+async function createDefaultUser(defaultUser: DefaultUser) {
+  const sql =
+    "INSERT INTO appuser (\
+      username, \
+      password_hash, \
+      email, \
+      is_email_confirmed, \
+      is_deleted\
+    ) \
+    VALUES (\
+      $1, $2, $3, $4, $5, $6\
+    )";
+  const values = [
+    defaultUser.username,
+    defaultUser.password,
+    defaultUser.email,
+    defaultUser.isEmailConfirmed,
+    defaultUser.isDeleted,
+  ];
+  const pool = await connectDB();
+  const res = await pool.query(sql, values);
+  return res.rows;
+}
+
+export {
+  updateLastLoginTime,
+  destroyUser,
+  updateUser,
+  readAllUsers,
+  readUser,
+  createUser,
+  savePasswordResetToken,
+  isUserDeleted,
+  isEmailConfirmed,
+  confirmEmail,
+  updatePassword,
+  findByPasswordResetToken,
+  findByEmailConfirmationToken,
+  findByUsernameOrEmail,
+  isUserExists,
+  SignUpData,
+};

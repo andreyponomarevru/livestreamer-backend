@@ -1,11 +1,6 @@
 //
 // App Initialization
 //
-export const SUPERADMIN_EMAIL = process.env.SUPERADMIN_EMAIL!;
-export const SUPERADMIN_USERNAME = process.env.SUPERADMIN_USERNAME!;
-export const SUPERADMIN_PASSWORD = process.env.SUPERADMIN_PASSWORD!;
-export const SUPERADMIN_ROLE_ID = Number(process.env.SUPERADMIN_ROLE_ID);
-
 export const APP_NAME = process.env.APP_NAME!;
 export const NODE_ENV = process.env.NODE_ENV!;
 
@@ -13,8 +8,6 @@ export const NODE_ENV = process.env.NODE_ENV!;
 // HTTP Server
 //
 export const HTTP_PORT = Number(process.env.HTTP_PORT);
-export const POSTGRES_PORT = Number(process.env.POSTGRES_PORT);
-export const SAVED_STREAMS_DIR = process.env.SAVED_STREAMS_DIR!;
 
 //
 // WebSocket Server
@@ -22,12 +15,19 @@ export const SAVED_STREAMS_DIR = process.env.SAVED_STREAMS_DIR!;
 export const WS_SERVER_URL = process.env.WS_SERVER_URL!;
 
 //
-// Database Server
+// Postgres
 //
 export const POSTGRES_USER = process.env.POSTGRES_USER!;
 export const POSTGRES_PASSWORD = process.env.POSTGRES_PASSWORD!;
 export const POSTGRES_HOST = process.env.POSTGRES_HOST!;
-export const POSTGRES_DATABASE = process.env.POSTGRES_DATABASE!;
+export const POSTGRES_DB = process.env.POSTGRES_DB!;
+export const POSTGRES_PORT = Number(process.env.POSTGRES_PORT);
+
+//
+// Redis
+//
+export const REDIS_PORT = Number(process.env.REDIS_PORT);
+export const REDIST_HOST = process.env.REDIS_HOST!;
 
 //
 // Logger
@@ -50,9 +50,6 @@ export const MAIL_FROM_PORT = Number(process.env.MAIL_FROM_PORT)!;
 //
 // Authentication
 //
-export const REDIS_PORT = Number(process.env.REDIS_PORT);
-export const REDIST_HOST = process.env.REDIS_HOST!;
-
 export const AUTH_COOKIE_SECRET = process.env.AUTH_COOKIE_SECRET!;
 export const COOKIE_NAME = process.env.COOKIE_NAME!;
 export const REDIS_COOKIE_EXPIRATION_TTL = Number(

@@ -1,3 +1,4 @@
+/*
 import { useEffect } from "react";
 import { withRouter } from "react-router-dom";
 
@@ -15,3 +16,4 @@ function ScrollToTop({ history }: any) {
 }
 
 export default withRouter(ScrollToTop);
+*/

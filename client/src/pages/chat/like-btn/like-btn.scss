@@ -1,0 +1,40 @@
+@import "../../../global.scss";
+
+.like-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  border: none;
+  padding: 0;
+  text-decoration: none;
+  cursor: pointer;
+  background-color: $color_brand_gray-0;
+  border-radius: 50%;
+
+  &__icon {
+    @include default-icon;
+
+    width: 1.4rem;
+    height: 1.4rem;
+    padding: 0.1rem 0.2rem 0.2rem 0.2rem;
+    margin: 0;
+
+    background: none;
+
+    fill: #2b2921;
+
+    &:visited {
+      fill: #2b2921;
+    }
+
+    &:hover {
+      fill: #484537;
+    }
+
+    &:focus,
+    &:active {
+      fill: #484537;
+    }
+  }
+}

@@ -1,30 +1,23 @@
 @import "../../global.scss";
 
 .chat-page {
-  display: grid;
-  grid-template-areas:
-    "Log"
-    "Controls";
-  grid-template-rows: 1fr auto;
-  height: 100%;
-  min-height: 100%;
+  margin-bottom: 3.5rem;
+  margin-top: 1rem;
 
-  &__log {
-    grid-area: Log;
-    padding: 1rem 0;
-    height: 100%;
-    padding-bottom: 5rem;
+  &__messages-list {
+    display: grid;
+    row-gap: 0.5rem;
+
+    justify-content: center;
+    align-items: center;
+    align-content: flex-start;
   }
 
   &__controls {
-    grid-area: Controls;
-
     position: fixed;
     z-index: $zindex-fixed;
     bottom: 0;
     left: 0;
     width: 100%;
-
-    box-shadow: 0 -0.8rem 2rem black;
   }
 }

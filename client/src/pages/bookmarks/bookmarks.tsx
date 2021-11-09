@@ -1,62 +1,64 @@
-import React, { ReactElement, Fragment } from "react";
+import React, { ReactElement, Fragment, useContext, useEffect } from "react";
 
-import { EmptyBookmarksMsg } from "../../components/empty-bookmarks-msg/empty-bookmarks-msg";
-import { PageHeading } from "../../components/lib/page-heading/page-heading";
+import { NoBookmarksMsg } from "./no-bookmarks-msg/no-bookmarks-msg";
+import { PageHeading } from "../../lib/page-heading/page-heading";
 
-import { ArchiveItem } from "../../components/archive-item/archive-item";
-
-const meta = {
-  timestamp: "2312013",
-  title: "Test Stream",
-  description:
-    "Some short detxt description of this show that should not exceed 255 characters it'l like a smal tweet, just put soming here and that's it",
-  heartsCount: 3,
-  peakListenersCOunt: 8,
-  bookmarked: false,
-};
-const apiResponse = [];
+import { ArchiveItem } from "../archive/archive-item/archive-item";
+import { useFetch } from "../../hooks/use-fetch";
+import { API_ROOT_URL } from "../../config/env";
+import { BroadcastResponse } from "../../types";
+import { Loader } from "../../lib/loader/loader";
 
 export function PagesBookmarks(
   props: React.HTMLAttributes<HTMLDivElement>
 ): ReactElement {
-  let archiveItems;
-  if (apiResponse.length === 0) {
-    archiveItems = <EmptyBookmarksMsg />;
-  } else {
-    archiveItems = (
-      <Fragment>
-        <ArchiveItem
-          title={meta.title}
-          heartsCount={meta.heartsCount}
-          peakListenersCount={meta.peakListenersCOunt}
-          description={meta.description}
-          bookmarked={true}
-          timestamp={meta.timestamp}
-        />
-        <ArchiveItem
-          title={meta.title}
-          heartsCount={meta.heartsCount}
-          peakListenersCount={meta.peakListenersCOunt}
-          description={meta.description}
-          bookmarked={true}
-          timestamp={meta.timestamp}
-        />
-        <ArchiveItem
-          title={meta.title}
-          heartsCount={meta.heartsCount}
-          peakListenersCount={meta.peakListenersCOunt}
-          description={meta.description}
-          bookmarked={true}
-          timestamp={meta.timestamp}
-        />
-      </Fragment>
-    );
-  }
+  return <div></div>;
+  /*
+  const [api, setDoFetchNow] = useFetch<BroadcastResponse>({
+    url: `${API_ROOT_URL}/user/broadcasts/bookmarked`,
+    options: {
+      method: "get",
+      headers: {
+        accept: "application/json",
+        "content-type": "application/json",
+      },
+    },
+  });
 
-  return (
-    <main className="bookmarks-page">
-      <PageHeading iconName="bookmark-selected" name="Bookmarks" />
-      {archiveItems}
-    </main>
-  );
+  let broadcasts;
+  if (api.response) {
+    broadcasts = api.response.results.map((broadcast) => {
+      return (
+        <ArchiveItem
+          key={broadcast.id}
+          title={broadcast.title}
+          likeCount={broadcast.likeCount}
+          listenerPeakCount={broadcast.listenerPeakCount}
+          isBookmarked={true}
+          date={new Date(broadcast.startAt).toLocaleDateString()}
+        />
+      );
+    });
+    return (
+      <div className="bookmarks-page">
+        <PageHeading iconName="bookmark-selected" name="Bookmarks" />
+        {broadcasts.length === 0 ? <NoBookmarksMsg /> : broadcasts}
+      </div>
+    );
+  } else if (api.isLoading) {
+    return (
+      <div className="bookmarks-page">
+        <PageHeading iconName="bookmark-selected" name="Bookmarks" />
+        <Loader />
+      </div>
+    );
+  } else {
+    console.log(api);
+    return (
+      <div className="bookmarks-page">
+        <PageHeading iconName="bookmark-selected" name="Bookmarks" />
+        Something went wrong
+      </div>
+    );
+  }*/
 }

@@ -1,13 +1,34 @@
 import { Request, Response, NextFunction } from "express";
 
 import * as authnService from "../services/authn/authn";
+import * as userService from "../services/user/user";
 import { logger } from "../config/logger";
-import { HttpError } from "../utils/http-errors/http-error";
+import { HttpError } from "../utils/http-error";
 import { COOKIE_NAME } from "../config/env";
-import { clientStore } from "./../services/chat/ws-client-store";
+import * as wsService from "../services/ws/ws";
+import * as cacheService from "../services/cache/cache";
+import { User } from "../models/user/user";
+import { SanitizedUser } from "../types";
+import { sanitizeUser } from "../models/user/sanitize-user";
+
+type CreateUserReqBody = { email: string };
+type ConfirmUserSignUpReqQuery = { token: string };
+type UpdatePasswordReqBody = {
+  email: string;
+  token: string;
+  newPassword: string;
+};
+type UpdateUserReqBody = { username: string };
+type UpdateUserResBody = { results: User | null };
+type ReadAllUsersResBody = { results: User[] };
+type ReadUserResBody = { results: SanitizedUser };
 
 export async function createUser(
-  req: Request,
+  req: Request<
+    Record<string, unknown>,
+    Record<string, unknown>,
+    CreateUserReqBody
+  >,
   res: Response,
   next: NextFunction,
 ): Promise<void> {
@@ -15,17 +36,19 @@ export async function createUser(
     const username = req.headers.basicauth.username;
     const email = req.body.email;
 
-    if (req.session.authenticatedUser) {
-      throw new HttpError(403);
-    } else if (await authnService.isUserExists({ username, email })) {
-      throw new HttpError(409, "Username or email already exists");
+    if (await userService.isUserExists({ username, email })) {
+      throw new HttpError({
+        code: 409,
+        message: "Username or email already exists",
+      });
     }
 
-    await authnService.createUser({
+    // TODO: don't hard code role id, pass it as a string like 'listener', trwite SQL to insert based on this string instead of id
+    await userService.createUser({
       username: req.headers.basicauth.username,
       password: req.headers.basicauth.password,
       email: req.body.email,
-      roleId: 3,
+      roleId: 2,
       isEmailConfirmed: false,
     });
 
@@ -36,47 +59,66 @@ export async function createUser(
 }
 
 export async function confirmUserSignUp(
-  req: Request,
+  req: Request<
+    Record<string, unknown>,
+    Record<string, unknown>,
+    Record<string, unknown>,
+    ConfirmUserSignUpReqQuery
+  >,
   res: Response,
   next: NextFunction,
 ): Promise<void> {
   try {
-    const token = req.query.token as string;
+    const token = req.query.token;
 
-    const { userId } = await authnService.findByEmailConfirmationToken(token);
-    if (!userId) throw new HttpError(401);
-    await authnService.confirmEmail(userId);
-    res.set("location", `/users/${userId}`);
-    res.status(204).end();
+    const { userId } = await userService.findByEmailConfirmationToken(token);
+    if (userId) {
+      await authnService.confirmEmail(userId);
+      res.set("location", `/users/${userId}`);
+      res.status(204).end();
+    } else {
+      throw new HttpError({
+        code: 401,
+        message: "Confirmation token is invalid",
+      });
+    }
   } catch (err) {
     next(err);
   }
 }
 
 export async function updatePassword(
-  req: Request,
+  req: Request<
+    Record<string, unknown>,
+    Record<string, unknown>,
+    UpdatePasswordReqBody
+  >,
   res: Response,
   next: NextFunction,
 ): Promise<void> {
   try {
-    const email = req.body.email as string;
-    const token = req.body.token as string;
-    const newPassword = req.body.newPassword as string;
+    const email = req.body.email;
+    const token = req.body.token;
+    const newPassword = req.body.newPassword;
 
     if (email) {
-      if (!(await authnService.isEmailConfirmed({ email }))) {
+      if (!(await userService.isEmailConfirmed({ email }))) {
         res.status(202).end();
         return;
-      } else if (await authnService.isUserDeleted({ email })) {
+      } else if (await userService.isUserDeleted({ email })) {
         res.status(202).end();
         return;
       }
       await authnService.handlePasswordReset(email);
       res.status(202).end();
     } else if (token && newPassword) {
-      const { userId } = await authnService.findByPasswordResetToken(token);
-      if (!userId) throw new HttpError(401, "Invalid Token");
-      await authnService.updatePassword({ userId, newPassword });
+      const { userId } = await userService.findByPasswordResetToken(token);
+      if (!userId)
+        throw new HttpError({
+          code: 401,
+          message: "Confirmation token is invalid",
+        });
+      await userService.updatePassword({ userId, newPassword });
       res.status(204).end();
     }
   } catch (err) {
@@ -86,12 +128,26 @@ export async function updatePassword(
 
 export async function readUser(
   req: Request,
-  res: Response,
+  res: Response<ReadUserResBody>,
   next: NextFunction,
 ): Promise<void> {
   try {
-    const user = await authnService.readUser(req.session.authenticatedUser!.id);
-    res.json({ results: user.sanitized });
+    const cacheKey = `user_id_${req.session.authenticatedUser!.id}`;
+    const cachedData = await cacheService.get(cacheKey);
+    if (cachedData) {
+      logger.debug(`${__filename} Got cached data`);
+      res.status(200).json(cachedData as { results: SanitizedUser });
+      return;
+    }
+
+    const user = await userService.readUser(req.session.authenticatedUser!.id);
+    await cacheService.saveWithTTL(
+      cacheKey,
+      { results: sanitizeUser(user) },
+      300,
+    );
+
+    res.status(200).json({ results: sanitizeUser(user) });
   } catch (err) {
     next(err);
   }
@@ -99,37 +155,57 @@ export async function readUser(
 
 export async function readAllUsers(
   req: Request,
-  res: Response,
+  res: Response<ReadAllUsersResBody>,
   next: NextFunction,
 ): Promise<void> {
   try {
-    const users = await authnService.readAllUsers();
-    res.json({ results: users });
+    const cacheKey = `users`;
+    const cachedData = await cacheService.get(cacheKey);
+    if (cachedData) {
+      logger.debug(`${__filename} Got cached data`);
+      res.status(200).json(cachedData as { results: User[] });
+      return;
+    }
+
+    const users = await userService.readAllUsers();
+    await cacheService.saveWithTTL(cacheKey, { results: users }, 300);
+    res.status(200).json({ results: users });
   } catch (err) {
     next(err);
   }
 }
 
 export async function updateUser(
-  req: Request,
-  res: Response,
+  req: Request<
+    Record<string, unknown>,
+    Record<string, unknown>,
+    UpdateUserReqBody
+  >,
+  res: Response<UpdateUserResBody>,
   next: NextFunction,
 ): Promise<void> {
   try {
-    const userId = req.params.userId as unknown as number;
+    const userId = req.session.authenticatedUser!.id;
     const username = req.body.username;
 
-    if (!(await authnService.isUserExists({ userId }))) {
-      throw new HttpError(404);
-    } else if (!(await authnService.isEmailConfirmed({ userId }))) {
-      throw new HttpError(404, "Pending Account. Please Verify Your Email!");
-    } else if (await authnService.isUserDeleted({ userId })) {
-      throw new HttpError(404);
-    } else if (await authnService.isUserExists({ username })) {
-      throw new HttpError(409);
+    if (!(await userService.isUserExists({ userId }))) {
+      throw new HttpError({ code: 404 });
+    } else if (!(await userService.isEmailConfirmed({ userId }))) {
+      throw new HttpError({
+        code: 404,
+        message:
+          "Pending Account. Look for the verification email in your inbox and click the link in that email",
+      });
+    } else if (await userService.isUserDeleted({ userId })) {
+      throw new HttpError({ code: 404 });
+    } else if (await userService.isUserExists({ username })) {
+      throw new HttpError({
+        code: 409,
+        message: "Sorry, this username is already taken",
+      });
     }
 
-    const updatedUser = await authnService.updateUser({
+    const updatedUser = await userService.updateUser({
       userId,
       username,
     });
@@ -147,19 +223,25 @@ export async function destroyUser(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const userId = req.params.userId as unknown as number;
+    const userId = req.session.authenticatedUser!.id as number;
+    const userUUID = req.session.authenticatedUser!.uuid as string;
 
-    if (!(await authnService.isUserExists({ userId }))) {
-      throw new HttpError(404);
-    } else if (!(await authnService.isEmailConfirmed({ userId }))) {
-      throw new HttpError(404, "Pending Account. Please Verify Your Email!");
-    } else if (await authnService.isUserDeleted({ userId })) {
-      throw new HttpError(404);
+    if (!(await userService.isUserExists({ userId }))) {
+      res.status(204).end();
+      logger.debug("User does'nt exist");
+    } else if (!(await userService.isEmailConfirmed({ userId }))) {
+      throw new HttpError({
+        code: 404,
+        message:
+          "Pending Account. Look for the verification email in your inbox and click the link in that email",
+      });
+    } else if (await userService.isUserDeleted({ userId })) {
+      throw new HttpError({ code: 404 });
     }
 
-    await authnService.destroyUser(userId);
+    await userService.destroyUser(userId);
 
-    const wsClient = clientStore.getClient(req.session.authenticatedUser!.id);
+    const wsClient = wsService.clientStore.getClient(userUUID);
 
     req.session.destroy((err) => {
       // You cannot access session here, it has been already destroyed

@@ -1,12 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 
-import { HttpError } from "../../utils/http-errors/http-error";
+import { HttpError } from "../../utils/http-error";
 import { User } from "../../models/user/user";
 
 declare module "express-session" {
   interface SessionData {
     authenticatedUser: User;
-    liveBroadcastId: number;
   }
 }
 
@@ -15,9 +14,14 @@ export function isAuthenticated(
   res: Response,
   next: NextFunction,
 ): void {
-  if (req.session.authenticatedUser) {
+  if (req.session && req.session.authenticatedUser) {
     next();
   } else {
-    throw new HttpError(401);
+    next(
+      new HttpError({
+        code: 401,
+        message: "You must authenticate to access this resource",
+      }),
+    );
   }
 }

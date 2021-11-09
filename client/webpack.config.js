@@ -33,7 +33,7 @@ const copyPlugin = new CopyPlugin({
 });
 
 // Extract all CSS into separate .css file and inject a link as `<link href=main.css...`
-// DOC: https://webpack.js.org/plugins/mini-css-extract-plugin/
+// Doc: https://webpack.js.org/plugins/mini-css-extract-plugin/
 const miniCssExtractPlugin = new MiniCssExtractPlugin();
 
 const injectEnvVarsIntoReactPlugin = new webpack.DefinePlugin({
@@ -43,7 +43,7 @@ const injectEnvVarsIntoReactPlugin = new webpack.DefinePlugin({
 });
 
 // Generate an HTML file and inject a link to .js bundle
-// DOC: https://webpack.js.org/plugins/html-webpack-plugin/
+// Doc: https://webpack.js.org/plugins/html-webpack-plugin/
 const htmlWebpackPlugin = new HtmlWebpackPlugin({
   hash: true,
   minify: false,
@@ -55,7 +55,7 @@ const htmlWebpackPlugin = new HtmlWebpackPlugin({
 // Loaders
 //
 
-// DOC: https://webpack.js.org/guides/typescript/
+// Doc: https://webpack.js.org/guides/typescript/
 const tsLoader = {
   test: /\.(ts|tsx)$/i,
   use: "ts-loader",
@@ -84,7 +84,7 @@ const imageLoader = {
 //
 // Main conf
 //
-// DOC: https://webpack.js.org/configuration/
+// Doc: https://webpack.js.org/configuration/
 
 const webpackConf = {
   mode: NODE_ENV,
@@ -116,13 +116,12 @@ const webpackConf = {
       // directory: path.resolve(__dirname, "static"),
       publicPath: [path.join(__dirname, "public")],
     },
-    hot: "only",
+    hot: true,
     allowedHosts: "all",
     port: 8081, //PORT,
-    // in some cases helps changing the value to "127.0.0.1" or "lcoalhost or 0.0.0.0"
-    host: "localhost",
+    host: "0.0.0.0", // when you run webpack inside Docker, don't replace this values with "localhost" or any other value, otherwise you won't be able to access this dev server when it runs inside the Docker container. If webpack runs not inside Docker and you still have issues, try changing the value to "127.0.0.1" or "localhost"
     https: false,
-    // TODO: uncomment it
+    // TODO: uncomment it to enable HTTPS
     // https: {
     //	https://webpack.js.org/configuration/dev-server/#devserverhttps
     //  https://github.com/webpack/webpack-dev-server/blob/master/migration-v4.md
@@ -133,14 +132,12 @@ const webpackConf = {
     },
 
     client: {
-      // Can be `string`:
-      //
-      // To get protocol/hostname/port from browser
-      // webSocketURL: 'auto://0.0.0.0:0/ws'
+      // To get protocol/hostname/port from browser, replace 'webSocketURL' object below with `webSocketURL: 'auto://0.0.0.0:0/ws'`
       webSocketURL: {
         hostname: "0.0.0.0",
+        // 'pathname' should match the 'location' value set in Nginx, in line `location /ws {`
         pathname: "/ws",
-        port: 8081,
+        port: 8000,
       },
     },
     // It is alternative to weSocketServer option
@@ -150,6 +147,11 @@ const webpackConf = {
     //  },
     //},
     webSocketServer: "ws",
+  },
+
+  watchOptions: {
+    aggregateTimeout: 200,
+    poll: 1000,
   },
 
   plugins: [

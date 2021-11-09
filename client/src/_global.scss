@@ -37,8 +37,9 @@ $color_brand_gray-20: #808080; // tooltip
 $color_brand_gray-30: #525252; // menu :hover
 $color_brand_gray-40: #3f3f3f; // menu
 $color_brand_gray-50: #333; // header - panel
-$color_brand_gray-60: #1b1b1b; // footer - panel
-$color_brand_gray-70: #1a1a1a; // forms
+$color_brand_gray-60: #212121; // footer - panel
+$color_brand_gray-70: #181818; // forms
+$color_brand_gray-80: #0f0f0f;
 $color_brand_gradient-gray-0: linear-gradient(to top, #1a1a1a, #333);
 $color_brand_green: #37c871;
 $color_brand_gradient-green: linear-gradient(to right, #37c871, #2affd5);
@@ -53,9 +54,12 @@ $color_gray-darken: #333333;
 $color_gray_darkest: #1a1a1a;
 $color_black: black;
 
+$color_pink: #ff66cc;
+$color_bleu: #66b3ff;
+
 $color_success: #329a32;
 $color_warning: #f3c50c;
-$color_danger: #ff5555;
+$color_danger: #e94848;
 $color_info: #3ca8c3;
 $color_disabled: #939dac;
 
@@ -110,7 +114,8 @@ $zindex-popover: 1060 !default;
 $zindex-tooltip: 1070 !default;
 
 // other
-$border_radius: 15px !default;
+$border_radius_btn: 6px;
+$border_radius_block: 12px;
 $content-max-width: 20rem;
 
 //

@@ -1,0 +1,12 @@
+@import "../../global.scss";
+
+.text-input {
+  border: none;
+  background-color: $color_gray-darkest;
+  color: $color_gray-lighten;
+  padding: 0.4rem 0.8rem;
+  outline-color: black;
+  min-width: 7rem;
+  height: 2.6rem;
+  border-radius: $border_radius_btn;
+}

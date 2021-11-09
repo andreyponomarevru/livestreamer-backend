@@ -1,53 +1,55 @@
-import React, { ReactElement, Fragment } from "react";
+import React, { ReactElement, Fragment, useState, useEffect } from "react";
 
-import { ArchiveItem } from "../../components/archive-item/archive-item";
-import { PageHeading } from "../../components/lib/page-heading/page-heading";
+import { ArchiveItem } from "./archive-item/archive-item";
+import { PageHeading } from "../../lib/page-heading/page-heading";
+import { BroadcastResponse } from "../../types";
+import { useFetch } from "../../hooks/use-fetch";
+import { API_ROOT_URL } from "../../config/env";
+import { Loader } from "../../lib/loader/loader";
+import { useIsMounted } from "../../hooks/use-is-mounted";
+import { Message } from "../../lib/message/message";
+import { Page } from "../../lib/page/page";
 
-const meta = {
-  timestamp: "2312013",
-  title: "Test Stream",
-  description:
-    "Some short detxt description of this show that should not exceed 255 characters it'l like a smal tweet, just put soming here and that's it",
-  heartsCount: 3,
-  peakListenersCOunt: 8,
-};
+import "../../lib/items-list/items-list.scss";
 
 export function PagesArchive(
   props: React.HTMLAttributes<HTMLDivElement>
 ): ReactElement {
+  const isMounted = useIsMounted();
+
+  const [broadcasts, fetchBroadcastsNow] = useFetch<BroadcastResponse>();
+
+  useEffect(() => {
+    if (isMounted) {
+      fetchBroadcastsNow(`${API_ROOT_URL}/broadcasts`);
+    }
+  }, [isMounted]);
+
   return (
-    <main className="archive-page">
+    <Page className="page_list">
       <PageHeading iconName="archive" name="Archive" />
-      <ArchiveItem
-        title={meta.title}
-        heartsCount={meta.heartsCount}
-        peakListenersCount={meta.peakListenersCOunt}
-        description={meta.description}
-        timestamp={meta.timestamp}
-      />
-      <ArchiveItem
-        title={meta.title}
-        heartsCount={meta.heartsCount}
-        peakListenersCount={meta.peakListenersCOunt}
-        description={meta.description}
-        bookmarked={true}
-        timestamp={meta.timestamp}
-      />
-      <ArchiveItem
-        title={meta.title}
-        heartsCount={meta.heartsCount}
-        peakListenersCount={meta.peakListenersCOunt}
-        description={meta.description}
-        bookmarked={true}
-        timestamp={meta.timestamp}
-      />
-      <ArchiveItem
-        title={meta.title}
-        heartsCount={meta.heartsCount}
-        peakListenersCount={meta.peakListenersCOunt}
-        description={meta.description}
-        timestamp={meta.timestamp}
-      />
-    </main>
+
+      {broadcasts.isLoading && <Loader />}
+
+      {broadcasts.error && (
+        <Message type="danger">Something went wrong :(</Message>
+      )}
+
+      {broadcasts.response?.body && (
+        <ul className="items-list">
+          {broadcasts.response.body.results.map((broadcast) => {
+            return (
+              <ArchiveItem
+                key={broadcast.id}
+                title={broadcast.title}
+                likeCount={broadcast.likeCount}
+                listenerPeakCount={broadcast.listenerPeakCount}
+                date={new Date(broadcast.startAt).toLocaleDateString()}
+              />
+            );
+          })}
+        </ul>
+      )}
+    </Page>
   );
 }

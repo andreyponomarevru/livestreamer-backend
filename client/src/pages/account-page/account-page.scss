@@ -7,4 +7,16 @@
     row-gap: 0.8rem;
     padding: 0 0.8rem 1rem 0.8rem;
   }
+
+  &__failed-signout {
+    background-color: #330000;
+    color: $color_danger;
+    padding: 0.7rem 0.8rem;
+  }
+
+  &__delete-account-btn {
+    flex-flow: row wrap;
+    display: inline-flex;
+    justify-content: center;
+  }
 }

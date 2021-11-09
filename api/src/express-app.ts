@@ -19,21 +19,21 @@ const expressApp = express();
 expressApp.set("port", HTTP_PORT);
 // If the Node app is behind a proxy (like Nginx), we have to set
 // proxy to true (more specifically to 'trust first proxy')
-if (env.NODE_ENV === "production") expressApp.set("trust proxy", 1);
+if (env.NODE_ENV === "prod") expressApp.set("trust proxy", 1);
 // Save in var in order to use it for WebSocket Upgrade request authentication:
 const sessionParser = session(sess);
 
+expressApp.use(cors());
 expressApp.use((req, res, next) => {
   logger.debug(req.headers);
   next();
 });
 expressApp.use(sessionParser);
 expressApp.use(morganLogger("combined", morganSettings));
-expressApp.use(cors());
 expressApp.use(express.json());
 expressApp.use(express.urlencoded({ extended: true }));
 expressApp.use(express.static(path.join(__dirname, "public")));
-expressApp.use("/api/v1", router);
+expressApp.use("/", router);
 // If request doesn't match the routes above, it is past to 404 error handler
 expressApp.use(handle404Error);
 expressApp.use(handleErrors);

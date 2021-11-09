@@ -1,5 +1,5 @@
 import { connectDB } from "../../config/postgres";
-import { logger } from "../../config/logger";
+import { ScheduledBroadcastDBResponse, Schedule } from "../../types";
 
 export async function create({
   title,
@@ -44,9 +44,19 @@ export async function destroy(broadcastId: number): Promise<void> {
   await pool.query<{ scheduled_broadcast_id: number }>(sql, values);
 }
 
-export async function readAll() {
+export async function readAll(): Promise<Schedule[]> {
   const sql = "SELECT * FROM scheduled_broadcast";
   const pool = await connectDB();
-  const res = await pool.query(sql);
-  return res.rows;
+  const res = await pool.query<ScheduledBroadcastDBResponse>(sql);
+
+  const broadcasts = res.rows.map((row) => {
+    return {
+      id: row.scheduled_broadcast_id,
+      title: row.title,
+      startAt: row.start_at,
+      endAt: row.end_at,
+    };
+  });
+
+  return broadcasts;
 }

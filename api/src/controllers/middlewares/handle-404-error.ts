@@ -2,10 +2,9 @@ import util from "util";
 
 import { Request, Response, NextFunction } from "express";
 
-import { HttpError } from "../../utils/http-errors/http-error";
+import { HttpError } from "../../utils/http-error";
 import { logger } from "../../config/logger";
 
-// Forward 404 errors to main error handler
 export function handle404Error(
   req: Request,
   res: Response,
@@ -17,5 +16,7 @@ export function handle404Error(
       req.headers,
     )}\nurl:\n${req.url}\npath:\n${req.path}`,
   );
-  next(new HttpError(404));
+  next(
+    new HttpError({ code: 404, message: "The requested page does not exist" }),
+  );
 }

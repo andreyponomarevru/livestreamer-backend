@@ -1,74 +1,38 @@
-import { v4 as uuidv4 } from "uuid";
-
 import * as db from "../../models/broadcast/queries";
-import {
-  BroadcastUpdate,
-  WSClientStoreStats,
-  NewBroadcast,
-  BroadcastDraft,
-  NewBroadcastLike,
-  Bookmark,
-} from "../../types";
-import { getCurrentISOTimestampWithoutTimezone } from "../../utils/utils";
-import { NODE_ENV, SAVED_STREAMS_DIR } from "../../config/env";
-import broadcastEvents from "./broadcast-events";
+import { BroadcastUpdate, Bookmark, Broadcast } from "../../types";
 
-export async function createBroadcast() {
-  const title = getCurrentISOTimestampWithoutTimezone();
-  const writeTo = `${SAVED_STREAMS_DIR}/${uuidv4()}.mp3`;
-
-  return await db.create({
-    title,
-    downloadUrl: writeTo,
-    listenerPeakCount: 0,
-    isVisible: false,
-  });
-}
-
-export async function readBroadcast(broadcastId: number) {
+export async function read(broadcastId: number): Promise<Broadcast | null> {
   return await db.read(broadcastId);
 }
 
-export async function readAllPublishedBroadcasts() {
+export async function readAllPublished(): Promise<Broadcast[]> {
   return await db.readAll({ isVisible: true });
 }
 
-export async function readAllHiddenBroadcasts() {
+export async function readAllHidden(): Promise<Broadcast[]> {
   return await db.readAll({ isVisible: false });
 }
 
-/* TODO: probably need to be moved somewhere. Implement as follows: on each client count change compare it with count stored in Redis. If it is bigger - update count in Redis. When stream is closed, save count to Postgres
- */
-export async function updatePeakClientCount(count: number) {
-  // I need broadcast ID to update it, how to get it?
-  //db.update(count);
-}
-
-export async function updatePublishedBroadcast(broadcast: BroadcastUpdate) {
+export async function updatePublished(broadcast: BroadcastUpdate) {
   return await db.update(broadcast, { isVisible: true });
 }
 
-export async function updateHiddenBroadcast(broadcast: BroadcastUpdate) {
+export async function updateHidden(broadcast: BroadcastUpdate) {
   return await db.update(broadcast, { isVisible: false });
 }
 
-export async function destroyBroadcast(broadcastId: number) {
+export async function destroy(broadcastId: number) {
   return await db.destroy(broadcastId);
 }
 
-export async function likeBroadcast(like: NewBroadcastLike) {
-  const broadcastLike = await db.like(like);
-  broadcastEvents.like(broadcastLike);
-}
-
-export async function bookmarkBroadcast(bookmark: Bookmark) {
+export async function bookmark(bookmark: Bookmark) {
   return await db.bookmark(bookmark);
 }
 
-export async function readAllBookmarkedBroadcasts(userId: number) {
+export async function readAllBookmarked(userId: number) {
   return await db.readAllBookmarked(userId);
 }
 
-export async function unbookmarkBroadcast(bookmark: Bookmark) {
+export async function unbookmark(bookmark: Bookmark) {
   return await db.unbookmark(bookmark);
 }
