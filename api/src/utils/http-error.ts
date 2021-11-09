@@ -1,19 +1,29 @@
-import { errorCodes } from "./http-error-codes";
+import {
+  HttpErrorCodes,
+  HttpErrorNames,
+  HttpErrorMessages,
+  HTTP_ERRORS,
+} from "./../config/constants";
 
 export class HttpError {
-  statusCode: number;
-  message?: string;
+  status: HttpErrorCodes;
+  statusText: HttpErrorNames;
+  message?: HttpErrorMessages;
   moreInfo?: string;
 
-  constructor(
-    errorCode: number,
-    message?: string,
-    more_info = "https://github.com/ponomarevandrey/",
-  ) {
-    this.statusCode = errorCode;
-    this.message = message;
-    this.moreInfo = more_info;
+  constructor({
+    code,
+    message,
+    moreInfo = "https://github.com/ponomarevandrey/",
+  }: {
+    code: HttpErrorCodes;
+    message?: HttpErrorMessages;
+    moreInfo?: string;
+  }) {
+    this.status = code;
+    this.statusText = HTTP_ERRORS[code];
+    this.moreInfo = moreInfo;
 
-    if (this.message === undefined) this.message = errorCodes[errorCode];
+    if (message) this.message = message;
   }
 }
