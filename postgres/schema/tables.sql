@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS role (
   PRIMARY KEY (role_id),
-  role_id              integer                     NOT NULL,
+  role_id              integer                     GENERATED ALWAYS AS IDENTITY,
   name                 varchar(30)                 NOT NULL, 
 																									 UNIQUE (name), 
 																									 CHECK (name != '')
@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS role (
 
 CREATE TABLE IF NOT EXISTS resource (
   PRIMARY KEY (resource_id),
-  resource_id          integer                     NOT NULL,
+  resource_id          integer                     GENERATED ALWAYS AS IDENTITY,
   name                 varchar(30)                 NOT NULL, 
 	                                                 UNIQUE (name), 
 																									 CHECK (name != '')
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS resource (
 
 CREATE TABLE IF NOT EXISTS permission (
   PRIMARY KEY (permission_id),
-  permission_id        integer                     NOT NULL,
+  permission_id        integer                     GENERATED ALWAYS AS IDENTITY,
   name                 varchar(70)                 NOT NULL, 
 	                                                 UNIQUE (name), 
 																									 CHECK (name != '')
@@ -71,8 +71,8 @@ CREATE TABLE IF NOT EXISTS appuser (
   email               varchar(320)                 NOT NULL, 
 	                                                 UNIQUE (email), 
 																									 CHECK (email != ''),
-  created_at          timestamp without time zone  DEFAULT CURRENT_TIMESTAMP,
-  last_login_at       timestamp without time zone  NULL,
+  created_at          timestamp with time zone     DEFAULT CURRENT_TIMESTAMP,
+  last_login_at       timestamp with time zone     NULL,
   is_deleted          boolean                      DEFAULT FALSE,
   is_email_confirmed  boolean                      DEFAULT FALSE, 
 	email_confirmation_token  varchar(128)           DEFAULT NULL,
@@ -164,7 +164,7 @@ CREATE TABLE IF NOT EXISTS chat_message (
   PRIMARY KEY (chat_message_id),
   chat_message_id     integer                      GENERATED ALWAYS AS IDENTITY,
   appuser_id          integer                      NOT NULL,
-  created_at          timestamp without time zone  DEFAULT CURRENT_TIMESTAMP,
+  created_at          timestamp with time zone     DEFAULT CURRENT_TIMESTAMP,
   message             varchar(500)                 NOT NULL, 
 	                                                 CHECK (message != ''),
   
@@ -182,6 +182,7 @@ CREATE INDEX
 	chat_message__created_at_idx 
 ON 
 	chat_message (created_at DESC);
+
 
 
 CREATE TABLE IF NOT EXISTS chat_message_like (
@@ -203,17 +204,13 @@ CREATE TABLE IF NOT EXISTS broadcast (
   PRIMARY KEY (broadcast_id),
   broadcast_id        integer                     GENERATED ALWAYS AS IDENTITY,
   title               varchar(70)                 NOT NULL, 
-	                                                UNIQUE (title), 
 																									CHECK (title != ''),
-  tracklist           varchar(800)                DEFAULT NULL, 
-	                                               CHECK (tracklist != ''),
-  start_at            timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-  end_at              timestamp without time zone DEFAULT NULL,
+  tracklist           varchar(800)                DEFAULT '',
+  start_at            timestamp with time zone    DEFAULT NULL,
+  end_at              timestamp with time zone    DEFAULT NULL,
   listener_peak_count integer                     DEFAULT 0,
-  download_url        text                        DEFAULT NULL, 
-	                                                CHECK (download_url != ''),
-  listen_url          text                        DEFAULT NULL, 
-	                                                CHECK (listen_url != ''),
+  download_url        text                        DEFAULT '',
+  listen_url          text                        DEFAULT '',
   is_visible          boolean                     DEFAULT FALSE,
                                                   CHECK (is_visible != NULL)
 );
@@ -233,14 +230,14 @@ CREATE TABLE IF NOT EXISTS appuser_bookmark (
 		ON DELETE CASCADE
 );
 
-  
+
 
 CREATE TABLE IF NOT EXISTS broadcast_like (
   PRIMARY KEY (broadcast_id, appuser_id),
   broadcast_id         integer                       NOT NULL,
   appuser_id           integer                       NOT NULL,
   count                integer                       DEFAULT 0,
-  created_at           timestamp without time zone   DEFAULT CURRENT_TIMESTAMP,
+  created_at           timestamp with time zone      DEFAULT CURRENT_TIMESTAMP,
   
   FOREIGN KEY (broadcast_id) REFERENCES broadcast (broadcast_id)
     ON UPDATE NO ACTION
@@ -256,107 +253,7 @@ CREATE TABLE IF NOT EXISTS scheduled_broadcast (
   PRIMARY KEY (scheduled_broadcast_id),
   scheduled_broadcast_id  integer                  GENERATED ALWAYS AS IDENTITY,
   title                   varchar(70)                   NOT NULL, 
-	                                                      UNIQUE (title),
 						  										     					        CHECK (title != ''),
-  start_at                timestamp without time zone   DEFAULT NULL,
-  end_at                  timestamp without time zone   DEFAULT NULL
+  start_at                timestamp with time zone      DEFAULT NULL,
+  end_at                  timestamp with time zone      DEFAULT NULL
 );
-
-
-
---
-
-
-/* TODO: probabl we don't need this view, delete it
-CREATE VIEW view_broadcast_like AS
-SELECT
-  broadcast_id, 
-  SUM(count) AS likes_count
-FROM
-  broadcast_like 
-GROUP BY
-  broadcast_id;
-*/
-
-
-CREATE VIEW view_broadcast AS
-SELECT 
-	br.broadcast_id,
-	br.title,
-	br.tracklist,
-	br.start_at,
-	br.end_at,
-	br.listener_peak_count,
-	br.download_url,
-	br.listen_url,
-	br.is_visible,
-	SUM(br_li.count) AS likes_count
-FROM broadcast AS br
-  FULL OUTER JOIN
-    broadcast_like AS br_li
-  ON
-    br_li.broadcast_id = br.broadcast_id
-  GROUP BY
-    br.broadcast_id
-  ORDER BY
-    start_at,
-    br.broadcast_id;
-
-
-
-CREATE VIEW view_role_permissions AS
-SELECT
-	ro.role_id,
-	re.name AS resource,
-	array_agg(pe.name) AS permissions
-FROM role AS ro
-	INNER JOIN role_resource_permission AS r_r_p
-		ON ro.role_id = r_r_p.role_id
-	INNER JOIN permission AS pe
-		ON pe.permission_id = r_r_p.permission_id
-	INNER JOIN resource AS re
-		ON re.resource_id = r_r_p.resource_id
-GROUP BY
-	r_r_p.resource_id,
-	ro.name,
-	ro.role_id,
-	re.name
-ORDER BY
-	role_id;
-
-
-
-CREATE VIEW view_chat_history AS
-SELECT
-  c_m.appuser_id,
-  c_m.chat_message_id,
-  c_m.created_at,
-  c_m.message,
-  -- if the message doesn't have likes, Postgres returns '[null]' after join. To fix this and return just an empty array, we use 'array_remove'
-  array_remove(array_agg(c_m_l.appuser_id), NULL) AS liked_by_user_id
-FROM chat_message_like AS c_m_l
-  FULL OUTER JOIN 
-    chat_message AS c_m 
-  ON
-    c_m.chat_message_id = c_m_l.chat_message_id
-  GROUP BY 
-    c_m_l.chat_message_id,
-    c_m.chat_message_id
-  ORDER BY
-    c_m.created_at,
-    c_m.chat_message_id
-  ASC;
-
-
-
-CREATE VIEW view_chat_message_likes AS
-SELECT 
-  c_m.chat_message_id,
-  array_remove(array_agg(c_m_l.appuser_id), NULL) AS liked_by_user_id
-FROM chat_message_like AS c_m_l
-  FULL OUTER JOIN 
-    chat_message AS c_m
-  ON
-    c_m.chat_message_id = c_m_l.chat_message_id
-GROUP BY
-  c_m.chat_message_id;
