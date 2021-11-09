@@ -1,29 +1,54 @@
 import { Request, Response, NextFunction } from "express";
 
 import { logger } from "../config/logger";
-import { wsServer } from "../ws-server";
-import * as db from "../models/broadcast/queries";
+import * as streamService from "../services/stream/stream";
+import { HttpError } from "../utils/http-error";
 import * as broadcastService from "../services/broadcast/broadcast";
-import inoutStream from "../services/stream/inout-stream";
-import broadcastEvents from "./../services/broadcast/broadcast-events";
-import { SavedBroadcastLike } from "../types";
+import * as cacheService from "../services/cache/cache";
+import { Broadcast } from "../types";
 
-function onLikeBroadcast(like: SavedBroadcastLike) {
-  wsServer.sendToAllExceptSender(
-    { event: "broadcast:like", data: like },
-    like.likedByUserId,
-  );
-}
-broadcastEvents.on("like", onLikeBroadcast);
+type ReadAllPublishedResBody = { results: Broadcast[] };
+type ReadAllHiddenResBody = { results: Broadcast[] };
+type UpdatePublishedReqParams = { id?: number };
+type UpdatePublishedReqBody = {
+  title: string;
+  tracklist: string;
+  downloadUrl: string;
+  listenUrl: string;
+  isVisible: boolean;
+};
+type UpdateHiddenReqParams = { id?: number };
+type UpdateHiddenReqBody = {
+  title: string;
+  tracklist: string;
+  downloadUrl: string;
+  listenUrl: string;
+  isVisible: boolean;
+};
+type DestroyReqParams = { id?: number };
+type SoftDestroyReqParams = { id?: number };
+type BookmarkReqParams = { id?: number };
+type UnbookmarkReqParams = { id?: number };
+type ReadAllBookmarkedResBody = { results: Broadcast[] };
 
 export async function readAllPublished(
   req: Request,
-  res: Response,
+  res: Response<ReadAllPublishedResBody>,
   next: NextFunction,
 ): Promise<void> {
   try {
-    const broadcasts = await broadcastService.readAllPublishedBroadcasts();
-    res.json({ results: broadcasts });
+    const cacheKey = `public_broadcasts`;
+    const cachedData = await cacheService.get(cacheKey);
+    if (cachedData) {
+      logger.debug(`${__filename} Got cached data`);
+      res.status(200).json(cachedData as ReadAllPublishedResBody);
+      return;
+    }
+
+    const broadcasts = await broadcastService.readAllPublished();
+    await cacheService.saveWithTTL(cacheKey, { results: broadcasts }, 300);
+
+    res.status(200).json({ results: broadcasts });
   } catch (err) {
     next(err);
   }
@@ -31,11 +56,11 @@ export async function readAllPublished(
 
 export async function readAllHidden(
   req: Request,
-  res: Response,
+  res: Response<ReadAllHiddenResBody>,
   next: NextFunction,
 ): Promise<void> {
   try {
-    const broadcasts = await broadcastService.readAllHiddenBroadcasts();
+    const broadcasts = await broadcastService.readAllHidden();
     res.json({ results: broadcasts });
   } catch (err) {
     next(err);
@@ -43,13 +68,13 @@ export async function readAllHidden(
 }
 
 export async function updatePublished(
-  req: Request,
+  req: Request<UpdatePublishedReqParams, UpdatePublishedReqBody>,
   res: Response,
   next: NextFunction,
 ): Promise<void> {
   try {
-    await broadcastService.updatePublishedBroadcast({
-      id: Number(req.params.id),
+    await broadcastService.updatePublished({
+      id: req.params.id as number,
       title: req.body.title,
       tracklist: req.body.tracklist,
       downloadUrl: req.body.downloadUrl,
@@ -63,13 +88,13 @@ export async function updatePublished(
 }
 
 export async function updateHidden(
-  req: Request,
+  req: Request<UpdateHiddenReqParams, UpdateHiddenReqBody>,
   res: Response,
   next: NextFunction,
 ): Promise<void> {
   try {
-    await broadcastService.updateHiddenBroadcast({
-      id: Number(req.params.id),
+    await broadcastService.updateHidden({
+      id: req.params.id as number,
       title: req.body.title,
       tracklist: req.body.tracklist,
       downloadUrl: req.body.downloadUrl,
@@ -83,13 +108,13 @@ export async function updateHidden(
 }
 
 export async function destroy(
-  req: Request,
+  req: Request<DestroyReqParams>,
   res: Response,
   next: NextFunction,
 ): Promise<void> {
   try {
-    const broadcastId = Number(req.params.id);
-    await broadcastService.destroyBroadcast(broadcastId);
+    const broadcastId = req.params.id as number;
+    await broadcastService.destroy(broadcastId);
     res.status(204).end();
   } catch (err) {
     next(err);
@@ -97,13 +122,13 @@ export async function destroy(
 }
 
 export async function softDestroy(
-  req: Request,
+  req: Request<SoftDestroyReqParams>,
   res: Response,
   next: NextFunction,
 ): Promise<void> {
   try {
-    const broadcastId = Number(req.params.id);
-    await broadcastService.updatePublishedBroadcast({
+    const broadcastId = req.params.id as number;
+    await broadcastService.updatePublished({
       id: broadcastId,
       isVisible: false,
     });
@@ -119,12 +144,15 @@ export async function like(
   next: NextFunction,
 ): Promise<void> {
   try {
-    if (inoutStream.isPaused()) res.status(404).end();
+    if (streamService.inoutStream.isPaused())
+      throw new HttpError({
+        code: 404,
+        message: "The requested page does not exist",
+      });
 
-    // TODO: retrieve broadcast ID from Redis
-    await broadcastService.likeBroadcast({
-      userId: req.body.userId,
-      broadcastId: req.body.broadcastId,
+    await streamService.like({
+      userUUID: req.session.authenticatedUser!.uuid!,
+      userId: req.session.authenticatedUser!.id,
     });
     res.status(204).end();
   } catch (err) {
@@ -133,14 +161,14 @@ export async function like(
 }
 
 export async function bookmark(
-  req: Request,
+  req: Request<BookmarkReqParams>,
   res: Response,
   next: NextFunction,
 ): Promise<void> {
   try {
-    await broadcastService.bookmarkBroadcast({
+    await broadcastService.bookmark({
       userId: req.session.authenticatedUser!.id,
-      broadcastId: req.body.broadcastId,
+      broadcastId: req.params.id as number,
     });
     res.status(204).end();
   } catch (err) {
@@ -150,13 +178,24 @@ export async function bookmark(
 
 export async function readAllBookmarked(
   req: Request,
-  res: Response,
+  res: Response<ReadAllBookmarkedResBody>,
   next: NextFunction,
 ): Promise<void> {
   try {
-    const broadcasts = await broadcastService.readAllBookmarkedBroadcasts(
+    const cacheKey = `user_${req.session.authenticatedUser!.id}_bookmarks`;
+    const cachedData = await cacheService.get(cacheKey);
+
+    if (cachedData) {
+      logger.debug(`${__filename} Got cached data`);
+      res.status(200).json(cachedData as ReadAllBookmarkedResBody);
+      return;
+    }
+
+    const broadcasts = await broadcastService.readAllBookmarked(
       req.session.authenticatedUser!.id,
     );
+    await cacheService.saveWithTTL(cacheKey, { results: broadcasts }, 300);
+
     res.status(200).json({ results: broadcasts });
   } catch (err) {
     next(err);
@@ -164,14 +203,14 @@ export async function readAllBookmarked(
 }
 
 export async function unbookmark(
-  req: Request,
+  req: Request<UnbookmarkReqParams>,
   res: Response,
   next: NextFunction,
 ): Promise<void> {
   try {
-    await broadcastService.unbookmarkBroadcast({
+    await broadcastService.unbookmark({
       userId: req.session.authenticatedUser!.id,
-      broadcastId: Number(req.params.broadcastId),
+      broadcastId: req.params.id as number,
     });
     res.status(204).end();
   } catch (err) {
