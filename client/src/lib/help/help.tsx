@@ -1,7 +1,6 @@
 import * as React from "react";
 
 import "../link/link.scss";
-import "./help.scss";
 
 function Help() {
   return (
