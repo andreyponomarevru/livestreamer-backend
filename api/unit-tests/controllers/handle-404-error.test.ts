@@ -15,6 +15,6 @@ describe("handle404Error middleware", () => {
     handle404Error(req, res, next);
 
     expect(next).toBeCalledTimes(1);
-    expect(next).toBeCalledWith(new HttpError(404));
+    expect(next).toBeCalledWith(new HttpError({ code: 404 }));
   });
 });

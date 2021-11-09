@@ -14,7 +14,7 @@ describe("isAuthenticated middleware", () => {
 
     await isAuthenticated(req, res, next);
 
-    expect(next).toBeCalledWith(new HttpError(401));
+    expect(next).toBeCalledWith(new HttpError({ code: 401 }));
   });
 
   it("calls next function with an error, if there is no authenticatedUser in 'session'", async () => {
@@ -24,7 +24,7 @@ describe("isAuthenticated middleware", () => {
 
     await isAuthenticated(req, res, next);
 
-    expect(next).toBeCalledWith(new HttpError(401));
+    expect(next).toBeCalledWith(new HttpError({ code: 401 }));
   });
 
   it("calls next function with no arguments, if there is a session and authenticated user object", async () => {

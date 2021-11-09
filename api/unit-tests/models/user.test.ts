@@ -4,8 +4,9 @@ import { v4 as uuidv4 } from "uuid";
 
 import { User } from "../../src/models/user/user";
 import { Permissions } from "../../src/config/constants";
+import { sanitizeUser } from "../../src/models/user/sanitize-user";
 
-describe("User class", () => {
+describe("sanitizeUser function", () => {
   let user: User;
   const uuid = uuidv4();
   const id = 1;
@@ -19,7 +20,7 @@ describe("User class", () => {
   const lastLoginAt = new Date().toISOString();
 
   beforeEach(() => {
-    user = new User({
+    user = {
       uuid,
       id,
       email,
@@ -29,21 +30,16 @@ describe("User class", () => {
       isEmailConfirmed,
       isDeleted,
       permissions,
-    });
+    };
   });
 
   it("returns sanitized user", () => {
-    expect(user.sanitized).toStrictEqual({ id, email, username, permissions });
-  });
-
-  it("throws an error on attempt to get last login timestamp if it is not set", () => {
-    expect(() => {
-      user.lastLoginAt;
-    }).toThrow();
-  });
-
-  it("returns last login timestamp if it is set", () => {
-    user.lastLoginAt = lastLoginAt;
-    expect(user.lastLoginAt).toEqual(lastLoginAt);
+    expect(sanitizeUser(user)).toStrictEqual({
+      uuid,
+      id,
+      email,
+      username,
+      permissions,
+    });
   });
 });
