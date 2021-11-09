@@ -1,53 +1,64 @@
-import React, { ReactElement, useState } from "react";
-import { Route, NavLink, BrowserRouter as Router } from "react-router-dom";
+import React, { ReactElement, useState, useEffect } from "react";
+import {
+  Route,
+  NavLink,
+  BrowserRouter as Router,
+  Link,
+  useLocation,
+} from "react-router-dom";
 
 import "./nav-bar.scss";
+
+import { Icon } from "../../lib/icon/icon";
+import { useAuthN } from "../../hooks/use-authn";
+import { useIsMounted } from "../../hooks/use-is-mounted";
+import { Menu } from "../../lib/menu/menu";
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
   className?: string;
 }
 
 export function NavBar(props: Props): ReactElement {
-  const [isOpen, setIsOpen] = useState(false);
-
   function handleToggleMenu() {
+    console.log("[handleToggleMenu] toggle menu");
     setIsOpen((prev) => !prev);
   }
 
-  // Close menu when you click a menu item
-  function handleAutoCloseMenu() {
-    setIsOpen(false);
-  }
+  const location = useLocation();
+  const isMounted = useIsMounted();
+  const auth = useAuthN();
+
+  const [isOpen, setIsOpen] = useState(false);
+
+  React.useEffect(() => {
+    if (isMounted && isOpen) {
+      setIsOpen(false);
+    }
+  }, [location]);
 
   return (
-    <ul className="nav-bar">
-      <li>Chat</li>
-      <li>Archive</li>
-      <li>Drafts</li>
-      <li>Schedule</li>
-      <li>Users</li>
-      <li>Sign In / Sign Out</li>
-      {/*<MenuBtn
-        className="nav-bar__menu-btn"
-        handleBtnClick={handleToggleMenu}
-        isMenuOpen={isOpen}
-      />
-      <Menu
-        isMenuOpen={isOpen}
-        handleToggleMenu={handleToggleMenu}
-        handleAutoClose={handleAutoCloseMenu}
-      />
-      <Logo
-        handleAutoClose={handleAutoCloseMenu}
-        className="nav-bar__logo"
-        fill="white"
-        height="1.4rem"
-      />
-      <AccountBtn
-        className="nav-bar__account-btn"
-        handleBtnClick={handleToggleMenu}
-        handleAutoClose={() => handleAutoCloseMenu()}
-      />*/}
-    </ul>
+    <nav className="nav-bar">
+      <button onClick={handleToggleMenu} className="nav-bar__btn">
+        {isOpen ? (
+          <Icon name="close" color="white" className="nav-bar__menu-icon" />
+        ) : (
+          <Icon name="hamburger" color="white" className="nav-bar__menu-icon" />
+        )}
+      </button>
+
+      <Link to="/" className="nav-bar__link nav-bar__logo">
+        LiveStreamer
+      </Link>
+
+      <Link to={auth.user ? "/account" : "/signin"}>
+        <Icon
+          name="user-in-circle"
+          color="white"
+          className="nav-bar__user-profile-icon"
+        />
+      </Link>
+
+      <Menu isOpen={isOpen} />
+    </nav>
   );
 }
