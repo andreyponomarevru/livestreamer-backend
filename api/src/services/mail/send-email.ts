@@ -2,8 +2,12 @@ import nodemailer, { SendMailOptions } from "nodemailer";
 
 import { config } from "../../config/mail";
 import { logger } from "../../config/logger";
+import SMTPTransport from "nodemailer/lib/smtp-transport";
+import { NODE_ENV } from "../../config/env";
 
-export async function sendEmail(mailOptions: SendMailOptions) {
+async function sendEmail(
+  mailOptions: SendMailOptions,
+): Promise<SMTPTransport.SentMessageInfo> {
   logger.debug(mailOptions);
 
   const transporter = nodemailer.createTransport(config);
@@ -13,3 +17,10 @@ export async function sendEmail(mailOptions: SendMailOptions) {
 
   return info;
 }
+
+export { sendEmail };
+export {
+  createConfirmationEmail,
+  createWelcomeEmail,
+  createResetPasswordEmail,
+} from "./email-templates";

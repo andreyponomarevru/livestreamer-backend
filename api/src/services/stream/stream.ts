@@ -1,106 +1,96 @@
-import fs from "fs-extra";
-import { Response, Request } from "express";
-import { v4 as uuidv4 } from "uuid";
+import { InOutStream } from "./inout-stream";
+import { BroadcastDraft, BroadcastState } from "../../types";
+import * as broadcastDB from "../../models/broadcast/queries";
+import * as streamCacheDB from "../../models/stream/queries";
+import { StreamEmitter } from "./events";
 
-import { logger } from "../../config/logger";
-import {
-  showReadableStreamMode,
-  getCurrentISOTimestampWithoutTimezone,
-} from "../../utils/utils";
-import inoutStream from "./inout-stream";
-import { StreamError } from "./stream-error";
-import { NODE_ENV, SAVED_STREAMS_DIR } from "../../config/env";
-import * as broadcastService from "../broadcast/broadcast";
-import { wsServer } from "../../ws-server";
-import { clientStore } from "../chat/ws-client-store";
-import { BroadcastDraft, WSClientStoreStats } from "../../types";
+async function readBroadcastState(): Promise<BroadcastState> {
+  if (inoutStream.isPaused()) {
+    return { isOnline: false };
+  } else {
+    const liveBroadcast = await readLiveBroadcast();
+    const liveBroadcastLikes = await readLikesCount();
+    const broadcast = { ...liveBroadcast, ...liveBroadcastLikes };
+    return { isOnline: true, broadcast };
+  }
+}
 
-export function push(req: Request, writeTo?: string): void {
-  logger.debug("Starting push stream from client to server...");
-
-  // When broadcast-client connects, switch the stream back into the 'flowing' mode, otherwise later we won't be able to push data to listener-clients requests
-  inoutStream.resume();
-
-  req.on("data", (chunk: Buffer) => {
-    // showReadableStreamMode(inoutStream, "broadcaster's push stream");
-
-    // Push incoming request data into Readable stream in order to be able to consume it later on listener-client request (it doesn't accumulates in memory, it is just lost)
-    inoutStream.push(chunk);
-    // Write incoming request data to disk i.e. push data into writable stream)
-    if (NODE_ENV === "production" && writeTo) {
-      const writableStream = fs.createWriteStream(writeTo);
-      writableStream.write(chunk);
-    }
+async function startBroadcast({
+  listenersNow,
+}: {
+  listenersNow: number;
+}): Promise<void> {
+  const newBroadcast = await broadcastDB.create({
+    title: buildStreamTitle(),
+    listenerPeakCount: listenersNow,
+    startAt: new Date().toISOString(),
+    isVisible: false,
   });
 
-  req.on("error", (err) => {
-    logger.error(err);
-    showReadableStreamMode(inoutStream, "broadcaster's push stream");
-  });
+  await streamCacheDB.create(newBroadcast);
+  events.start(newBroadcast);
+}
 
-  req.on("end", () => {
-    logger.debug("end: No more data in request stream.");
-    showReadableStreamMode(inoutStream, "broadcaster's push stream");
-  });
+async function endBroadcast(): Promise<void> {
+  events.end();
+  const listenerPeakCount = await streamCacheDB.readListenerPeakCount();
+  const id = await streamCacheDB.readBroadcastId();
+  await broadcastDB.update(
+    { id, listenerPeakCount, endAt: new Date().toISOString() },
+    { isVisible: false },
+  );
+  await streamCacheDB.destroy();
+}
 
-  req.on("close", () => {
-    logger.debug(
-      "close: Broadcasting client has closed the request (push audio stream).",
-    );
-    // We shouldn't use 'close' and/or 'end' methods on the read/write streams of our duplex stream, otherwise the broadcast-client won't be able to reconnect and start pushing again until the server restart. 'pause' is the most appropriate alternative to these methods
-    inoutStream.pause();
-    showReadableStreamMode(inoutStream, "broadcaster's push stream");
+async function updateListenerPeakCount(listenersNow: number): Promise<void> {
+  if (listenersNow > (await streamCacheDB.readListenerPeakCount())) {
+    await streamCacheDB.updateListenerPeakCount(listenersNow);
+    events.newListenersPeak(listenersNow);
+  }
+}
+
+async function readLiveBroadcast(): Promise<BroadcastDraft> {
+  return await streamCacheDB.read();
+}
+
+async function like({
+  userUUID,
+  userId,
+}: {
+  userUUID: string;
+  userId: number;
+}): Promise<void> {
+  const broadcastId = await streamCacheDB.readBroadcastId();
+  const like = await streamCacheDB.createLike(userId, broadcastId);
+
+  events.like({
+    likedByUserId: userId,
+    likedByUserUUID: userUUID,
+    likedByUsername: like.likedByUsername,
+    likeCount: like.likeCount,
+    broadcastId,
   });
 }
 
-export function pull(res: Response): void {
-  inoutStream.on("data", (chunk: Buffer) => {
-    res.write(chunk);
-  });
-
-  inoutStream.on("pause", () => {
-    logger.debug("pause: Broadcasting client has stopped the stream.");
-    // When broadcasting client suddenly stops pushing the stream, we switch the stream to the paused mode (hence this event handler is invoked) — there is nothing to broadcast, hence we end the listener-client's request
-    res.end();
-  });
-
-  // Before doing anything further, check whether the broadcaster-client is actually streaming.
-  // If the stream is in the flowing mode, that means the broadcast-client is streaming, hence we're able to send the stream to listener-clients and we set response code to 200. Next, the 'data' event handler will be triggered starting sending the stream.
-  // If the stream is paused, it means the broadcaster doesn't stream.
-  if (inoutStream.isPaused()) throw new StreamError("STREAM_PAUSED");
+async function readLikesCount(): Promise<{ likeCount: number }> {
+  return await broadcastDB.readLikesCount(
+    await streamCacheDB.readBroadcastId(),
+  );
 }
 
-//
-
-async function onStreamStart() {
-  const newBroadcast = await broadcastService.createBroadcast();
-  wsServer.sendToAll({ event: "stream:online", data: newBroadcast });
-  // We need to save the function returned from the 'bind' to be able to remove it later (otherwise a new event listener is added on every client req). Details: https://stackoverflow.com/questions/11565471/removing-event-listener-which-was-added-with-bind
-  const saveBroadcastStatsRef = saveBroadcastStats.bind(newBroadcast.id);
-  clientStore.on("updatestats", saveBroadcastStatsRef);
-  inoutStream.once("pause", () => onStreamEnd(newBroadcast));
-  inoutStream.once("pause", () => {
-    clientStore.removeListener("updatestats", saveBroadcastStatsRef);
-  });
+function buildStreamTitle(): string {
+  return new Date(new Date().toUTCString()).toDateString();
 }
 
-async function onStreamEnd(newBroadcast: BroadcastDraft) {
-  wsServer.sendToAll({ event: "stream:offline" });
+const events = new StreamEmitter();
+const inoutStream = new InOutStream();
 
-  await broadcastService.updateHiddenBroadcast({
-    id: newBroadcast.id,
-    endAt: getCurrentISOTimestampWithoutTimezone(),
-  });
-}
-
-async function saveBroadcastStats(
-  stats: WSClientStoreStats,
-  broadcastId: number,
-) {
-  await broadcastService.updateHiddenBroadcast({
-    id: broadcastId,
-    listenerPeakCount: stats.clientPeakCount,
-  });
-}
-
-inoutStream.on("resume", onStreamStart);
+export {
+  inoutStream,
+  events,
+  like,
+  updateListenerPeakCount,
+  startBroadcast,
+  endBroadcast,
+  readBroadcastState,
+};

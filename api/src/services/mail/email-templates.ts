@@ -1,8 +1,9 @@
 import { SendMailOptions } from "nodemailer";
 
 import { MAIL_FROM_EMAIL } from "../../config/env";
+import Mail from "nodemailer/lib/mailer";
 
-type EmailConfirmationEmail = {
+type MailConfirmationEmail = {
   username: string;
   email: string;
   userId: number;
@@ -19,12 +20,12 @@ type ResetPasswordTokenEMail = {
   token: string;
 };
 
-export function createConfirmationEmail({
+function createConfirmationEmail({
   username,
   email,
   userToken,
-}: EmailConfirmationEmail) {
-  const emailConfirmationlink = `http://localhost:5000/api/v1/verification?token=${userToken}`;
+}: MailConfirmationEmail): Mail.Options {
+  const emailConfirmationlink = `http://mix.ru:8000/#/confirm-signup?token=${userToken}`;
 
   const options: SendMailOptions = {
     from: MAIL_FROM_EMAIL,
@@ -33,7 +34,7 @@ export function createConfirmationEmail({
     html: `<h1>Email Confirmation</h1>
         <p>Hi ${username}.</p>
 				<p>
-					Thank you for subscribing. Please confirm your email by clicking <a href="${emailConfirmationlink}">here</a>.
+					Thank you for signing up. Please confirm your email by clicking <a href="${emailConfirmationlink}">here</a>.
         </p>`,
     replyTo: MAIL_FROM_EMAIL,
   };
@@ -41,8 +42,8 @@ export function createConfirmationEmail({
   return options;
 }
 
-export function createWelcomeEmail({ username, email }: WelcomeEmail) {
-  const signInLink = "http://www.andreyponomarev.ru";
+function createWelcomeEmail({ username, email }: WelcomeEmail): Mail.Options {
+  const signInLink = "http://mix.ru:8000";
 
   const options: SendMailOptions = {
     from: MAIL_FROM_EMAIL,
@@ -55,11 +56,12 @@ export function createWelcomeEmail({ username, email }: WelcomeEmail) {
   return options;
 }
 
-export function createResetPasswordEmail({
+function createPasswordResetEmail({
   email,
   token,
-}: ResetPasswordTokenEMail) {
-  const resetPasswordLink = `http://localhost:5000/password-reset?token=${token}`;
+}: ResetPasswordTokenEMail): Mail.Options {
+  // Link to react app, not to API
+  const resetPasswordLink = `http://mix.ru:8000/#/password-reset?token=${token}`;
 
   const options: SendMailOptions = {
     from: MAIL_FROM_EMAIL,
@@ -71,3 +73,9 @@ export function createResetPasswordEmail({
 
   return options;
 }
+
+export {
+  createConfirmationEmail,
+  createWelcomeEmail,
+  createPasswordResetEmail,
+};

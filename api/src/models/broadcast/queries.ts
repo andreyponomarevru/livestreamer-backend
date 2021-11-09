@@ -1,12 +1,10 @@
-import { logger } from "../../config/logger";
-import { ScheduledBroadcast } from "../schedule/schedule";
 import {
   Broadcast,
   BroadcastUpdate,
   BroadcastDBResponse,
   NewBroadcast,
-  NewBroadcastLike,
-  SavedBroadcastLike,
+  Bookmark,
+  BroadcastDraft,
 } from "../../types";
 import { connectDB } from "../../config/postgres";
 
@@ -15,28 +13,22 @@ type CreateBroadcastDBResponse = {
   start_at: string;
   listener_peak_count: number;
 };
-
 export async function create({
   title,
-  downloadUrl,
   listenerPeakCount,
   isVisible = false,
-}: NewBroadcast): Promise<{
-  id: number;
-  title: string;
-  startAt: string;
-  listenerPeakCount: number;
-}> {
+  startAt,
+}: NewBroadcast): Promise<BroadcastDraft> {
   const sql =
     "INSERT INTO \
-			broadcast (title, download_url, is_visible) \
+			broadcast (title, is_visible, start_at) \
 		VALUES \
 			($1, $2, $3) \
 		RETURNING \
 			broadcast_id, \
       start_at,\
       listener_peak_count";
-  const values = [title, downloadUrl, isVisible];
+  const values = [title, isVisible, startAt];
   const pool = await connectDB();
   const res = await pool.query<CreateBroadcastDBResponse>(sql, values);
 
@@ -45,6 +37,7 @@ export async function create({
     title: title,
     startAt: res.rows[0].start_at,
     listenerPeakCount: listenerPeakCount,
+    likeCount: 0,
   };
 }
 
@@ -64,47 +57,21 @@ export async function read(broadcastId: number): Promise<Broadcast | null> {
       downloadUrl: res.rows[0].download_url,
       listenUrl: res.rows[0].listen_url,
       isVisible: res.rows[0].is_visible,
-      likesCount: res.rows[0].likes_count,
+      likeCount: res.rows[0].like_count,
       tracklist: res.rows[0].tracklist,
     };
   } else {
     return null;
   }
 }
-/* Looks like I don;t need it, can be deleted
-export async function readLatest() {
-  const sql =
-    "SELECT \
-			br.broadcast_id, \
-			br.title, \
-			br.start_at, \
-			br.listener_peak_count, \
-		FROM \
-			broadcast \
-		ORDER BY start_at DESC LIMIT 1";
-  const pool = await connectDB();
-  const res = await pool.query<{
-    broadcast_id: number;
-    title: string;
-    description: string;
-    start_at: string;
-    listener_peak_count: number;
-  }>(sql);
-
-  return {
-    id: res.rows[0].broadcast_id,
-    title: res.rows[0].title,
-    startAt: res.rows[0].start_at,
-    listenerPeakCount: res.rows[0].listener_peak_count,
-  };
-}*/
 
 export async function readAll({
   isVisible,
 }: {
   isVisible: boolean;
 }): Promise<Broadcast[]> {
-  const sql = "SELECT * FROM view_broadcast WHERE is_visible = $1";
+  const sql =
+    "SELECT * FROM view_broadcast WHERE is_visible = $1 ORDER BY start_at DESC";
   const values = [isVisible];
   const pool = await connectDB();
   const res = await pool.query<BroadcastDBResponse>(sql, values);
@@ -120,7 +87,7 @@ export async function readAll({
         downloadUrl: row.download_url,
         listenUrl: row.listen_url,
         isVisible: row.is_visible,
-        likesCount: row.likes_count,
+        likeCount: row.like_count,
         tracklist: row.tracklist,
       };
     });
@@ -169,52 +136,18 @@ export async function destroy(broadcastId: number): Promise<void> {
   await pool.query<{ broadcast_id: number }>(sql, values);
 }
 
-export async function like(
-  like: NewBroadcastLike,
-): Promise<SavedBroadcastLike> {
-  // If the user already like the broadcast, 'ON CONFLICT' clause allows us just to increment the counter of an existing row
-  const insertSql =
-    "INSERT INTO \
-			broadcast_like (broadcast_id, appuser_id, count)\
-		VALUES \
-			($1, $2, 1) \
-		ON CONFLICT \
-			(broadcast_id, appuser_id) \
-		DO UPDATE SET \
-			count = broadcast_like.count + 1;";
-  const insertValues = [like.broadcastId, like.userId];
+export async function readLikesCount(
+  broadcastId: number,
+): Promise<{ likeCount: number }> {
   const pool = await connectDB();
-  await pool.query(insertSql, insertValues);
-
   const selectSql =
-    "SELECT \
-			broadcast_id, \
-			SUM(count) \
-		FROM \
-			broadcast_like \
-		WHERE \
-			broadcast_id = 1\
-		GROUP BY\
-			broadcast_id;";
-  const res = await pool.query<{ broadcast_id: number; count: number }>(
-    selectSql,
-  );
-  return {
-    likedByUserId: like.userId,
-    broadcastId: res.rows[0].broadcast_id,
-    likesCount: res.rows[0].count,
-  };
+    "SELECT like_count FROM view_broadcast WHERE broadcast_id = $1";
+  const selectValues = [broadcastId];
+  const res = await pool.query<{ like_count: number }>(selectSql, selectValues);
+  return { likeCount: res.rows[0].like_count };
 }
 
-export async function bookmark({
-  userId,
-  broadcastId,
-}: {
-  userId: number;
-  broadcastId: number;
-}): Promise<void> {
-  const pool = await connectDB();
-
+export async function bookmark(bookmark: Bookmark): Promise<void> {
   const isBroadcastNotExistSql =
     "SELECT \
       * \
@@ -232,19 +165,20 @@ export async function bookmark({
       WHERE \
         broadcast_id = $1\
       )";
-  const isBroadcastNotExistValues = [broadcastId];
+  const isBroadcastNotExistValues = [bookmark.broadcastId];
+  const pool = await connectDB();
   const broadcasts = await pool.query(
     isBroadcastNotExistSql,
     isBroadcastNotExistValues,
   );
   const isBroadcastNotExist = broadcasts.rowCount > 0;
 
-  if (isBroadcastNotExist) return;
-
-  const sql =
-    "INSERT INTO appuser_bookmark (appuser_id, broadcast_id) VALUES ($1, $2) ON CONFLICT DO NOTHING";
-  const values = [userId, broadcastId];
-  await pool.query(sql, values);
+  if (!isBroadcastNotExist) {
+    const sql =
+      "INSERT INTO appuser_bookmark (appuser_id, broadcast_id) VALUES ($1, $2) ON CONFLICT DO NOTHING";
+    const values = [bookmark.userId, bookmark.broadcastId];
+    await pool.query(sql, values);
+  }
 }
 
 export async function readAllBookmarked(userId: number): Promise<Broadcast[]> {
@@ -273,7 +207,7 @@ export async function readAllBookmarked(userId: number): Promise<Broadcast[]> {
       startAt: row.start_at,
       endAt: row.end_at,
       listenerPeakCount: row.listener_peak_count,
-      likesCount: row.likes_count,
+      likeCount: row.like_count,
       downloadUrl: row.download_url,
       listenUrl: row.listen_url,
       isVisible: row.is_visible,
@@ -282,16 +216,10 @@ export async function readAllBookmarked(userId: number): Promise<Broadcast[]> {
   });
 }
 
-export async function unbookmark({
-  userId,
-  broadcastId,
-}: {
-  userId: number;
-  broadcastId: number;
-}): Promise<void> {
+export async function unbookmark(bookmark: Bookmark): Promise<void> {
   const sql =
-    "DELETE FROM broadcast_like WHERE appuser_id = $1 AND broadcast_id = $2";
-  const values = [userId, broadcastId];
+    "DELETE FROM appuser_bookmark WHERE appuser_id = $1 AND broadcast_id = $2";
+  const values = [bookmark.userId, bookmark.broadcastId];
   const pool = await connectDB();
   await pool.query(sql, values);
 }
