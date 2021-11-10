@@ -14,14 +14,12 @@ import { Message } from "../../../lib/message/message";
 import { AskToConfirmRegistrationPage } from "../../ask-to-confirm-registration/ask-to-confirm-registration";
 import { RegisterForm } from "../../../types";
 
-// TODO: fix, this var is undefined
-// const { REACT_APP_API_ROOT } = process.env;
-const REACT_APP_API_ROOT = "http://localhost:5000/api/v1";
-
+import { REACT_APP_API_ROOT } from "../../../config/env";
 export function RegisterForm(
   props: React.HTMLAttributes<HTMLDivElement>
 ): ReactElement {
   function handleSignUp(form: RegisterForm) {
+    console.log("================================", REACT_APP_API_ROOT);
     /*
     setSuccessResponse(undefined);
     setErrResponse(null);
