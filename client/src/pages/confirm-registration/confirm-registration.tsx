@@ -43,7 +43,7 @@ export function ConfirmRegistrationPage(
   }, [isMounted, confirmSignUpResponse]);
 
   return (
-    <Page className="page_box confirm-signup-page">
+    <Page className="page_box">
       {isConfirmed === false && (
         <React.Fragment>
           <Message type="danger">
