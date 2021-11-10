@@ -10,22 +10,20 @@ import { Btn } from "../../../lib/btn/btn";
 import { useIsMounted } from "../../../hooks/use-is-mounted";
 
 import "./account-form.scss";
+import { useNavigate } from "react-router";
 
 type UserSettings = {
   username: string;
 };
 
-export function AccountForm(): ReactElement {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-  } = useForm<InputTypes>({ mode: "onBlur" });
+function useMsg() {
+  const [message, setMessage] = React.useState(null);
 
+  return [message, setMessage];
+}
+
+export function AccountForm(): ReactElement {
   function handleSaveChanges(userSettings: UserSettings) {
-    //setErrResponse(null);
-    //setSuccessResponse(null);
     fetchUpdatedUserNow(`${API_ROOT_URL}/user`, {
       method: "PATCH",
       headers: {
@@ -34,40 +32,40 @@ export function AccountForm(): ReactElement {
       },
       body: JSON.stringify(userSettings),
     });
-
-    reset();
   }
 
   function handleFormErrors(errors: unknown) {
-    //setErrResponse(null);
-    // setSuccessResponse(null);
     console.error(errors);
   }
 
-  function handleUsernameChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setUsername(e.target.value);
-  }
-
-  const { user, updateUser } = useAuthN();
-
-  const [username, setUsername] = useState<string>("");
-
+  const auth = useAuthN();
   const isMounted = useIsMounted();
+  const navigate = useNavigate();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+  } = useForm<InputTypes>({
+    mode: "onBlur",
+    defaultValues: { username: auth.user?.username },
+  });
+
+  useEffect(() => {
+    if (isMounted && auth.user) {
+      setValue("username", auth.user.username, { shouldValidate: false });
+    }
+  }, [isMounted, auth.user]);
+
   const [updatedUser, fetchUpdatedUserNow] = useFetch<UserResponse>();
   useEffect(() => {
     if (isMounted && updatedUser.response?.body) {
       const user: User = updatedUser.response.body.results;
       localStorage.setItem("user", JSON.stringify(user));
-      updateUser(user);
+      auth.updateUser(user);
+      navigate("/");
     }
-  }, [isMounted, updatedUser, user]);
-
-  //const [successResponse, setSuccessResponse] = useState<string | null>(null);
-  //const [errResponse, setErrResponse] = useState<string | null>(null);
-
-  React.useEffect(() => {
-    if (isMounted && user) setUsername(user.username);
-  }, [isMounted, user]);
+  }, [isMounted, updatedUser]);
 
   return (
     <form
@@ -80,9 +78,7 @@ export function AccountForm(): ReactElement {
           id="username"
           type="text"
           className="text-input"
-          value={username}
           {...register("username", inputRules.username)}
-          onChange={handleUsernameChange}
         />
       </div>
 
@@ -92,11 +88,6 @@ export function AccountForm(): ReactElement {
         </small>
       )}
 
-      {updatedUser.response && (
-        <div className="account-form__text_success">
-          Username successfully updated
-        </div>
-      )}
       {updatedUser.error && (
         <div className="account-form__text_error">
           {updatedUser.error.message}

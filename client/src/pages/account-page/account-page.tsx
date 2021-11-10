@@ -10,6 +10,7 @@ import { Message } from "../../lib/message/message";
 import { Btn } from "../../lib/btn/btn";
 import { useIsMounted } from "../../hooks/use-is-mounted";
 import { Page } from "../../lib/page/page";
+import { useFetch } from "../../hooks/use-fetch";
 
 import "./account-page.scss";
 
@@ -17,31 +18,17 @@ export function PagesAccount(
   props: React.HTMLAttributes<HTMLDivElement>
 ): ReactElement {
   function deleteAccount() {
-    setIsloading(true);
-    const request: RequestInit = { method: "DELETE" };
-
-    /*
-    fetch(`${API_ROOT_URL}/user`, request)
-      .then(parseResponse)
-      .then(() => {
-        setSuccessResponse(true);
-        setIsloading(false);
-      })
-      .catch(() => setSuccessResponse(false));*/
-    //setTimeout(() => setSuccessResponse(true), 2000);
-    //setTimeout(() => )
+    sendDeleteUserRequest(`${API_ROOT_URL}/user`, { method: "DELETE" });
   }
 
-  const [successResponse, setSuccessResponse] = useState<boolean>();
-  const [isLoading, setIsloading] = useState<boolean>(false);
-
-  const history = useNavigate();
   const auth = useAuthN();
   const isMounted = useIsMounted();
-
-  useEffect(() => {
-    if (isMounted && successResponse) auth.updateUser(null);
-  }, [successResponse]);
+  const [deleteUserResponse, sendDeleteUserRequest] = useFetch();
+  React.useEffect(() => {
+    if (isMounted && deleteUserResponse.response) {
+      auth.updateUser(null);
+    }
+  }, [isMounted, deleteUserResponse.response]);
 
   return (
     <Page className="account-page">
@@ -57,9 +44,9 @@ export function PagesAccount(
           className="account-page__delete-account-btn"
           handleClick={deleteAccount}
           defaultText="Delete Account"
-          isLoading={isLoading}
+          isLoading={deleteUserResponse.isLoading}
         />
-        {successResponse === false && (
+        {deleteUserResponse.error && (
           <Message type="danger">Sorry, something went wrong :(</Message>
         )}
       </div>
