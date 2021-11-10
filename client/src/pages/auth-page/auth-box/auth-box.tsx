@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { useLocation } from "react-router";
 import { Box } from "../../../lib/box/box";
 import { SignInForm } from "../signin-form/signin-form";
-import { SignUpForm } from "../signup-form/signup-form";
+import { RegisterForm } from "../register-form/register-form";
 
 function AuthBox(props: any) {
   const location = useLocation();
@@ -22,16 +22,16 @@ function AuthBox(props: any) {
           to="/signin"
           className={`box__header-link ${activeSignInClassName}`}
         >
-          Log In
+          Login
         </Link>
         <Link
           to="/register"
           className={`box__header-link ${activeSignUpClassName}`}
         >
-          Sign Up
+          Join
         </Link>
       </header>
-      {location.pathname === "/signin" ? <SignInForm /> : <SignUpForm />}
+      {location.pathname === "/signin" ? <SignInForm /> : <RegisterForm />}
     </Box>
   );
 }

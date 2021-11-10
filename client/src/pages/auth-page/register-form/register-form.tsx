@@ -18,7 +18,7 @@ import { RegisterForm } from "../../../types";
 // const { REACT_APP_API_ROOT } = process.env;
 const REACT_APP_API_ROOT = "http://localhost:5000/api/v1";
 
-export function SignUpForm(
+export function RegisterForm(
   props: React.HTMLAttributes<HTMLDivElement>
 ): ReactElement {
   function handleSignUp(form: RegisterForm) {
