@@ -57,7 +57,7 @@ export function App(): ReactElement {
               <Route path="/password-reset" element={<PassResetPage />} />
               <Route path="/forgot-pass" element={<ForgotPassPage />} />
               <Route
-                path="/confirm-signup"
+                path="/confirm-registration"
                 element={<ConfirmRegistrationPage />}
               />
               <Route path="/schedule" element={<PagesSchedule />} />
