@@ -96,7 +96,6 @@ export function AccountForm(): ReactElement {
 
       <Btn
         theme="white"
-        type="input"
         defaultText="Save"
         className="account-form__save-btn"
       />

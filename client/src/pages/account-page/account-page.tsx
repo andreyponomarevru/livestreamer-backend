@@ -40,7 +40,6 @@ export function PagesAccount(
          </button>*/}
         <Btn
           theme="red"
-          type="button"
           className="account-page__delete-account-btn"
           handleClick={deleteAccount}
           defaultText="Delete Account"
