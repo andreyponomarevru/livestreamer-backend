@@ -46,6 +46,7 @@ export function AccountForm(): ReactElement {
     handleSubmit,
     formState: { errors },
     setValue,
+    setError,
   } = useForm<InputTypes>({
     mode: "onBlur",
     defaultValues: { username: auth.user?.username },
@@ -57,15 +58,20 @@ export function AccountForm(): ReactElement {
     }
   }, [isMounted, auth.user]);
 
-  const [updatedUser, fetchUpdatedUserNow] = useFetch<UserResponse>();
+  const [updatedUserResponse, fetchUpdatedUserNow] = useFetch<UserResponse>();
   useEffect(() => {
-    if (isMounted && updatedUser.response?.body) {
-      const user: User = updatedUser.response.body.results;
+    if (isMounted && updatedUserResponse.response?.body) {
+      const user: User = updatedUserResponse.response.body.results;
       localStorage.setItem("user", JSON.stringify(user));
       auth.updateUser(user);
       navigate("/");
+    } else if (isMounted && updatedUserResponse.error) {
+      setError("username", {
+        type: "string",
+        message: updatedUserResponse.error.message,
+      });
     }
-  }, [isMounted, updatedUser]);
+  }, [isMounted, updatedUserResponse]);
 
   return (
     <form
@@ -86,12 +92,6 @@ export function AccountForm(): ReactElement {
         <small className="account-form__ form__text form__text_danger">
           {errors.username.message}
         </small>
-      )}
-
-      {updatedUser.error && (
-        <div className="account-form__text_error">
-          {updatedUser.error.message}
-        </div>
       )}
 
       <Btn
