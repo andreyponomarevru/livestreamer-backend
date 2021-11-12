@@ -1,7 +1,7 @@
 @import "../../global.scss";
 
 .loader {
-  display: inline-block;
+  display: inline-flex;
   border-radius: 50%;
 
   width: 1rem;
@@ -29,5 +29,13 @@
     display: block;
     padding: 3rem;
     background-color: pink;
+  }
+
+  &_white {
+    background-color: white;
+  }
+
+  &_black {
+    background-color: $color_brand_gray-80;
   }
 }
