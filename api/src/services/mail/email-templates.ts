@@ -25,7 +25,7 @@ function createConfirmationEmail({
   email,
   userToken,
 }: MailConfirmationEmail): Mail.Options {
-  const emailConfirmationlink = `http://mix.ru:8000/#/confirm-signup?token=${userToken}`;
+  const emailConfirmationlink = `http://mix.ru:8000/#/confirm-registration"?token=${userToken}`;
 
   const options: SendMailOptions = {
     from: MAIL_FROM_EMAIL,
@@ -34,7 +34,7 @@ function createConfirmationEmail({
     html: `<h1>Email Confirmation</h1>
         <p>Hi ${username}.</p>
 				<p>
-					Thank you for signing up. Please confirm your email by clicking <a href="${emailConfirmationlink}">here</a>.
+					Thanks for registering. Please confirm your email by clicking <a href="${emailConfirmationlink}">here</a>.
         </p>`,
     replyTo: MAIL_FROM_EMAIL,
   };
@@ -49,7 +49,7 @@ function createWelcomeEmail({ username, email }: WelcomeEmail): Mail.Options {
     from: MAIL_FROM_EMAIL,
     to: email,
     subject: "Email address confirmed",
-    html: `<p>Thanks ${username}, email address confirmed. You're now signed up and can <a href="${signInLink}"">log into your account.</a></p>`,
+    html: `<p>Thanks ${username}, email address confirmed. You're now registered and can <a href="${signInLink}"">log into your account.</a></p>`,
     replyTo: MAIL_FROM_EMAIL,
   };
 
