@@ -25,8 +25,7 @@
 
   &_disabled,
   &:disabled {
-    opacity: 0.3;
-
+    opacity: 0.7;
     pointer-events: none;
     cursor: not-allowed;
   }
@@ -50,10 +49,9 @@
   }
 
   &__loader {
-    display: inline-flex;
-
-    &_white {
-      background-color: white;
-    }
+    margin-top: 0.15rem;
+    margin-left: 0.8rem;
+    align-items: center;
+    justify-items: center;
   }
 }
