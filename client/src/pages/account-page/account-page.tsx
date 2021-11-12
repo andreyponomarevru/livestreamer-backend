@@ -11,6 +11,7 @@ import { Btn } from "../../lib/btn/btn";
 import { useIsMounted } from "../../hooks/use-is-mounted";
 import { Page } from "../../lib/page/page";
 import { useFetch } from "../../hooks/use-fetch";
+import { Loader } from "../../lib/loader/loader";
 
 import "./account-page.scss";
 
@@ -28,7 +29,7 @@ export function PagesAccount(
     if (isMounted && deleteUserResponse.response) {
       auth.updateUser(null);
     }
-  }, [isMounted, deleteUserResponse.response]);
+  }, [isMounted, deleteUserResponse]);
 
   return (
     <Page className="account-page">
@@ -42,9 +43,11 @@ export function PagesAccount(
           theme="red"
           className="account-page__delete-account-btn"
           handleClick={deleteAccount}
-          defaultText="Delete Account"
+          name="Delete Account"
           isLoading={deleteUserResponse.isLoading}
-        />
+        >
+          <Loader className="loader_black btn__loader" />
+        </Btn>
         {deleteUserResponse.error && (
           <Message type="danger">Sorry, something went wrong :(</Message>
         )}
