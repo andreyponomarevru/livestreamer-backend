@@ -11,6 +11,7 @@ import { useIsMounted } from "../../../hooks/use-is-mounted";
 
 import "./account-form.scss";
 import { useNavigate } from "react-router";
+import { Loader } from "../../../lib/loader/loader";
 
 type UserSettings = {
   username: string;
@@ -96,9 +97,12 @@ export function AccountForm(): ReactElement {
 
       <Btn
         theme="white"
-        defaultText="Save"
+        name="Save"
+        isLoading={updatedUserResponse.isLoading}
         className="account-form__save-btn"
-      />
+      >
+        <Loader className="loader_black btn__loader" />
+      </Btn>
     </form>
   );
 }
