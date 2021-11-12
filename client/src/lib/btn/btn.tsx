@@ -1,28 +1,28 @@
-import React, { useState, useEffect, ReactElement } from "react";
+import * as React from "react";
 
 import "./btn.scss";
 import { Loader } from "../loader/loader";
 
 interface Props extends React.HTMLAttributes<HTMLSpanElement> {
-  isLoading?: boolean;
   handleClick?: () => void;
-  defaultText: string;
+  name: string;
   theme: "white" | "red";
+  isLoading?: boolean;
 }
 
-function Btn(props: Props): ReactElement {
-  const className = `btn btn_theme_${props.theme} ${props.className || ""}`;
+function Btn(props: Props): React.ReactElement {
+  const className = `btn btn_theme_${props.theme} ${props.className || ""} ${
+    props.isLoading ? "btn_disabled" : ""
+  }`;
 
   return (
     <button
       onClick={props.handleClick ? props.handleClick : undefined}
       className={className}
+      disabled={props.isLoading}
     >
-      {props.isLoading ? (
-        <Loader className="btn__loader btn__loader_white" />
-      ) : (
-        <span className={props.className || ""}>{props.defaultText}</span>
-      )}
+      <span>{props.name}</span>
+      {props.isLoading && props.children}
     </button>
   );
 }
