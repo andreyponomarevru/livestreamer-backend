@@ -61,7 +61,8 @@ export async function createSession(
     if (!user.isEmailConfirmed) {
       throw new HttpError({
         code: 404,
-        message: "Pending account. Please verify your email",
+        message:
+          "Pending Account. Look for the verification email in your inbox and click the link in that email",
       });
     }
 
