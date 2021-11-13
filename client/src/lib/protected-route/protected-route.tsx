@@ -1,41 +1,38 @@
-import React, {
-  FC,
-  useContext,
-  ReactElement,
-  ReactNode,
-  useEffect,
-} from "react";
-import { Route, Navigate } from "react-router-dom";
+import * as React from "react";
+import { Navigate, RouteProps } from "react-router-dom";
 import { useAuthN } from "../../hooks/use-authn";
-import { useIsMounted } from "../../hooks/use-is-mounted";
+import { ROUTES } from "../../config/routes";
+import { RESOURCES, PERMISSIONS } from "../../config/constants";
 
-// TODO: cant't find any info about extending Route type, google
-/*interface Props extends Route {
-  isLoggedIn: boolean;
-  component: FC<any>;
-  hasPermission?: boolean;
-  path: string;
-}*/
-
-export function ProtectedRoute(props: any) {
-  const { component: Component, hasPermission = false, ...rest } = props;
-
-  const { user } = useAuthN();
-
-  return (
-    <Route
-      {...rest}
-      render={(props: any) => {
-        if (user && hasPermission) {
-          return <Component {...rest} {...props} />;
-        } else if (user && !hasPermission) {
-          const to = { pathname: "/", state: { from: props.location } };
-          return <Navigate to={to} />;
-        } else {
-          const to = { pathname: "/signin", state: { from: props.location } };
-          return <Navigate to={to} />;
-        }
-      }}
-    />
-  );
+interface Props extends RouteProps {
+  checkPermission?: {
+    action: typeof PERMISSIONS[number];
+    resource: typeof RESOURCES[number];
+  };
+  children: React.ReactNode;
 }
+
+function ProtectedRoute(props: Props): React.ReactElement {
+  const auth = useAuthN();
+
+  const isAuthenticated = !!auth.user;
+
+  if (!isAuthenticated) {
+    return <Navigate to={ROUTES.signIn} />;
+  } else if (!props.checkPermission) {
+    return <React.Fragment>{props.children}</React.Fragment>;
+  } else if (props.checkPermission) {
+    const isAuthorized = auth.user?.permissions[
+      props.checkPermission.resource
+    ]?.includes(props.checkPermission.action);
+    return isAuthorized ? (
+      <React.Fragment>{props.children}</React.Fragment>
+    ) : (
+      <Navigate to={ROUTES.root} replace />
+    );
+  } else {
+    return <Navigate to={ROUTES.root} />;
+  }
+}
+
+export { ProtectedRoute };

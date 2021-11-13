@@ -16,7 +16,7 @@ import { PagesUsers } from "../pages/users/users";
 import { ForgotPassPage } from "../pages/forgot-pass/forgot-pass";
 import { PagesAccount } from "../pages/account-page/account-page";
 import { PagesAuth } from "../pages/auth-page/auth-page";
-//import { ProtectedRoute } from "../lib/protected-route/protected-route";
+import { ProtectedRoute } from "../lib/protected-route/protected-route";
 import { useAuthN, AuthNProvider } from "../hooks/use-authn";
 import { NavBar } from "../lib/nav-bar/nav-bar";
 import { StreamBar } from "../lib/stream-bar/stream-bar";
@@ -29,6 +29,8 @@ import { useWSStreamState } from "../hooks/use-ws-stream-state";
 import { ROUTES } from "../config/routes";
 
 import "./app.scss";
+import { RESOURCES } from "../config/constants";
+import { PERMISSIONS } from "../config/constants";
 
 export function App(): ReactElement {
   const { user } = useAuthN();
@@ -62,9 +64,40 @@ export function App(): ReactElement {
               <Route path={ROUTES.archive} element={<PagesArchive />} />
               <Route path={ROUTES.signIn} element={<PagesAuth />} />
               <Route path={ROUTES.register} element={<PagesAuth />} />
-              <Route path={ROUTES.drafts} element={<PagesDrafts />} />
-              <Route path={ROUTES.account} element={<PagesAccount />} />
-              <Route path={ROUTES.users} element={<PagesUsers />} />
+              <Route
+                path={ROUTES.drafts}
+                element={
+                  <ProtectedRoute
+                    checkPermission={{
+                      resource: "broadcast_draft",
+                      action: "read",
+                    }}
+                  >
+                    <PagesDrafts />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path={ROUTES.account}
+                element={
+                  <ProtectedRoute>
+                    <PagesAccount />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path={ROUTES.users}
+                element={
+                  <ProtectedRoute
+                    checkPermission={{
+                      resource: "all_user_accounts",
+                      action: "read",
+                    }}
+                  >
+                    <PagesUsers />
+                  </ProtectedRoute>
+                }
+              />
               <Route path={ROUTES.root} element={<PagesChat />} />
             </Routes>
           </main>
@@ -73,29 +106,3 @@ export function App(): ReactElement {
     </HashRouter>
   );
 }
-/*
-Protected routes
-        
-<ProtectedRoute
-  path="/drafts"
-  component={PagesDrafts}
-  isLoggedIn={user ? true : false}
-  hasPermission={user?.permissions["broadcast_draft"]?.includes(
-    "read"
-  )}
-/>
-<ProtectedRoute
-  path="/account"
-  component={PagesAccount}
-  hasPermission={true}
-/>
-<ProtectedRoute
-  exact
-  path="/users"
-  component={PagesUsers}
-  hasPermission={user?.permissions["all_user_accounts"]?.includes(
-    "read"
-  )}
-/>
-
-*/

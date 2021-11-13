@@ -17,12 +17,12 @@ interface Props extends React.HTMLAttributes<ReactFragment> {
 export function ProtectedComponent(props: Props): JSX.Element | null {
   const auth = useAuthN();
 
-  if (
-    auth.user &&
-    auth.user.permissions &&
-    auth.user.permissions[props.resource] &&
-    auth.user.permissions[props.resource]?.includes(props.action)
-  ) {
+  const isAuthenticated = !!auth.user;
+  const hasPermission =
+    auth.user?.permissions?.[props.resource] &&
+    auth.user.permissions[props.resource]?.includes(props.action);
+
+  if (isAuthenticated && hasPermission) {
     return <Fragment>{props.children}</Fragment>;
   } else {
     return null;
