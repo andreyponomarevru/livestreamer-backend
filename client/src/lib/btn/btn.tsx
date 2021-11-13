@@ -4,7 +4,7 @@ import "./btn.scss";
 import { Loader } from "../loader/loader";
 
 interface Props extends React.HTMLAttributes<HTMLSpanElement> {
-  handleClick?: () => void;
+  handleClick?: (e: React.MouseEvent<HTMLElement, MouseEvent>) => void;
   name: string;
   theme: "white" | "red";
   isLoading?: boolean;
