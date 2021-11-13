@@ -6,7 +6,7 @@ import { Icon } from "../../lib/icon/icon";
 import "./menu.scss";
 import { useAuthN } from "../../hooks/use-authn";
 import { ProtectedComponent } from "../../lib/protected-component/protected-component";
-import { useIsMounted } from "../../hooks/use-is-mounted";
+import { useSignOut } from "../../hooks/use-sign-out";
 
 interface Props {
   isOpen: boolean;
@@ -14,6 +14,7 @@ interface Props {
 
 export function Menu(props: Props): ReactElement {
   const auth = useAuthN();
+  const { signOut } = useSignOut();
 
   return (
     <ul className={`menu ${props.isOpen ? "menu_open" : ""}`}>
@@ -54,12 +55,7 @@ export function Menu(props: Props): ReactElement {
         </li>
       ) : (
         <li>
-          <NavLink
-            className="menu__link"
-            end
-            onClick={() => auth.signout()}
-            to="/signin"
-          >
+          <NavLink className="menu__link" end onClick={signOut} to="/signin">
             <Icon name="logout" />
             Sign Out
           </NavLink>
