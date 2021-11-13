@@ -16,9 +16,7 @@ type APIError = {
   status: number;
 };
 
-type FetchInit = {
-  type: "FETCH_INIT";
-};
+type FetchInit = { type: "FETCH_INIT" };
 type FetchSuccess<T> = {
   type: "FETCH_SUCCESS";
   payload: APIResponse<T>["response"];
@@ -27,15 +25,14 @@ type FetchFailure<T> = {
   type: "FETCH_FAILURE";
   error: APIResponse<T>["error"] | Error;
 };
+type ResetState = { type: "RESET_STATE" };
 
-type Action<T> = FetchInit | FetchSuccess<T> | FetchFailure<T>;
-type State<T> = {
+type Action<T> = FetchInit | FetchSuccess<T> | FetchFailure<T> | ResetState;
+export type State<T> = {
   isLoading: boolean;
   error: null | Error | APIResponse<T>["error"];
   response: null | APIResponse<T>["response"];
 };
-
-//
 
 // We need this wrapping function only to pass the data type to the reducer
 function createDataFetchReducer<T>() {
@@ -52,21 +49,24 @@ function createDataFetchReducer<T>() {
           response: action.payload,
         };
       case "FETCH_FAILURE":
-        return {
-          ...state,
-          isLoading: false,
-          error: action.error,
-        };
+        return { ...state, isLoading: false, error: action.error };
+      case "RESET_STATE": {
+        return { isLoading: false, error: null, response: null };
+      }
       default:
         throw new Error();
     }
   };
 }
 
-export function useFetch<ResponseBody>(): [
-  State<ResponseBody>,
-  (url: RequestInfo, request?: RequestInit) => Promise<void>
-] {
+export function useFetch<ResponseBody>(): {
+  state: APIResponse<ResponseBody>;
+  fetchNow: (
+    url: RequestInfo,
+    request?: RequestInit | undefined
+  ) => Promise<void>;
+  resetState: () => void;
+} {
   const initialState: State<ResponseBody> = {
     isLoading: false,
     error: null,
@@ -79,6 +79,10 @@ export function useFetch<ResponseBody>(): [
 
   const isMounted = useIsMounted();
 
+  function resetState() {
+    dispatch({ type: "RESET_STATE" });
+  }
+
   async function fetchNow(url: RequestInfo, request?: RequestInit) {
     dispatch({ type: "FETCH_INIT" });
 
@@ -90,7 +94,9 @@ export function useFetch<ResponseBody>(): [
       if (isMounted) {
         dispatch({
           type: "FETCH_FAILURE",
-          error: new Error("Network error"),
+          error: new Error(
+            "Something went wrong. Please check your connection."
+          ),
         });
       }
       return;
@@ -104,7 +110,6 @@ export function useFetch<ResponseBody>(): [
         dispatch({ type: "FETCH_SUCCESS", payload: resBody });
       }
     } catch (err) {
-      console.log("ERROR CAUGHT :::::::::::::::::", err);
       const parsedErr = await handleResponseErr(err as Response);
       dispatch({
         type: "FETCH_FAILURE",
@@ -113,5 +118,5 @@ export function useFetch<ResponseBody>(): [
     }
   }
 
-  return [state as APIResponse<ResponseBody>, fetchNow];
+  return { state: state as APIResponse<ResponseBody>, fetchNow, resetState };
 }
