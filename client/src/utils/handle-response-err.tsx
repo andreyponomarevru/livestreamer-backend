@@ -7,7 +7,7 @@ async function handleResponseErr(err: Response): Promise<APIError | Error> {
     const json: APIError = await err.json();
     return json;
   } else {
-    const parsedErr = new Error(`${err.status} — ${err.statusText}}`);
+    const parsedErr = new Error(`${err.status} — ${err.statusText}`);
     return parsedErr;
   }
 }
