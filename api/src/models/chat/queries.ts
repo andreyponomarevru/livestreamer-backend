@@ -144,7 +144,7 @@ export async function readMsgsPaginated(
       items[items.length - 1].id,
     );
     const newPage = items.splice(0, items.length - 1);
-    console.log(newPage);
+
     return { nextCursor: newNextCursor, items: newPage };
   }
 }
