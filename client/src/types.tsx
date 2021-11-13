@@ -10,6 +10,11 @@ export type RegisterForm = {
   username: string;
   password: string;
 };
+export type Credentials = {
+  password: string;
+  username?: string;
+  email?: string;
+};
 
 //
 // API
