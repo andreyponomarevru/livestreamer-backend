@@ -28,14 +28,24 @@
     align-self: center;
     display: block;
     padding: 3rem;
+  }
+
+  &_for_btn {
+    margin-top: 0.15rem;
+    margin-left: 0.8rem;
+    align-items: center;
+    justify-items: center;
+  }
+
+  &_color_pink {
     background-color: pink;
   }
 
-  &_white {
+  &_color_white {
     background-color: white;
   }
 
-  &_black {
+  &_color_black {
     background-color: $color_brand_gray-80;
   }
 }

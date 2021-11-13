@@ -1,4 +1,4 @@
-import React, { ReactElement, useEffect } from "react";
+import * as React from "react";
 
 import { PageHeading } from "../../lib/page-heading/page-heading";
 import { UserMeta } from "./user-meta/user-meta";
@@ -12,13 +12,14 @@ import { Page } from "../../lib/page/page";
 
 export function PagesUsers(
   props: React.HTMLAttributes<HTMLDivElement>
-): ReactElement {
+): React.ReactElement {
   const isMounted = useIsMounted();
-  const [users, fetchUsersNow] = useFetch<UsersResponse>();
+  const { state: users, fetchNow: sendhUsersRequest } =
+    useFetch<UsersResponse>();
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (isMounted) {
-      fetchUsersNow(`${API_ROOT_URL}/admin/users`, {
+      sendhUsersRequest(`${API_ROOT_URL}/admin/users`, {
         method: "get",
         headers: {
           "content-type": "application/json",
@@ -32,7 +33,7 @@ export function PagesUsers(
     <Page className="page_list">
       <PageHeading iconName="users" name="Users" />
 
-      {users.isLoading && <Loader />}
+      {users.isLoading && <Loader for="page" color="pink" />}
 
       {users.error && <Message type="danger">Something went wrong :(</Message>}
 
