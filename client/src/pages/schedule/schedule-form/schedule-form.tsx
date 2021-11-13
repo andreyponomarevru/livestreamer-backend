@@ -2,6 +2,8 @@ import React, { ReactElement, useState, useEffect } from "react";
 
 import "../../../lib/btn/btn.scss";
 import "./schedule-form.scss";
+import { Btn } from "../../../lib/btn/btn";
+import { Loader } from "../../../lib/loader/loader";
 
 export function ScheduleForm(): ReactElement {
   const [startDate, setStartDate] = useState("");
@@ -77,12 +79,13 @@ export function ScheduleForm(): ReactElement {
         min="2020-06-07T00:00"
         onChange={handleDatetimeChange}
       />
-      <button
-        onClick={handleScheduleBroadcast}
-        className="btn btn_theme_white schedule_btn"
+      <Btn
+        handleClick={(e) => handleScheduleBroadcast(e)}
+        theme="white"
+        name="Schedule Broadcast"
       >
-        Schedule
-      </button>
+        <Loader color="black" for="btn" />
+      </Btn>
     </form>
   );
 }

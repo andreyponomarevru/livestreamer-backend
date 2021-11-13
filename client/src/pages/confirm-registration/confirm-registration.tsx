@@ -9,6 +9,7 @@ import { Page } from "../../lib/page/page";
 import { useIsMounted } from "../../hooks/use-is-mounted";
 import { useFetch } from "../../hooks/use-fetch";
 import { Help } from "../../lib/help/help";
+import { ROUTES } from "../../config/routes";
 
 export function ConfirmRegistrationPage(
   props: React.HTMLAttributes<HTMLDivElement>
@@ -18,12 +19,13 @@ export function ConfirmRegistrationPage(
 
   const isMounted = useIsMounted();
 
-  const [confirmSignUpResponse, sendToken] = useFetch();
+  const { state: confirmSignUpResponse, fetchNow: sendTokenRequest } =
+    useFetch();
   React.useEffect(() => {
     if (isMounted && token) {
       console.log("[confirmSignUp] Sending confirmation request...");
 
-      sendToken(`${API_ROOT_URL}/verification?token=${token}`, {
+      sendTokenRequest(`${API_ROOT_URL}/verification?token=${token}`, {
         method: "POST",
         headers: {
           "content-type": "application/json",
@@ -46,9 +48,7 @@ export function ConfirmRegistrationPage(
     <Page className="page_box">
       {isConfirmed === false && (
         <React.Fragment>
-          <Message type="danger">
-            {`Sorry, we couldn't verify your email :(`}
-          </Message>
+          <Message type="danger">{`Sorry, we couldn't verify your email :(`}</Message>
           <Help />
         </React.Fragment>
       )}
@@ -56,12 +56,12 @@ export function ConfirmRegistrationPage(
       {isConfirmed === true && (
         <Message type="success">
           <div className="circle circle_green page__circle">
-            Done! Now, you can <NavLink to="/signin">log in</NavLink>.
+            Done! Now, you can <NavLink to={ROUTES.signIn}>log in</NavLink>.
           </div>
         </Message>
       )}
 
-      {confirmSignUpResponse.isLoading && <Loader />}
+      {confirmSignUpResponse.isLoading && <Loader color="pink" for="page" />}
     </Page>
   );
 }

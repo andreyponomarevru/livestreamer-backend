@@ -1,14 +1,7 @@
-import React, {
-  ReactElement,
-  useState,
-  useRef,
-  useEffect,
-  useContext,
-  Fragment,
-} from "react";
+import * as React from "react";
 
 import { API_ROOT_URL } from "../../config/env";
-import { ChatMsgsPageResponse, BroadcastState, ChatMsg } from "../../types";
+import { ChatMsgsPageResponse, ChatMsg } from "../../types";
 import { useFetch } from "../../hooks/use-fetch";
 import { Loader } from "../../lib/loader/loader";
 import { ChatControls } from "./chat-controls/chat-controls";
@@ -23,7 +16,7 @@ import "./chat.scss";
 
 type Props = React.HTMLAttributes<HTMLDivElement>;
 
-export function PagesChat(props: Props): ReactElement {
+export function PagesChat(props: Props): React.ReactElement {
   function handleAddChatComment(chatComment: ChatMsg) {
     if (isMounted && chatMsgs) {
       setMessages((prevState) => [...prevState, chatComment]);
@@ -31,26 +24,24 @@ export function PagesChat(props: Props): ReactElement {
   }
 
   // WebSocket
-  const ws = useContext(WebSocketContext);
+  const ws = React.useContext(WebSocketContext);
   if (!ws) throw new Error("WS context is `null`");
   const broadcastState = useWSStreamState(ws);
 
   //
 
-  const [nextCursor, setNextCursor] = useState();
+  const [nextCursor, setNextCursor] = React.useState();
+  const [messages, setMessages] = React.useState<ChatMsg[]>([]);
 
-  const [messages, setMessages] = useState<ChatMsg[]>([]);
-
-  const messagesEndRef = useRef<any>(null);
+  const messagesEndRef = React.useRef<any>(null);
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
   };
 
   const isMounted = useIsMounted();
-
-  const [chatMsgs, fetchMessagesNow] = useFetch<ChatMsgsPageResponse>();
-
-  useEffect(() => {
+  const { state: chatMsgs, fetchNow: fetchMessagesNow } =
+    useFetch<ChatMsgsPageResponse>();
+  React.useEffect(() => {
     if (isMounted) {
       fetchMessagesNow(
         `${API_ROOT_URL}/chat/messages?limit=50${
@@ -75,14 +66,14 @@ export function PagesChat(props: Props): ReactElement {
 
   return (
     <Page className="chat-page">
-      {chatMsgs.isLoading && <Loader type="page" />}
+      {chatMsgs.isLoading && <Loader for="page" color="pink" />}
 
       {chatMsgs.error && (
         <Message type="danger">Something went wrong :(</Message>
       )}
 
       {chatMsgs.response?.body && (
-        <Fragment>
+        <React.Fragment>
           <ul className={`chat-page__messages-list ${props.className || ""}`}>
             {chatMsgs.response.body.results.messages
               .sort(sortComments)
@@ -100,7 +91,7 @@ export function PagesChat(props: Props): ReactElement {
               })}
           </ul>
           <div ref={messagesEndRef} />
-        </Fragment>
+        </React.Fragment>
       )}
 
       <ChatControls

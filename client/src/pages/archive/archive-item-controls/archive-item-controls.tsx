@@ -1,31 +1,40 @@
 import React, { ReactElement } from "react";
 
-import { PlayerLinkForm } from "../player-link-form/player-link-form";
-import { TracklistForm } from "../tracklist-form/tracklist-form";
+import { PlayerLinkForm } from "../../../lib/player-link-form/player-link-form";
+import { TracklistForm } from "../../../lib/tracklist-form/tracklist-form";
 
 import "../../../lib/btn/btn.scss";
 import "./archive-item-controls.scss";
 import "../../../lib/text-input/text-input.scss";
+import { Btn } from "../../../lib/btn/btn";
+import { Loader } from "../../../lib/loader/loader";
 
 export function ArchiveItemControls(
   props: React.HTMLAttributes<HTMLDivElement>
 ): ReactElement {
-  const { className = "" } = props;
-
+  // TODO: send request to API and change the hardcoded 'isLoaded' value on buttons
   const apiResponse = { broadcast: { isVisible: true } };
 
   return (
     <div className="archive-item-controls">
       <div></div>
-      <button className="btn btn_theme_white">
-        {apiResponse.broadcast.isVisible
-          ? "Publish Broadcast"
-          : "Hide broadcast"}
-      </button>
+      <Btn
+        theme="white"
+        isLoading={false}
+        name={
+          apiResponse.broadcast.isVisible
+            ? "Publish Broadcast"
+            : "Hide broadcast"
+        }
+      >
+        <Loader for="btn" color="black" />
+      </Btn>
 
       <TracklistForm />
       <PlayerLinkForm />
-      <button className="btn btn_theme_white">Delete Broadcast</button>
+      <Btn theme="white" name="Delete Broadcast" isLoading={false}>
+        <Loader color="black" for="btn" />
+      </Btn>
     </div>
   );
 }

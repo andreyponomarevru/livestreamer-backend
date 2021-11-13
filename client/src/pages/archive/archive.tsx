@@ -1,4 +1,4 @@
-import React, { ReactElement, Fragment, useState, useEffect } from "react";
+import * as React from "react";
 
 import { ArchiveItem } from "./archive-item/archive-item";
 import { PageHeading } from "../../lib/page-heading/page-heading";
@@ -14,14 +14,15 @@ import "../../lib/items-list/items-list.scss";
 
 export function PagesArchive(
   props: React.HTMLAttributes<HTMLDivElement>
-): ReactElement {
+): React.ReactElement {
   const isMounted = useIsMounted();
 
-  const [broadcasts, fetchBroadcastsNow] = useFetch<BroadcastResponse>();
+  const { state: broadcasts, fetchNow: sendBroadcastsRequest } =
+    useFetch<BroadcastResponse>();
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (isMounted) {
-      fetchBroadcastsNow(`${API_ROOT_URL}/broadcasts`);
+      sendBroadcastsRequest(`${API_ROOT_URL}/broadcasts`);
     }
   }, [isMounted]);
 
@@ -29,7 +30,7 @@ export function PagesArchive(
     <Page className="page_list">
       <PageHeading iconName="archive" name="Archive" />
 
-      {broadcasts.isLoading && <Loader />}
+      {broadcasts.isLoading && <Loader for="page" color="pink" />}
 
       {broadcasts.error && (
         <Message type="danger">Something went wrong :(</Message>

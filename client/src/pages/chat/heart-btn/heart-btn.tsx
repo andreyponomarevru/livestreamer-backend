@@ -9,6 +9,7 @@ import { LIKE_TIMEOUT_MS } from "../../../config/env";
 
 import icons from "./../../../icons.svg";
 import "./heart-btn.scss";
+import { ROUTES } from "../../../config/routes";
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
   isStreamOnline: boolean;
@@ -20,7 +21,7 @@ export function HeartBtn(props: Props): ReactElement {
       console.log(
         "[heartBtn] To like the stream, the user has to be authenticated"
       );
-      navigate("/signin");
+      navigate(ROUTES.signIn);
       return;
     } else if (!props.isStreamOnline) {
       console.log("[heartBtn] Stream is offline");

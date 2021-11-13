@@ -1,4 +1,4 @@
-import React, { ReactElement, useState, useEffect } from "react";
+import * as React from "react";
 import { useForm } from "react-hook-form";
 
 import { inputRules, InputTypes } from "../../../config/input-rules";
@@ -8,24 +8,19 @@ import { useAuthN } from "../../../hooks/use-authn";
 import { User, UserResponse } from "../../../types";
 import { Btn } from "../../../lib/btn/btn";
 import { useIsMounted } from "../../../hooks/use-is-mounted";
-
-import "./account-form.scss";
 import { useNavigate } from "react-router";
 import { Loader } from "../../../lib/loader/loader";
+import { FormError } from "../../../lib/form-error/form-error";
+import { ROUTES } from "../../../config/routes";
 
-type UserSettings = {
-  username: string;
-};
+import "./account-form.scss";
 
-function useMsg() {
-  const [message, setMessage] = React.useState(null);
+type UserSettings = { username: string };
 
-  return [message, setMessage];
-}
-
-export function AccountForm(): ReactElement {
+export function AccountForm(): React.ReactElement {
   function handleSaveChanges(userSettings: UserSettings) {
-    fetchUpdatedUserNow(`${API_ROOT_URL}/user`, {
+    clearErrors();
+    sendUpdatedUserRequest(`${API_ROOT_URL}/user`, {
       method: "PATCH",
       headers: {
         "content-type": "application/json",
@@ -33,6 +28,10 @@ export function AccountForm(): ReactElement {
       },
       body: JSON.stringify(userSettings),
     });
+  }
+
+  function handleChange() {
+    clearErrors();
   }
 
   function handleFormErrors(errors: unknown) {
@@ -48,24 +47,25 @@ export function AccountForm(): ReactElement {
     formState: { errors },
     setValue,
     setError,
+    clearErrors,
   } = useForm<InputTypes>({
     mode: "onBlur",
     defaultValues: { username: auth.user?.username },
   });
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (isMounted && auth.user) {
       setValue("username", auth.user.username, { shouldValidate: false });
     }
   }, [isMounted, auth.user]);
 
-  const [updatedUserResponse, fetchUpdatedUserNow] = useFetch<UserResponse>();
-  useEffect(() => {
+  const { state: updatedUserResponse, fetchNow: sendUpdatedUserRequest } =
+    useFetch<UserResponse>();
+  React.useEffect(() => {
     if (isMounted && updatedUserResponse.response?.body) {
       const user: User = updatedUserResponse.response.body.results;
-      localStorage.setItem("user", JSON.stringify(user));
-      auth.updateUser(user);
-      navigate("/");
+      auth.setUser(user);
+      navigate(ROUTES.root);
     } else if (isMounted && updatedUserResponse.error) {
       setError("username", {
         type: "string",
@@ -78,6 +78,7 @@ export function AccountForm(): ReactElement {
     <form
       className="account-form"
       onSubmit={handleSubmit(handleSaveChanges, handleFormErrors)}
+      onChange={handleChange}
     >
       <div className="account-form__details-row">
         <label htmlFor="username">Username</label>
@@ -89,19 +90,10 @@ export function AccountForm(): ReactElement {
         />
       </div>
 
-      {errors.username && (
-        <small className="account-form__ form__text form__text_danger">
-          {errors.username.message}
-        </small>
-      )}
+      {errors.username && <FormError>{errors.username.message}</FormError>}
 
-      <Btn
-        theme="white"
-        name="Save"
-        isLoading={updatedUserResponse.isLoading}
-        className="account-form__save-btn"
-      >
-        <Loader className="loader_black btn__loader" />
+      <Btn theme="white" name="Save" isLoading={updatedUserResponse.isLoading}>
+        <Loader for="btn" color="black" />
       </Btn>
     </form>
   );

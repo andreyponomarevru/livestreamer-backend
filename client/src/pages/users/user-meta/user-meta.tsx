@@ -2,6 +2,8 @@ import React, { useState } from "react";
 
 import "./user-meta.scss";
 import { UserResponse, User } from "../../../types";
+import { Btn } from "../../../lib/btn/btn";
+import { Loader } from "../../../lib/loader/loader";
 
 export function UserMeta(props: User) {
   const [isOpen, setIsOpen] = useState(false);
@@ -10,6 +12,8 @@ export function UserMeta(props: User) {
     setIsOpen((prev) => !prev);
   }
 
+  // TODO: send request to API
+
   const detailsJSX = (
     <div className="user-meta__details">
       <div className="user-meta__details-row">
@@ -17,7 +21,9 @@ export function UserMeta(props: User) {
         <span className="user-meta__value">{props.email}</span>
       </div>
       <div className="user-meta__details-row">
-        <button className="btn btn_theme_white">Delete</button>
+        <Btn theme="white" name="Delete" isLoading={false}>
+          <Loader color="black" for="btn" />
+        </Btn>
       </div>
     </div>
   );

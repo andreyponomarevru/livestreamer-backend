@@ -1,6 +1,6 @@
-import React, { ReactElement, useContext, useEffect } from "react";
+import React from "react";
 
-import { NavLink } from "react-router-dom";
+import { NavLink, Navigate, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 
 import "../../../lib/link/link.scss";
@@ -8,39 +8,63 @@ import "../../../lib/btn/btn.scss";
 import "../../../lib/text-input/text-input.scss";
 import "../../../lib/form/form.scss";
 import { inputRules, InputTypes } from "../../../config/input-rules";
-import { useAuthN } from "../../../hooks/use-authn";
 import { isEmail } from "../../../utils/is-email";
 import { SignInForm } from "../../../types";
-import { Message } from "../../../lib/message/message";
+import { Btn } from "../../../lib/btn/btn";
+import { useIsMounted } from "../../../hooks/use-is-mounted";
+import { useSignIn } from "../../../hooks/use-sign-in";
+import { FormError } from "../../../lib/form-error/form-error";
+import { Loader } from "../../../lib/loader/loader";
+import { ROUTES } from "../../../config/routes";
+import { useAuthN } from "../../../hooks/use-authn";
 
 export function SignInForm(
   props: React.HTMLAttributes<HTMLDivElement>
-): ReactElement {
+): React.ReactElement {
   const handleSignIn = async ({ emailOrUsername, password }: SignInForm) => {
+    clearErrors();
     isEmail(emailOrUsername)
-      ? signin({ email: emailOrUsername, password })
-      : signin({ username: emailOrUsername, password });
+      ? signIn({ email: emailOrUsername, password })
+      : signIn({ username: emailOrUsername, password });
   };
 
-  const handleErrors = (errors: unknown) => console.error(errors);
+  function handleErrors(errors: unknown) {
+    console.error(errors);
+  }
+
+  function handleChange() {
+    clearErrors();
+  }
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-    reset,
+    clearErrors,
+    setError,
   } = useForm<InputTypes>({ mode: "onBlur" });
-
-  const { user, signin, setErr, err } = useAuthN();
-
-  useEffect(() => {
-    if (err) setErr(null);
-  }, []);
+  const navigate = useNavigate();
+  const isMounted = useIsMounted();
+  const { signIn, signInResponse } = useSignIn();
+  const { setUser } = useAuthN();
+  React.useEffect(() => {
+    if (isMounted && signInResponse.error) {
+      setError("password", {
+        type: "string",
+        message: signInResponse.error.message,
+      });
+    } else if (isMounted && signInResponse.response?.body) {
+      const user = signInResponse.response.body.results;
+      setUser(user);
+      navigate(ROUTES.root);
+    }
+  }, [isMounted, signInResponse]);
 
   return (
     <form
       className={`form ${props.className || ""}`}
       onSubmit={handleSubmit(handleSignIn, handleErrors)}
+      onChange={handleChange}
     >
       <div className="form__form-group">
         <label className="form__label" htmlFor="emailorusername" />
@@ -52,9 +76,7 @@ export function SignInForm(
           {...register("emailOrUsername", inputRules.signInEmailOrUsername)}
         />
         {errors.emailOrUsername && (
-          <small className="form__text form__text_danger">
-            {errors.emailOrUsername.message}
-          </small>
+          <FormError>{errors.emailOrUsername.message}</FormError>
         )}
       </div>
 
@@ -67,22 +89,18 @@ export function SignInForm(
           placeholder="Password"
           {...register("password", inputRules.signInPassword)}
         />
-        {errors.password && (
-          <small className="form__text form__text_danger">
-            {errors.password.message}
-          </small>
-        )}
+        {errors.password && <FormError>{errors.password.message}</FormError>}
       </div>
 
-      <button className="btn btn_theme_white">Log In</button>
+      <Btn name="Log In" theme="white" isLoading={signInResponse.isLoading}>
+        <Loader color="black" for="btn" />
+      </Btn>
 
-      {err && <Message type="danger">{err.message}</Message>}
-
-      <small className="form__text form__text_regular">
+      <p>
         <NavLink to="/forgot-pass" className="link">
           Forgot Password?
         </NavLink>
-      </small>
+      </p>
     </form>
   );
 }

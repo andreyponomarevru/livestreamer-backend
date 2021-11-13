@@ -1,4 +1,7 @@
-import React, { useState, useContext, ReactElement, useEffect } from "react";
+import * as React from "react";
+
+import "./chat-controls.scss";
+import icons from "./../../../icons.svg";
 
 import { useAuthN } from "../../../hooks/use-authn";
 import { useNavigate } from "react-router-dom";
@@ -7,22 +10,20 @@ import { BroadcastState, ChatMsg, ChatMessageResponse } from "../../../types";
 import { API_ROOT_URL } from "../../../config/env";
 import { useIsMounted } from "../../../hooks/use-is-mounted";
 import { useFetch } from "../../../hooks/use-fetch";
-
-import "./chat-controls.scss";
-import icons from "./../../../icons.svg";
+import { ROUTES } from "../../../config/routes";
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
   broadcastState: BroadcastState;
   handleAddChatComment: (chatComment: ChatMsg) => void;
 }
 
-export function ChatControls(props: Props): ReactElement {
+export function ChatControls(props: Props): React.ReactElement {
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     setMsgInput(e.target.value);
   }
 
   function checkAuth() {
-    if (!user) navigate("/signin");
+    if (!user) navigate(ROUTES.signIn);
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -36,7 +37,7 @@ export function ChatControls(props: Props): ReactElement {
     if (trimmedMsg.length > 0 && trimmedMsg.length < 500) {
       console.log("Sending the message to API: ", trimmedMsg);
 
-      sendChatMessage(`${API_ROOT_URL}/chat/messages`, {
+      sendChatMessageRequest(`${API_ROOT_URL}/chat/messages`, {
         method: "POST",
         headers: {
           "content-type": "application/json",
@@ -47,16 +48,17 @@ export function ChatControls(props: Props): ReactElement {
     }
   }
 
-  const [msgInput, setMsgInput] = useState("");
+  const [msgInput, setMsgInput] = React.useState("");
 
   const isMounted = useIsMounted();
-  const [chatMessage, sendChatMessage] = useFetch<ChatMessageResponse>();
-  useEffect(() => {
-    if (isMounted && chatMessage.response?.body) {
+  const { state: chatMessageResponse, fetchNow: sendChatMessageRequest } =
+    useFetch<ChatMessageResponse>();
+  React.useEffect(() => {
+    if (isMounted && chatMessageResponse.response?.body) {
       setMsgInput("");
-      props.handleAddChatComment(chatMessage.response.body.results);
+      props.handleAddChatComment(chatMessageResponse.response.body.results);
     }
-  }, [isMounted, chatMessage]);
+  }, [isMounted, chatMessageResponse]);
 
   const { user } = useAuthN();
   const navigate = useNavigate();

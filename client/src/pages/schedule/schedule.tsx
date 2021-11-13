@@ -1,4 +1,4 @@
-import React, { ReactElement, useEffect, Fragment } from "react";
+import * as React from "react";
 
 import { ScheduleForm } from "./schedule-form/schedule-form";
 import { PageHeading } from "../../lib/page-heading/page-heading";
@@ -18,14 +18,14 @@ import "./schedule.scss";
 
 export function PagesSchedule(
   props: React.HTMLAttributes<HTMLDivElement>
-): ReactElement {
+): React.ReactElement {
   const isMounted = useIsMounted();
-  const [broadcasts, fetchBroadcastsNow] =
+  const { state: broadcasts, fetchNow: sendBroadcastsRequest } =
     useFetch<ScheduledBroadcastResponse>();
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (isMounted) {
-      fetchBroadcastsNow(`${API_ROOT_URL}/schedule`, {
+      sendBroadcastsRequest(`${API_ROOT_URL}/schedule`, {
         method: "GET",
         headers: {
           "content-type": "application/json",
@@ -45,7 +45,7 @@ export function PagesSchedule(
         <ScheduleForm />
       </ProtectedComponent>
 
-      {broadcasts.isLoading && <Loader type="page" />}
+      {broadcasts.isLoading && <Loader color="pink" for="page" />}
 
       {broadcasts.error && (
         <Message type="danger">Something went wrong :(</Message>

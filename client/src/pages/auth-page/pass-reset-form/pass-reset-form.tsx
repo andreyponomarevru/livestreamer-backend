@@ -1,49 +1,36 @@
-import React, {
-  ReactElement,
-  Fragment,
-  useState,
-  useContext,
-  useEffect,
-} from "react";
-
+import * as React from "react";
 import { useForm } from "react-hook-form";
 
 import "../../../lib/btn/btn.scss";
 import "../../../lib/text-input/text-input.scss";
 import "../../../lib/btn/btn.scss";
 import "../../../lib/form/form.scss";
+
 import { inputRules, InputTypes } from "../../../config/input-rules";
 import { API_ROOT_URL } from "../../../config/env";
 import { Message } from "../../../lib/message/message";
 import { useFetch } from "../../../hooks/use-fetch";
 import { Loader } from "../../../lib/loader/loader";
+import { Btn } from "../../../lib/btn/btn";
+import { useIsMounted } from "../../../hooks/use-is-mounted";
+import { FormError } from "../../../lib/form-error/form-error";
+import { Link, useNavigate } from "react-router-dom";
+import { ROUTES } from "../../../config/routes";
+import { useQuery } from "../../../hooks/use-query";
 
-interface Props extends React.HTMLAttributes<HTMLDivElement> {
-  token: string | null;
-}
-
-// http://mix.ru:8000/#/password-reset?token=aa7a7b15213bed12aecdbbab97cee4957a134c763c646733895275cc97d87916feb88801f6f9f70b28826b5cc44fbcda692e38b885113fd7b875dbc89155819b
-
-export function PassResetForm(props: Props): ReactElement {
-  const { className = "" } = props;
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-  } = useForm<InputTypes>({ mode: "onBlur" });
-
+export function PassResetForm(
+  props: React.HTMLAttributes<HTMLDivElement>
+): React.ReactElement {
   async function handlePasswordReset({ password }: { password: string }) {
-    if (!props.token) console.error("Token in query string is not set");
+    clearErrors();
 
-    sendNewPassword(`${API_ROOT_URL}/user/settings/password`, {
+    sendNewPasswordRequest(`${API_ROOT_URL}/user/settings/password`, {
       method: "PATCH",
       headers: {
         "content-type": "application/json",
         accept: "application/json",
       },
-      body: JSON.stringify({ newPassword: password, token: props.token }),
+      body: JSON.stringify({ newPassword: password, token: token }),
     });
 
     reset();
@@ -53,17 +40,45 @@ export function PassResetForm(props: Props): ReactElement {
     console.error(errors);
   }
 
-  const [newPassword, sendNewPassword] = useFetch<null>();
+  const navigate = useNavigate();
+  const query = useQuery();
+  const token = query.get("token");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    clearErrors,
+    setError,
+  } = useForm<InputTypes>({ mode: "onBlur" });
+  const isMounted = useIsMounted();
+  const { state: newPasswordResponse, fetchNow: sendNewPasswordRequest } =
+    useFetch<null>();
+  React.useEffect(() => {
+    if (isMounted && newPasswordResponse.error) {
+      setError("password", {
+        type: "string",
+        message: newPasswordResponse.error.message,
+      });
+    }
+  }, [isMounted, newPasswordResponse]);
+
+  React.useEffect(() => {
+    if (isMounted && !token) {
+      console.log("[PassResetForm] Token in query string is not set");
+      navigate(ROUTES.root);
+    }
+  }, [isMounted]);
 
   return (
     <form
-      className={`form ${className}`}
+      className={`form ${props.className || ""}`}
       onSubmit={handleSubmit(handlePasswordReset, handleErrors)}
     >
-      {newPassword.isLoading && <Loader />}
+      {newPasswordResponse.isLoading && <Loader for="page" color="pink" />}
 
-      {newPassword.response === null && (
-        <Fragment>
+      {newPasswordResponse.response === null && (
+        <React.Fragment>
           <div>Enter your new password below.</div>
 
           <div className="form__form-group">
@@ -76,31 +91,32 @@ export function PassResetForm(props: Props): ReactElement {
               {...register("password", inputRules.password)}
             />
             {errors.password && (
-              <small className="form__text form__text_danger">
-                {errors.password.message}
-              </small>
+              <FormError>{errors.password.message}</FormError>
             )}
           </div>
 
-          <button className="btn btn_theme_white">Submit</button>
-          <div className="forgot-password-form__subtext">
+          <Btn
+            name="Submit"
+            theme="white"
+            isLoading={newPasswordResponse.isLoading}
+          >
+            <Loader color="black" for="btn" />
+          </Btn>
+
+          <div>
             Need help?{" "}
             <a href="mailto:info@andreyponomarev.ru" className="link">
               Contact us
             </a>
           </div>
-        </Fragment>
+        </React.Fragment>
       )}
 
-      {newPassword.response && (
+      {newPasswordResponse.response && (
         <Message type="success">
-          Password successfully updated. You can now log in with your new
-          password.
+          Password successfully updated. You can now{" "}
+          <Link to={ROUTES.signIn}>log in</Link> with your new password.
         </Message>
-      )}
-
-      {newPassword.error && (
-        <Message type="danger">{newPassword.error.message}</Message>
       )}
     </form>
   );

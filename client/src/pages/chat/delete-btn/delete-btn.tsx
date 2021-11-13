@@ -8,11 +8,9 @@ interface Props extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export function DeleteBtn(props: Props): ReactElement {
-  const { className = "" } = props;
-
   return (
     <button
-      className={`delete-btn ${className}`}
+      className={`delete-btn ${props.className || ""}`}
       onClick={props.handleBtnClick}
       type="submit"
       name="delete"

@@ -1,5 +1,4 @@
-import React, { ReactElement, useState, useEffect, Fragment } from "react";
-
+import * as React from "react";
 import { useForm } from "react-hook-form";
 
 import "../../../lib/btn/btn.scss";
@@ -14,24 +13,15 @@ import { useIsMounted } from "../../../hooks/use-is-mounted";
 import { useFetch } from "../../../hooks/use-fetch";
 import { Loader } from "../../../lib/loader/loader";
 import { Help } from "../../../lib/help/help";
+import { Btn } from "../../../lib/btn/btn";
+import { FormError } from "../../../lib/form-error/form-error";
 
 export function ForgotPasswordForm(
   props: React.HTMLAttributes<HTMLDivElement>
-): ReactElement {
-  const { className = "" } = props;
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-  } = useForm<InputTypes>({ mode: "onBlur" });
-
+): React.ReactElement {
   function handlePasswordReset(email: { email: string }) {
-    // setSuccessResponse(undefined);
-    // setErrResponse(null);
-
-    requestPasswordReset(`${API_ROOT_URL}/user/settings/password`, {
+    clearErrors();
+    sendPasswordResetRequest(`${API_ROOT_URL}/user/settings/password`, {
       method: "PATCH",
       headers: {
         "content-type": "application/json",
@@ -40,54 +30,55 @@ export function ForgotPasswordForm(
       body: JSON.stringify(email),
     });
 
-    setIsResetLinkSet(true); // ??? refactoor
-
     reset();
+  }
+
+  function handleChange() {
+    clearErrors();
   }
 
   function handleErrors(errors: unknown) {
     console.error(errors);
   }
 
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    clearErrors,
+    setError,
+  } = useForm<InputTypes>({ mode: "onBlur" });
   const isMounted = useIsMounted();
-  const [response, requestPasswordReset] = useFetch<null>();
-
-  const [isResetLinkSent, setIsResetLinkSet] = useState(false);
-  useEffect(() => {
-    if (isMounted && response.response) {
+  const { state: passwordResetResponse, fetchNow: sendPasswordResetRequest } =
+    useFetch<null>();
+  React.useEffect(() => {
+    if (isMounted && passwordResetResponse.error) {
+      setError("email", {
+        type: "string",
+        message: passwordResetResponse.error.message,
+      });
     }
-  }, [isMounted, response]);
-
-  /*
-  if (response) {
-    return (
-      <div className="form">
-        <Message type="success" className=" message__form">
-          Password reset link has been sent to your email.
-        </Message>
-      </div>
-    );
-  } */
+  }, [isMounted, passwordResetResponse]);
 
   return (
     <form
-      className={`form ${className}`}
+      className={`form ${props.className || ""}`}
       onSubmit={handleSubmit(handlePasswordReset, handleErrors)}
+      onChange={handleChange}
     >
-      {response.isLoading && <Loader />}
-
-      {response.error && (
-        <Message type="danger" className=" message__form">
-          {response.error.message}
+      {passwordResetResponse.response && (
+        <Message type="success">
+          Password reset link has been sent to your email.
         </Message>
       )}
 
-      {!response.response && (
-        <Fragment>
-          <div>
+      {passwordResetResponse.response === null && (
+        <React.Fragment>
+          <p>
             Enter the email used for your account and we will send you a link to
             reset your password.
-          </div>
+          </p>
           <div className="form__form-group">
             <label className="form__label" htmlFor="email" />
             <input
@@ -97,15 +88,19 @@ export function ForgotPasswordForm(
               placeholder="Email"
               {...register("email", inputRules.email)}
             />
-            {errors.email && (
-              <small className="form__text form__text_danger">
-                {errors.email.message}
-              </small>
-            )}
+            {errors.email && <FormError>{errors.email.message}</FormError>}
           </div>
-          <button className="btn btn_theme_white">Submit</button>
+
+          <Btn
+            name="Submit"
+            theme="white"
+            isLoading={passwordResetResponse.isLoading}
+          >
+            <Loader for="btn" color="black" />
+          </Btn>
+
           <Help />
-        </Fragment>
+        </React.Fragment>
       )}
     </form>
   );

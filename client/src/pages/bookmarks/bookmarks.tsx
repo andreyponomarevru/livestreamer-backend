@@ -14,7 +14,7 @@ export function PagesBookmarks(
 ): ReactElement {
   return <div></div>;
   /*
-  const [api, setDoFetchNow] = useFetch<BroadcastResponse>({
+  const { state: broadcastResponse, sendBookmarksRequest} = useFetch<BroadcastResponse>({
     url: `${API_ROOT_URL}/user/broadcasts/bookmarked`,
     options: {
       method: "get",

@@ -1,4 +1,4 @@
-import React, { ReactElement, Fragment, useState, useEffect } from "react";
+import * as React from "react";
 
 import { ArchiveItem } from "../archive/archive-item/archive-item";
 import { PageHeading } from "../../lib/page-heading/page-heading";
@@ -14,29 +14,28 @@ import "../../lib/items-list/items-list.scss";
 
 export function PagesDrafts(
   props: React.HTMLAttributes<HTMLDivElement>
-): ReactElement {
-  function getDrafts() {
-    fetchDrafts(`${API_ROOT_URL}/broadcasts/drafts`, {
-      method: "GET",
-      headers: {
-        "content-type": "application/json",
-        accept: "application/json",
-      },
-    });
-  }
-
+): React.ReactElement {
   const isMounted = useIsMounted();
-  const [draftsResponse, fetchDrafts] = useFetch<BroadcastResponse>();
+  const { state: draftsResponse, fetchNow: sendGetDraftsRequest } =
+    useFetch<BroadcastResponse>();
 
-  useEffect(() => {
-    if (isMounted) getDrafts();
+  React.useEffect(() => {
+    if (isMounted) {
+      sendGetDraftsRequest(`${API_ROOT_URL}/broadcasts/drafts`, {
+        method: "GET",
+        headers: {
+          "content-type": "application/json",
+          accept: "application/json",
+        },
+      });
+    }
   }, [isMounted]);
 
   return (
     <Page className="page_list">
       <PageHeading iconName="archive" name="Drafts" />
 
-      {draftsResponse.isLoading && <Loader />}
+      {draftsResponse.isLoading && <Loader for="page" color="pink" />}
 
       {draftsResponse.error && (
         <Message type="danger">Something went wrong :(</Message>
