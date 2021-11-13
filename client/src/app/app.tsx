@@ -7,7 +7,6 @@ import {
 } from "react-router-dom";
 
 import { ErrorBoundary } from "../lib/error-boundary/error-boundary";
-//import ScrollToTop from "../../utils/scroll-to-top";
 import { PagesChat } from "../pages/chat/chat";
 import { PagesArchive } from "../pages/archive/archive";
 import { PagesSchedule } from "../pages/schedule/schedule";
@@ -29,18 +28,12 @@ import { useWSStreamState } from "../hooks/use-ws-stream-state";
 import { ROUTES } from "../config/routes";
 
 import "./app.scss";
-import { RESOURCES } from "../config/constants";
-import { PERMISSIONS } from "../config/constants";
 
 export function App(): ReactElement {
-  const { user } = useAuthN();
-
   return (
     <HashRouter>
       <ErrorBoundary>
         <AuthNProvider>
-          {/*<ScrollToTop />*/}
-
           <header className="app__header">
             <NavBar />
             <StreamBar />
