@@ -3,10 +3,19 @@ import * as React from "react";
 import "./ask-to-confirm-registration.scss";
 import { Message } from "../../lib/message/message";
 import { Page } from "../../lib/page/page";
+import { useNavigate } from "react-router";
+import { useAuthN } from "../../hooks/use-authn";
+import { ROUTES } from "../../config/routes";
 
 export function AskToConfirmRegistrationPage(
   props: React.HTMLAttributes<HTMLDivElement>
 ): React.ReactElement {
+  const navigate = useNavigate();
+  const auth = useAuthN();
+  React.useEffect(() => {
+    if (auth.user) navigate(ROUTES.root);
+  }, []);
+
   return (
     <Page className="ask-to-confirm-registration-page page_box">
       <h1 className="ask-to-confirm-registration-page__heading">

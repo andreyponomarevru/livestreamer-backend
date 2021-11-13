@@ -1,5 +1,5 @@
 import * as React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 import { useQuery } from "../../hooks/use-query";
 import { Message } from "../../lib/message/message";
@@ -10,10 +10,17 @@ import { useIsMounted } from "../../hooks/use-is-mounted";
 import { useFetch } from "../../hooks/use-fetch";
 import { Help } from "../../lib/help/help";
 import { ROUTES } from "../../config/routes";
+import { useAuthN } from "../../hooks/use-authn";
 
 export function ConfirmRegistrationPage(
   props: React.HTMLAttributes<HTMLDivElement>
 ): React.ReactElement {
+  const navigate = useNavigate();
+  const auth = useAuthN();
+  React.useEffect(() => {
+    if (auth.user) navigate(ROUTES.root);
+  }, []);
+
   const query = useQuery();
   const token = query.get("token");
 
