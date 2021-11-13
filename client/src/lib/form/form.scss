@@ -16,23 +16,8 @@
   }
 
   &__text {
+    margin-top: 0.5rem;
     padding: 0.2rem 0 0 0;
     font-size: $font-size_sm;
-  }
-
-  &__text_regular {
-    color: $color_gray;
-  }
-
-  &__text_danger {
-    color: $color_danger;
-  }
-
-  &__err-msg {
-    color: $color_danger;
-  }
-
-  &__success-msg {
-    color: $color_success;
   }
 }
