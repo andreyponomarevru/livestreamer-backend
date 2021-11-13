@@ -25,7 +25,7 @@ function createConfirmationEmail({
   email,
   userToken,
 }: MailConfirmationEmail): Mail.Options {
-  const emailConfirmationlink = `http://mix.ru:8000/#/confirm-registration"?token=${userToken}`;
+  const emailConfirmationlink = `http://mix.ru:8000/#/confirm-registration?token=${userToken}`;
 
   const options: SendMailOptions = {
     from: MAIL_FROM_EMAIL,
