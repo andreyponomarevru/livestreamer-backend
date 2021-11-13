@@ -1,7 +1,7 @@
 @import "../../global.scss";
 
 .chat-page {
-  margin-bottom: 3.5rem;
+  margin-bottom: 3.1rem;
   margin-top: 1rem;
 
   &__messages-list {
@@ -11,6 +11,13 @@
     justify-content: center;
     align-items: center;
     align-content: flex-start;
+  }
+
+  &__messages-list > li:last-child {
+    padding: 0;
+    margin: 0;
+    height: 0;
+    visibility: hidden;
   }
 
   &__controls {
