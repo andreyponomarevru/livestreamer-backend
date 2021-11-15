@@ -26,6 +26,18 @@ export function PagesArchive(
     }
   }, [isMounted]);
 
+  // TODO: Add 'Edit broadcast' feature
+  function updateBroadcast(id: number) {
+    const URL = `${API_ROOT_URL}/broadcasts/${id}`; // PATCH
+  }
+
+  // TODO: Add 'Delete broadcast' feature
+  function destroyBroadcast(id: number) {
+    const URL = `${API_ROOT_URL}/broadcasts/${id}`; // DELETE
+  }
+
+  //
+
   return (
     <Page className="page_list">
       <PageHeading iconName="archive" name="Archive" />
