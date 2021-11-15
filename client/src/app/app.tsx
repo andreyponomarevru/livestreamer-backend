@@ -24,7 +24,7 @@ import { AskToConfirmRegistrationPage } from "../pages/ask-to-confirm-registrati
 import { ConfirmRegistrationPage } from "../pages/confirm-registration/confirm-registration";
 import { PagesDrafts } from "../pages/drafts/drafts";
 import { WebSocketContext } from "../ws-client";
-import { useWSStreamState } from "../hooks/use-ws-stream-state";
+// import { useWSStreamState } from "../hooks/use-ws-stream-state";
 import { ROUTES } from "../config/routes";
 
 import "./app.scss";
