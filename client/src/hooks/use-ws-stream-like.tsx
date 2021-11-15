@@ -1,21 +1,31 @@
-import { useState, useEffect } from "react";
-import { IWebSocketClient } from "../ws-client";
-import { SavedBroadcastLike } from "../types";
+import * as React from "react";
+import { WebSocketContext } from "../ws-client";
+import { WSMsgEvent } from "../types";
+import { useIsMounted } from "./use-is-mounted";
 
-function useWSStreamLike(ws: IWebSocketClient): SavedBroadcastLike | undefined {
-  const [streamLike, setStreamLike] = useState<SavedBroadcastLike>();
+function useWebSocketEvents<State>(
+  event: WSMsgEvent,
+  initialState: State
+): State {
+  const isMounted = useIsMounted();
+  const ws = React.useContext(WebSocketContext);
+  const [state, setState] = React.useState<State>(initialState);
 
-  useEffect(() => {
-    let isMounted = true;
-    if (isMounted) ws.bindToServerEvents("stream:like", setStreamLike);
+  React.useEffect(() => {
+    console.log("[useWS] [useEffect]");
+    if (isMounted && ws) {
+      ws.bindToServerEvents(event, setState);
+      console.log(`[useWS] [useEffect] Bound to ${event}`);
+    }
 
     return () => {
-      isMounted = false;
-      ws.unbindFromServerEvents("stream:like", setStreamLike);
+      if (ws && isMounted) {
+        ws.unbindFromServerEvents(event, setState);
+      }
     };
-  }, []);
+  }, [ws, state, isMounted]);
 
-  return streamLike;
+  return state;
 }
 
-export { useWSStreamLike };
+export { useWebSocketEvents };

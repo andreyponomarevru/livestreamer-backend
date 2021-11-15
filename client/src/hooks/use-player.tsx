@@ -1,8 +1,13 @@
-import { useEffect, useReducer } from "react";
+import * as React from "react";
+import { API_ROOT_URL } from "../config/env";
 
 type State = { audio: HTMLAudioElement | null };
 
 type Player = [State, () => void];
+
+export function useGetStream() {
+  const URL = `${API_ROOT_URL}/stream`; // GET
+}
 
 function usePlayer(url: string): Player {
   const initialState = { audio: null };
