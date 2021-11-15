@@ -5,7 +5,7 @@ import { Icon } from "../../lib/icon/icon";
 
 import "./menu.scss";
 import { useAuthN } from "../../hooks/use-authn";
-import { ProtectedComponent } from "../../lib/protected-component/protected-component";
+import { hasPermission } from "../../utils/has-permission";
 import { useSignOut } from "../../hooks/use-sign-out";
 
 interface Props {
@@ -30,22 +30,28 @@ export function Menu(props: Props): ReactElement {
           Schedule
         </NavLink>
       </li>
-      <ProtectedComponent resource="all_user_accounts" action="read">
+      {hasPermission(
+        { resource: "all_user_accounts", action: "read" },
+        auth.user
+      ) && (
         <li>
           <NavLink className="menu__link" end to="/users">
             <Icon name="users" />
             Users
           </NavLink>
         </li>
-      </ProtectedComponent>
-      <ProtectedComponent resource="broadcast_draft" action="read">
+      )}
+      {hasPermission(
+        { resource: "broadcast_draft", action: "read" },
+        auth.user
+      ) && (
         <li>
           <NavLink className="menu__link" end to="/drafts">
             <Icon name="pencil" />
             Drafts
           </NavLink>
         </li>
-      </ProtectedComponent>
+      )}
       {!auth.user ? (
         <li>
           <NavLink className="menu__link" end to="/signin">
