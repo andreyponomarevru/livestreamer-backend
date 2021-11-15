@@ -1,63 +1,61 @@
-import React, { ReactElement, useState, useEffect, useContext } from "react";
+import * as React from "react";
 
 import { StreamBarState } from "../stream-bar-status/stream-bar-status";
-import { useWSStreamState } from "../../hooks/use-ws-stream-state";
-import { WebSocketContext } from "../../ws-client";
-import { useWSClientCount } from "../../hooks/use-ws-client-count";
 import { Counter } from "../counter/counter";
 import { API_STREAM_URL, API_ROOT_URL } from "../../config/env";
 import { usePlayer } from "../../hooks/use-player";
 import { PlayToggleBtn } from "../play-toggle-btn/play-toggle-btn";
-import { useWSStreamLike } from "../../hooks/use-ws-stream-like";
+import { useWebSocketEvents } from "../../hooks/use-ws-stream-like";
+import { SavedBroadcastLike, BroadcastState, ClientCount } from "../../types";
 
 import "./stream-bar.scss";
 
 type Props = React.HTMLAttributes<HTMLDivElement>;
 
-export function StreamBar(props: Props): ReactElement {
-  const { className = "" } = props;
-
-  const ws = useContext(WebSocketContext);
-  if (!ws) throw new Error("WS context is `null`");
-
-  const clientCount = useWSClientCount(ws);
-  const broadcastState = useWSStreamState(ws);
-  const broadcastLike = useWSStreamLike(ws);
+export function StreamBar(props: Props): React.ReactElement {
+  const clientCount = useWebSocketEvents<ClientCount>("chat:client_count", {
+    count: 0,
+  });
+  const streamState = useWebSocketEvents<BroadcastState>("stream:state", {
+    isOnline: false,
+  });
+  const streamLike = useWebSocketEvents<SavedBroadcastLike | null>(
+    "stream:like",
+    null
+  );
   const [player, togglePlay] = usePlayer(`${API_ROOT_URL}${API_STREAM_URL}`);
 
-  const [likeCount, setLikeCount] = useState(
-    broadcastState.broadcast?.likeCount || 0
+  const [likeCount, setLikeCount] = React.useState(
+    streamState.broadcast?.likeCount || 0
   );
 
-  useEffect(() => {
-    if (broadcastState.broadcast) {
-      setLikeCount(broadcastState.broadcast.likeCount || 0);
+  React.useEffect(() => {
+    if (streamState.broadcast) {
+      setLikeCount(streamState.broadcast.likeCount || 0);
     }
-  }, [broadcastState]);
+  }, [streamState]);
 
-  useEffect(() => {
-    if (broadcastLike) {
-      setLikeCount(broadcastLike.likeCount);
+  React.useEffect(() => {
+    if (streamLike) {
+      setLikeCount(streamLike.likeCount);
     }
-  }, [broadcastLike]);
+  }, [streamLike]);
 
   return (
-    <div className={`stream-bar ${className || ""}`}>
+    <div className={`stream-bar ${props.className}`}>
       <PlayToggleBtn
-        isDisabled={!broadcastState.isOnline}
+        isDisabled={!streamState.isOnline}
         handleBtnClick={togglePlay}
       />
       <StreamBarState
         className="stream-bar__state"
         startAt={
-          broadcastState.broadcast
-            ? broadcastState.broadcast.startAt
-            : undefined
+          streamState.broadcast ? streamState.broadcast.startAt : undefined
         }
       />
       <div className="stream-bar__counters">
         <Counter
-          idDisabled={!broadcastState.isOnline}
+          idDisabled={!streamState.isOnline}
           icon="heart"
           count={likeCount}
         />
