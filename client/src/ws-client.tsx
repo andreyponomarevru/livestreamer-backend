@@ -24,48 +24,13 @@ class WebSocketClient implements IWebSocketClient {
   }
 
   private onOpen() {
-    // console.log("WS: [onopen]");
+    console.log("WS: [onopen]");
   }
 
   private onMessage(event: MessageEvent) {
     const { event: eventName, data: eventData } = JSON.parse(event.data);
 
     this.dispatch([eventName, eventData]);
-
-    /*
-    switch (eventName) {
-      case "chat:add_client": {
-        const addClient = {
-          //client: data.client,
-          //clientCount: data.clientCount,
-        };
-      }
-
-      case "stream:online": 
-      case "stream:offline": 
-      case "stream:like": 
-      }
-      case "chat:create_message": {
-        const chatMsg = data;
-      }
-      case "chat:delete_message": {
-        const chatMsgId = data;
-      }
-      case "chat:like_message": {
-        const chatMsgLike = data;
-      }
-      case "chat:unlike_message": {
-        const chatMsgUnlike = data;
-      }
-      case "chat:delete_client": {
-        const deletedClient = data;
-      }
-      case "chat:update_client_count": {
-        const clientCount = data.clientCount;
-      }
-      default:
-        break;
-    }*/
   }
 
   private onError(err: Event) {
@@ -97,19 +62,21 @@ class WebSocketClient implements IWebSocketClient {
   bindToServerEvents(eventName: WSMsgEvent, callback: any): this {
     this.callbacks[eventName] = this.callbacks[eventName] || [];
     this.callbacks[eventName].push(callback);
-    console.log("FUNCTIONS BOUND TO WS EVENTS: ", this.callbacks);
+    console.log("[bindToServerEvents]", this.callbacks);
     // make chainable
     return this;
   }
 
   unbindFromServerEvents(eventName: WSMsgEvent, callback: any) {
     if (!this.callbacks[eventName]) {
-      console.error("Can't unbind function which was not bound");
+      console.log(
+        "[unbindFromServerEvents] Can't unbind function which was not bound"
+      );
       return;
     }
-    this.callbacks[eventName] = this.callbacks[eventName].filter(
-      (f) => f !== callback
-    );
+    this.callbacks[eventName] = this.callbacks[eventName].filter((f) => {
+      return f !== callback;
+    });
   }
 
   send(eventName: WSMsgEvent, eventData: WSMsgPayload) {
