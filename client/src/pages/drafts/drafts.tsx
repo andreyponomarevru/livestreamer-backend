@@ -31,6 +31,19 @@ export function PagesDrafts(
     }
   }, [isMounted]);
 
+  //  TODO: Add new features using these endpoints
+  function getAllBroadcastDrafts() {
+    const URL = `${API_ROOT_URL}/broadcasts/drafts`; // GET
+  }
+  function updateBroadcastDraft(id: number) {
+    const URL = `${API_ROOT_URL}/broadcasts/drafts/${id}`; // PATCH
+  }
+  function destroyBroadcastDraft(id: number) {
+    const URL = `${API_ROOT_URL}/broadcasts/drafts/${id}`; // DELETE
+  }
+
+  //
+
   return (
     <Page className="page_list">
       <PageHeading iconName="archive" name="Drafts" />
