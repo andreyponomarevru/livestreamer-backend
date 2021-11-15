@@ -12,6 +12,16 @@ import { Loader } from "../../lib/loader/loader";
 export function PagesBookmarks(
   props: React.HTMLAttributes<HTMLDivElement>
 ): ReactElement {
+  // TODO: Add 'Bookmark broadcast' feature
+  function bookmarkBroadcast(broadcstId: number) {
+    const URL = `${API_ROOT_URL}/broadcasts/${broadcstId}/bookmark`; // POST
+  }
+
+  // TODO: Add "Delete broadcast from bookmarks" feature
+  function removeBroadcastFromBookmarks(broadcastId: number) {
+    const URL = `${API_ROOT_URL}/broadcasts/${broadcastId}/bookmark`; // DELETE
+  }
+
   return <div></div>;
   /*
   const { state: broadcastResponse, sendBookmarksRequest} = useFetch<BroadcastResponse>({
