@@ -3,56 +3,53 @@ import * as React from "react";
 import { useIsMounted } from "./use-is-mounted";
 import { useWebSocketEvents } from "./use-ws-stream-like";
 import { ChatMsgLike, ChatMsg, ChatMsgUnlike } from "../types";
+import { useAuthN } from "./use-authn";
 
 type UseWSMessageLikes = {
   likes: Set<number>;
-  addLike: (likedByUserId: number) => void;
-  removeLike: (unlikedByUserId: number) => void;
+  toggleLike: (like: NewLike) => void;
 };
+type NewLike = { userId: number; messageId?: number };
+type Message = { id: ChatMsg["id"]; likedByUserIds: ChatMsg["likedByUserId"] };
 
-function useWSMessageLikes({
-  messageId,
-  likedByUserIds,
-}: {
-  messageId: ChatMsg["id"];
-  likedByUserIds: ChatMsg["likedByUserId"];
-}): UseWSMessageLikes {
-  function addLike(likedByUserId: number) {
-    setMessageLikes((prev) => {
-      return new Set([...likes, likedByUserId]);
-    });
+function useWSMessageLikes(message: Message): UseWSMessageLikes {
+  function isLiked() {
+    return auth.user && likes.has(auth.user.id);
   }
 
-  function removeLike(unlikedByUserId: number) {
-    setMessageLikes((prev) => {
-      return new Set([...prev].filter((id) => id !== unlikedByUserId));
-    });
+  function toggleLike(like: NewLike) {
+    if (isLiked()) {
+      setLikes((prev) => new Set([...prev].filter((id) => id !== like.userId)));
+    } else {
+      setLikes(new Set([...likes, like.userId]));
+    }
   }
 
+  const auth = useAuthN();
   const isMounted = useIsMounted();
-  const [likes, setMessageLikes] = React.useState(new Set(likedByUserIds));
+  const [likes, setLikes] = React.useState(new Set(message.likedByUserIds));
 
-  const msgLikeEvent = useWebSocketEvents<ChatMsgLike | null>(
+  const likeEvent = useWebSocketEvents<ChatMsgLike | null>(
     "chat:liked_message",
     null
   );
-  React.useEffect(() => {
-    if (msgLikeEvent && msgLikeEvent.messageId === messageId) {
-      setMessageLikes(new Set(msgLikeEvent.likedByUserIds));
-    }
-  }, [isMounted, msgLikeEvent]);
-
-  const msgUnlikeEvent = useWebSocketEvents<ChatMsgUnlike | null>(
+  const unlikeEvent = useWebSocketEvents<ChatMsgUnlike | null>(
     "chat:unliked_message",
     null
   );
-  React.useEffect(() => {
-    if (msgUnlikeEvent && msgUnlikeEvent.messageId === messageId) {
-      setMessageLikes(new Set(msgUnlikeEvent.likedByUserIds));
-    }
-  }, [isMounted, msgUnlikeEvent]);
 
-  return { likes, addLike, removeLike };
+  React.useEffect(() => {
+    if (likeEvent && likeEvent.messageId === message.id) {
+      setLikes(new Set(likeEvent.likedByUserIds));
+    }
+  }, [isMounted, likeEvent]);
+  React.useEffect(() => {
+    if (unlikeEvent && unlikeEvent.messageId === message.id) {
+      setLikes(new Set(unlikeEvent.likedByUserIds));
+    }
+  }, [isMounted, unlikeEvent]);
+
+  return { likes, toggleLike };
 }
 
 export { useWSMessageLikes };

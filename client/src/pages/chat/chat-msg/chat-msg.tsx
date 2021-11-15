@@ -36,15 +36,15 @@ function useWSMessageLikeState({
 
   const auth = useAuthN();
 
-  const { likes, addLike, removeLike } = useWSMessageLikes({
-    messageId: messageId,
+  const { likes, toggleLike } = useWSMessageLikes({
+    id: messageId,
     likedByUserIds: likedByUserIds,
   });
 
   const { state: likeMsgResponse, fetchNow: sendLikeMsgRequest } = useFetch();
   React.useEffect(() => {
     if (auth.user && likeMsgResponse.response) {
-      addLike(auth.user.id);
+      toggleLike({ userId: auth.user.id });
     }
   }, [likeMsgResponse]);
 
@@ -52,7 +52,7 @@ function useWSMessageLikeState({
     useFetch();
   React.useEffect(() => {
     if (auth.user && unlikeMsgResponse.response) {
-      removeLike(auth.user.id);
+      toggleLike({ userId: auth.user.id });
     }
   }, [unlikeMsgResponse]);
 
