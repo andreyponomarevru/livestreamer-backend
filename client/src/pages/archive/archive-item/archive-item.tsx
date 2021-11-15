@@ -4,7 +4,7 @@ import { IconBtn } from "../../../lib/icon-btn/icon-btn";
 import { ArchiveItemControls } from "../archive-item-controls/archive-item-controls";
 import { useAuthN } from "../../../hooks/use-authn";
 import { Icon } from "../../../lib/icon/icon";
-import { ProtectedComponent } from "../../../lib/protected-component/protected-component";
+import { hasPermission } from "../../../utils/has-permission";
 
 import "./archive-item.scss";
 
@@ -24,8 +24,8 @@ interface Props extends React.HTMLAttributes<HTMLDivElement> {
 export function ArchiveItem(props: Props): ReactElement {
   const { className = "", isBookmarked = false } = props;
 
-  const { user } = useAuthN();
-  const permissions = user?.permissions;
+  const auth = useAuthN();
+  const permissions = auth.user?.permissions;
 
   //
 
@@ -49,10 +49,10 @@ export function ArchiveItem(props: Props): ReactElement {
         <a href="https://www.mixcloud.com/andreygornarchive/">
           <h3
             className="archive-item__heading"
-            contentEditable={
-              permissions &&
-              permissions["broadcast"]?.includes("update_partially")
-            }
+            contentEditable={hasPermission(
+              { resource: "broadcast", action: "update_partially" },
+              auth.user
+            )}
             suppressContentEditableWarning={true}
           >
             {props.title}
@@ -71,9 +71,10 @@ export function ArchiveItem(props: Props): ReactElement {
       </span>
       <span className="archive-item__controls">
         {/*<IconBtn iconName="tracklist" handleBtnClick={() => {}} />*/}
-        <ProtectedComponent resource="broadcast" action="update_partially">
-          <IconBtn iconName="pencil" handleBtnClick={toggleControls} />
-        </ProtectedComponent>
+        {hasPermission(
+          { resource: "broadcast", action: "update_partially" },
+          auth.user
+        ) && <IconBtn iconName="pencil" handleBtnClick={toggleControls} />}
       </span>
       {isControlsOpened && <ArchiveItemControls />}
     </li>
