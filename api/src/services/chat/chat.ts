@@ -14,8 +14,9 @@ export async function destroyMsg(
   msg: ChatMsgId & { userUUID: string },
 ): Promise<void> {
   const destroyedMsg = await db.destroyMsg(msg);
-  if (destroyedMsg)
+  if (destroyedMsg) {
     events.destroyChatMsg({ ...destroyedMsg, userUUID: msg.userUUID });
+  }
 }
 
 export async function readMsgsPaginated(
