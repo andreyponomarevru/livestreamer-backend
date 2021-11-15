@@ -11,10 +11,10 @@ import { API_ROOT_URL } from "../../../config/env";
 import { useIsMounted } from "../../../hooks/use-is-mounted";
 import { useFetch } from "../../../hooks/use-fetch";
 import { ROUTES } from "../../../config/routes";
+import { useWebSocketEvents } from "../../../hooks/use-ws-stream-like";
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
-  broadcastState: BroadcastState;
-  handleAddChatComment: (chatComment: ChatMsg) => void;
+  handleAddChatMessage: (chatMessage: ChatMsg) => void;
 }
 
 export function ChatControls(props: Props): React.ReactElement {
@@ -29,10 +29,10 @@ export function ChatControls(props: Props): React.ReactElement {
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    console.log("[handleSubmit] ", msgInput);
+    console.log("[handleSubmit] ", message);
 
     checkAuth();
-    const trimmedMsg = msgInput.trim();
+    const trimmedMsg = message.trim();
 
     if (trimmedMsg.length > 0 && trimmedMsg.length < 500) {
       console.log("Sending the message to API: ", trimmedMsg);
@@ -48,15 +48,17 @@ export function ChatControls(props: Props): React.ReactElement {
     }
   }
 
-  const [msgInput, setMsgInput] = React.useState("");
-
+  const streamStateEvent = useWebSocketEvents<BroadcastState>("stream:state", {
+    isOnline: false,
+  });
+  const [message, setMsgInput] = React.useState("");
   const isMounted = useIsMounted();
   const { state: chatMessageResponse, fetchNow: sendChatMessageRequest } =
     useFetch<ChatMessageResponse>();
   React.useEffect(() => {
     if (isMounted && chatMessageResponse.response?.body) {
+      props.handleAddChatMessage(chatMessageResponse.response.body.results);
       setMsgInput("");
-      props.handleAddChatComment(chatMessageResponse.response.body.results);
     }
   }, [isMounted, chatMessageResponse]);
 
@@ -75,7 +77,7 @@ export function ChatControls(props: Props): React.ReactElement {
         name="chat-message"
         autoComplete="off"
         placeholder="Type a message here..."
-        value={msgInput}
+        value={message}
         onChange={handleChange}
         onClick={checkAuth}
       />
@@ -90,7 +92,7 @@ export function ChatControls(props: Props): React.ReactElement {
             <use href={`${icons}#arrow-right`} />
           </svg>
         </button>
-        <HeartBtn isStreamOnline={props.broadcastState.isOnline} />
+        <HeartBtn isStreamOnline={streamStateEvent.isOnline} />
       </div>
     </form>
   );

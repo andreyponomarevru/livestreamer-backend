@@ -11,18 +11,27 @@
   background-color: $color_gray-darkest;
   padding: 1rem;
   row-gap: 0.4rem;
-  column-gap: 0.4rem;
+  column-gap: 0.6rem;
 
   &__header {
     grid-area: Header;
 
     display: grid;
-    grid-template-areas: "Meta Controls";
     justify-content: space-between;
     font-size: $font-size_sm;
+    justify-content: flex-start;
   }
 
-  // Meta
+  &__buttons {
+    grid-area: Controls;
+
+    width: 2.3rem;
+    display: grid;
+    row-gap: 0.7rem;
+    justify-self: flex-end;
+    justify-items: flex-end;
+    align-content: flex-end;
+  }
 
   &__meta {
     grid-area: Meta;
@@ -49,8 +58,6 @@
     color: $color_pink;
   }
 
-  // Controls
-
   &__body {
     grid-area: Body;
 
@@ -60,36 +67,17 @@
   }
 
   &__like-box {
-    grid-area: Controls;
-
-    grid-auto-flow: row;
+    grid-auto-flow: column;
     display: grid;
-    row-gap: 0.3rem;
     align-items: center;
-    justify-items: center;
-    align-self: end;
-    justify-content: flex-end;
+    column-gap: 0.2rem;
   }
 
   &__like-counter {
-    font-size: $font-size_sm;
-  }
+    font-size: $font-size_xs;
 
-  &__delete-btn {
-    font-size: $font-size_sm;
-    color: $color_gray_light;
-    margin-left: 0.4rem;
-    background-color: $color_gray_darken;
-    border: none;
-    border-radius: 3px;
-    padding: 0.2rem 0.4rem;
-    justify-self: flex-end;
-    align-self: flex-end;
-    cursor: pointer;
-
-    &:hover {
-      background-color: $color_gray_dark;
-      color: $color_gray-lighten;
+    &_liked {
+      color: $color_gray;
     }
   }
 }
