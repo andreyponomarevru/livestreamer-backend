@@ -8,6 +8,7 @@ import {
   SavedBroadcastLike,
   ChatMsgLike,
   ChatMsgId,
+  ChatMessageResponse,
 } from "../../types";
 import { useFetch } from "../../hooks/use-fetch";
 import { Loader } from "../../lib/loader/loader";
@@ -21,30 +22,46 @@ import { hasPermission } from "../../utils/has-permission";
 import { useAuthN } from "../../hooks/use-authn";
 import { useNavigate } from "react-router";
 import { useWebSocketEvents } from "../../hooks/use-ws-stream-like";
+import { MsgsList } from "./msgs-list/msgs-list";
 
 import "./chat.scss";
 
 type Props = React.HTMLAttributes<HTMLDivElement>;
 
-function useChatMessages() {}
+//useChatMessageList - provide API: messages, addMessage, deleteMessage
+//- GET messages history
 
-export function PagesChat(props: Props): React.ReactElement {
-  function addMessage(newMessage: ChatMsgType) {
-    setMessages((m) => [...m, newMessage]);
+//usePostMessage()
+//- POST message + addMessageToList
+//useDeleteMessage()
+//- DELETE message + deleteMessageFromList
+
+//useAddMessageWSEvent()
+//- Subscribe to WS 'add_message' events + addMessageToList
+//useDeleteMessageWSEvent()
+//- Subscribe to WS 'delete_message' events + deleteMessageFromList
+
+//
+
+function useChatHistory() {
+  function addMessage(message: ChatMsgType) {
+    setMessages((m) => [...m, message]);
+  }
+
+  function deleteMessage(id: number) {
+    setMessages((m) => m.filter((m) => m.id !== id));
   }
 
   const auth = useAuthN();
   const isMounted = useIsMounted();
-
   // TODO: implement pagination using 'nextCursor'
   const [nextCursor, setNextCursor] = React.useState();
-  const {
-    state: getMessageHistoryResponse,
-    fetchNow: gethMessageHistoryRequest,
-  } = useFetch<ChatMsgsPageResponse>();
+  const { state: getMessagesRes, fetchNow: gethMessagesReq } =
+    useFetch<ChatMsgsPageResponse>();
+
   React.useEffect(() => {
     if (isMounted) {
-      gethMessageHistoryRequest(
+      gethMessagesReq(
         `${API_ROOT_URL}/chat/messages?limit=50${
           nextCursor ? `&next_cursor=${nextCursor}` : ""
         }`,
@@ -59,46 +76,42 @@ export function PagesChat(props: Props): React.ReactElement {
     }
   }, [isMounted, nextCursor]);
 
-  const newChatMessage = useWebSocketEvents<ChatMsgType | null>(
-    "chat:created_message",
-    null
-  );
-  React.useEffect(() => {
-    if (newChatMessage) {
-      console.log("NEW CHAT MESSAGW", newChatMessage);
-      addMessage(newChatMessage);
-    }
-  }, [newChatMessage]);
-
-  const deletedChatMessage = useWebSocketEvents<ChatMsgId | null>(
-    "chat:deleted_message",
-    null
-  );
-  React.useEffect(() => {
-    if (deletedChatMessage) {
-      setMessages((m) => m.filter((m) => m.id !== deletedChatMessage.id));
-    }
-  }, [deletedChatMessage]);
-
-  //
-
   const [messages, setMessages] = React.useState<ChatMsgType[]>([]);
   React.useEffect(() => {
-    if (getMessageHistoryResponse.response?.body) {
-      setMessages(getMessageHistoryResponse.response.body.results.messages);
+    if (getMessagesRes.response?.body) {
+      setMessages(getMessagesRes.response.body.results.messages);
     }
-  }, [getMessageHistoryResponse]);
+  }, [getMessagesRes]);
 
-  //
+  return { messages, addMessage, deleteMessage };
+}
 
-  function scrollToBottom() {
-    messagesEndRef.current?.scrollIntoView();
+function usePostMessage(addMessage: (message: ChatMsgType) => void) {
+  function handlePostMessage(message: string) {
+    sendPostMessageReq(`${API_ROOT_URL}/chat/messages`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        accept: "application/json",
+      },
+      body: JSON.stringify({ message: message }),
+    });
+    setNewMessage(message);
   }
-  const messagesEndRef = React.useRef<any>(null);
-  React.useEffect(scrollToBottom, [messages]);
 
-  //
+  const [newMessage, setNewMessage] = React.useState<string>();
+  const { state: postMessageRes, fetchNow: sendPostMessageReq } =
+    useFetch<ChatMessageResponse>();
+  React.useEffect(() => {
+    if (postMessageRes.response?.body && newMessage) {
+      addMessage(postMessageRes.response.body.results);
+    }
+  }, [postMessageRes, newMessage]);
 
+  return { handlePostMessage, postMessageRes };
+}
+
+function useDeleteMessage(deleteMessage: (id: number) => void) {
   function handleDeleteMessage(msg: { messageId: number; userId: number }) {
     const hasPermissionToDeleteAnyMsg = hasPermission(
       { resource: "any_chat_message", action: "delete" },
@@ -110,62 +123,76 @@ export function PagesChat(props: Props): React.ReactElement {
     );
 
     if (hasPermissionToDeleteAnyMsg) {
-      deleteAnyMessageRequest(
+      sendDeleteMessageReq(
         `${API_ROOT_URL}/admin/chat/messages/${msg.messageId}?user_id=${msg.userId}`,
         { method: "DELETE" }
       );
-      setDeletedMsgId(msg.messageId);
+      setDeletedMessageId(msg.messageId);
     } else if (hasPermissionToDeleteOwnMsg) {
-      deleteOwnMessageRequest(
-        `${API_ROOT_URL}/chat/messages/${msg.messageId}`,
-        { method: "DELETE" }
-      );
-      setDeletedMsgId(msg.messageId);
+      sendDeleteMessageReq(`${API_ROOT_URL}/chat/messages/${msg.messageId}`, {
+        method: "DELETE",
+      });
+      setDeletedMessageId(msg.messageId);
     }
   }
 
-  const { state: deleteAnyMessageResponse, fetchNow: deleteAnyMessageRequest } =
-    useFetch();
-  const { state: deleteOwnMessageResponse, fetchNow: deleteOwnMessageRequest } =
-    useFetch();
-  const [deletedMsgId, setDeletedMsgId] = React.useState<number | null>(null);
-  React.useEffect(() => {
-    if (
-      (deleteAnyMessageResponse.response || deleteOwnMessageResponse) &&
-      deletedMsgId
-    ) {
-      setMessages((m) => m.filter((m) => m.id !== deletedMsgId));
-    }
-  }, [deleteAnyMessageResponse, deleteOwnMessageResponse]);
+  const auth = useAuthN();
 
-  // TODO: subscribe here to chat DELETE event and filter out the deleted messsage when the event happens using the data from this WS message
+  const [deletedMessageId, setDeletedMessageId] = React.useState<number>();
+  const { state: deleteMessageRes, fetchNow: sendDeleteMessageReq } =
+    useFetch();
+  React.useEffect(() => {
+    if (deleteMessageRes.response && deletedMessageId) {
+      deleteMessage(deletedMessageId);
+    }
+  }, [deleteMessageRes, deletedMessageId]);
+
+  return handleDeleteMessage;
+}
+
+function useCreateMessageWSEvent(addMessage: (message: ChatMsgType) => void) {
+  const newChatMessage = useWebSocketEvents<ChatMsgType | null>(
+    "chat:created_message",
+    null
+  );
+  React.useEffect(() => {
+    if (newChatMessage) addMessage(newChatMessage);
+  }, [newChatMessage]);
+}
+
+function useDeleteMessageWSEvent(deleteMessage: (id: number) => void) {
+  const deleteMsgEvent = useWebSocketEvents<ChatMsgId | null>(
+    "chat:deleted_message",
+    null
+  );
+  React.useEffect(() => {
+    if (deleteMsgEvent) deleteMessage(deleteMsgEvent.id);
+  }, [deleteMsgEvent]);
+}
+
+function PagesChat(): React.ReactElement {
+  const { messages, addMessage, deleteMessage } = useChatHistory();
+
+  useCreateMessageWSEvent(addMessage);
+  useDeleteMessageWSEvent(deleteMessage);
+  const { handlePostMessage, postMessageRes } = usePostMessage(addMessage);
+  const handleDeleteMessage = useDeleteMessage(deleteMessage);
+
+  const [message, setMsgInput] = React.useState("");
+  React.useEffect(() => {
+    if (postMessageRes.response) setMsgInput("");
+  }, [postMessageRes]);
 
   return (
     <Page className="chat-page">
-      {getMessageHistoryResponse.isLoading && (
-        <Loader for="page" color="pink" />
-      )}
-
-      {getMessageHistoryResponse.error && (
-        <Message type="danger">Something went wrong :(</Message>
-      )}
-
-      {getMessageHistoryResponse.response?.body && (
-        <ul className="chat-page__messages-list">
-          {messages.sort(sortMessages).map((msg, index) => {
-            return (
-              <ChatMsg
-                message={msg}
-                key={index}
-                handleDeleteMessage={handleDeleteMessage}
-              />
-            );
-          })}
-          <li ref={messagesEndRef} />
-        </ul>
-      )}
-
-      <ChatControls handleAddChatMessage={addMessage} />
+      <MsgsList messages={messages} handleDeleteMessage={handleDeleteMessage} />
+      <ChatControls
+        handlePostMessage={handlePostMessage}
+        message={message}
+        setMsgInput={setMsgInput}
+      />
     </Page>
   );
 }
+
+export { PagesChat };

@@ -14,67 +14,12 @@ import { ROUTES } from "../../../config/routes";
 import { useWebSocketEvents } from "../../../hooks/use-ws-stream-like";
 import { useWSMessageLikes } from "../../../hooks/use-ws-message-likes";
 
-function useWSMessageLikeState({
-  messageId,
-  likedByUserIds,
-}: {
-  messageId: ChatMsg["id"];
-  likedByUserIds: ChatMsg["likedByUserId"];
-}) {
-  function like(messageId: number) {
-    sendLikeMsgRequest(`${API_ROOT_URL}/chat/messages/${messageId}/like`, {
-      method: "POST",
-    });
-    console.log("Handle Like Message");
-  }
-
-  function unlike(messageId: number) {
-    sendUnlikeMsgRequest(`${API_ROOT_URL}/chat/messages/${messageId}/like`, {
-      method: "DELETE",
-    });
-  }
-
-  const auth = useAuthN();
-
-  const { likes, toggleLike } = useWSMessageLikes({
-    id: messageId,
-    likedByUserIds: likedByUserIds,
-  });
-
-  const { state: likeMsgResponse, fetchNow: sendLikeMsgRequest } = useFetch();
-  React.useEffect(() => {
-    if (auth.user && likeMsgResponse.response) {
-      toggleLike({ userId: auth.user.id });
-    }
-  }, [likeMsgResponse]);
-
-  const { state: unlikeMsgResponse, fetchNow: sendUnlikeMsgRequest } =
-    useFetch();
-  React.useEffect(() => {
-    if (auth.user && unlikeMsgResponse.response) {
-      toggleLike({ userId: auth.user.id });
-    }
-  }, [unlikeMsgResponse]);
-
-  return { like, unlike, likes };
-}
-
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
   handleDeleteMessage: (msg: { messageId: number; userId: number }) => void;
   message: ChatMsg;
 }
 
 export function ChatMsg(props: Props): React.ReactElement {
-  function toggleLike() {
-    if (!auth.user) {
-      navigate(ROUTES.signIn);
-      return;
-    }
-
-    if (likes.has(auth.user.id)) unlike(props.message.id);
-    else like(props.message.id);
-  }
-
   const auth = useAuthN();
   const navigate = useNavigate();
 
@@ -84,10 +29,12 @@ export function ChatMsg(props: Props): React.ReactElement {
       auth.user
     ) || props.message.userId === auth.user?.id;
 
-  const { like, unlike, likes } = useWSMessageLikeState({
-    messageId: props.message.id,
+  const { likes, toggleLike } = useWSMessageLikes({
+    id: props.message.id,
     likedByUserIds: props.message.likedByUserId,
   });
+
+  //const [likes, setLikes] = React.useState();
 
   //
 
@@ -131,7 +78,16 @@ export function ChatMsg(props: Props): React.ReactElement {
           <ChatIconBtn
             isActive={!!auth.user && likes.has(auth.user.id)}
             icon="like"
-            handleBtnClick={toggleLike}
+            handleBtnClick={() => {
+              if (!auth.user) {
+                navigate(ROUTES.signIn);
+              } else {
+                toggleLike({
+                  messageId: props.message.id,
+                  userId: auth.user.id,
+                });
+              }
+            }}
           />
         </div>
       </div>

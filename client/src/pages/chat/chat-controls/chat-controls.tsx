@@ -14,12 +14,14 @@ import { ROUTES } from "../../../config/routes";
 import { useWebSocketEvents } from "../../../hooks/use-ws-stream-like";
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
-  handleAddChatMessage: (chatMessage: ChatMsg) => void;
+  handlePostMessage: (message: string) => void;
+  message: string;
+  setMsgInput: React.Dispatch<React.SetStateAction<string>>;
 }
 
 export function ChatControls(props: Props): React.ReactElement {
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setMsgInput(e.target.value);
+    props.setMsgInput(e.target.value);
   }
 
   function checkAuth() {
@@ -29,38 +31,17 @@ export function ChatControls(props: Props): React.ReactElement {
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    console.log("[handleSubmit] ", message);
-
     checkAuth();
-    const trimmedMsg = message.trim();
 
+    const trimmedMsg = props.message.trim();
     if (trimmedMsg.length > 0 && trimmedMsg.length < 500) {
-      console.log("Sending the message to API: ", trimmedMsg);
-
-      sendChatMessageRequest(`${API_ROOT_URL}/chat/messages`, {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-          accept: "application/json",
-        },
-        body: JSON.stringify({ message: trimmedMsg }),
-      });
+      props.handlePostMessage(trimmedMsg);
     }
   }
 
   const streamStateEvent = useWebSocketEvents<BroadcastState>("stream:state", {
     isOnline: false,
   });
-  const [message, setMsgInput] = React.useState("");
-  const isMounted = useIsMounted();
-  const { state: chatMessageResponse, fetchNow: sendChatMessageRequest } =
-    useFetch<ChatMessageResponse>();
-  React.useEffect(() => {
-    if (isMounted && chatMessageResponse.response?.body) {
-      props.handleAddChatMessage(chatMessageResponse.response.body.results);
-      setMsgInput("");
-    }
-  }, [isMounted, chatMessageResponse]);
 
   const { user } = useAuthN();
   const navigate = useNavigate();
@@ -77,7 +58,7 @@ export function ChatControls(props: Props): React.ReactElement {
         name="chat-message"
         autoComplete="off"
         placeholder="Type a message here..."
-        value={message}
+        value={props.message}
         onChange={handleChange}
         onClick={checkAuth}
       />
