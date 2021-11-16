@@ -26,23 +26,6 @@ import { MsgsList } from "./msgs-list/msgs-list";
 
 import "./chat.scss";
 
-type Props = React.HTMLAttributes<HTMLDivElement>;
-
-//useChatMessageList - provide API: messages, addMessage, deleteMessage
-//- GET messages history
-
-//usePostMessage()
-//- POST message + addMessageToList
-//useDeleteMessage()
-//- DELETE message + deleteMessageFromList
-
-//useAddMessageWSEvent()
-//- Subscribe to WS 'add_message' events + addMessageToList
-//useDeleteMessageWSEvent()
-//- Subscribe to WS 'delete_message' events + deleteMessageFromList
-
-//
-
 function useChatHistory() {
   function addMessage(message: ChatMsgType) {
     setMessages((m) => [...m, message]);
@@ -84,31 +67,6 @@ function useChatHistory() {
   }, [getMessagesRes]);
 
   return { messages, addMessage, deleteMessage };
-}
-
-function usePostMessage(addMessage: (message: ChatMsgType) => void) {
-  function handlePostMessage(message: string) {
-    sendPostMessageReq(`${API_ROOT_URL}/chat/messages`, {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        accept: "application/json",
-      },
-      body: JSON.stringify({ message: message }),
-    });
-    setNewMessage(message);
-  }
-
-  const [newMessage, setNewMessage] = React.useState<string>();
-  const { state: postMessageRes, fetchNow: sendPostMessageReq } =
-    useFetch<ChatMessageResponse>();
-  React.useEffect(() => {
-    if (postMessageRes.response?.body && newMessage) {
-      addMessage(postMessageRes.response.body.results);
-    }
-  }, [postMessageRes, newMessage]);
-
-  return { handlePostMessage, postMessageRes };
 }
 
 function useDeleteMessage(deleteMessage: (id: number) => void) {
@@ -175,22 +133,12 @@ function PagesChat(): React.ReactElement {
 
   useCreateMessageWSEvent(addMessage);
   useDeleteMessageWSEvent(deleteMessage);
-  const { handlePostMessage, postMessageRes } = usePostMessage(addMessage);
   const handleDeleteMessage = useDeleteMessage(deleteMessage);
-
-  const [message, setMsgInput] = React.useState("");
-  React.useEffect(() => {
-    if (postMessageRes.response) setMsgInput("");
-  }, [postMessageRes]);
 
   return (
     <Page className="chat-page">
       <MsgsList messages={messages} handleDeleteMessage={handleDeleteMessage} />
-      <ChatControls
-        handlePostMessage={handlePostMessage}
-        message={message}
-        setMsgInput={setMsgInput}
-      />
+      <ChatControls handleAddMessage={addMessage} />
     </Page>
   );
 }

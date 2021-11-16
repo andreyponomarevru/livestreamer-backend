@@ -14,14 +14,36 @@ import { ROUTES } from "../../../config/routes";
 import { useWebSocketEvents } from "../../../hooks/use-ws-stream-like";
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
-  handlePostMessage: (message: string) => void;
-  message: string;
-  setMsgInput: React.Dispatch<React.SetStateAction<string>>;
+  handleAddMessage: (message: ChatMsg) => void;
+}
+
+function usePostMessage() {
+  function sendMessage(message: string) {
+    sendPostMessageReq(`${API_ROOT_URL}/chat/messages`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        accept: "application/json",
+      },
+      body: JSON.stringify({ message: message }),
+    });
+  }
+
+  const {
+    state: postMessageRes,
+    fetchNow: sendPostMessageReq,
+    resetState,
+  } = useFetch<ChatMessageResponse>();
+  React.useEffect(() => {
+    if (postMessageRes.response?.body) resetState();
+  }, [postMessageRes]);
+
+  return { sendMessage, postMessageRes };
 }
 
 export function ChatControls(props: Props): React.ReactElement {
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    props.setMsgInput(e.target.value);
+    setMsgInput(e.target.value);
   }
 
   function checkAuth() {
@@ -30,14 +52,22 @@ export function ChatControls(props: Props): React.ReactElement {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-
     checkAuth();
 
-    const trimmedMsg = props.message.trim();
+    const trimmedMsg = msgInput.trim();
     if (trimmedMsg.length > 0 && trimmedMsg.length < 500) {
-      props.handlePostMessage(trimmedMsg);
+      sendMessage(trimmedMsg);
     }
   }
+
+  const [msgInput, setMsgInput] = React.useState("");
+  const { sendMessage, postMessageRes } = usePostMessage();
+  React.useEffect(() => {
+    if (postMessageRes.response?.body) {
+      props.handleAddMessage(postMessageRes.response.body.results);
+      setMsgInput("");
+    }
+  }, [postMessageRes]);
 
   const streamStateEvent = useWebSocketEvents<BroadcastState>("stream:state", {
     isOnline: false,
@@ -58,7 +88,7 @@ export function ChatControls(props: Props): React.ReactElement {
         name="chat-message"
         autoComplete="off"
         placeholder="Type a message here..."
-        value={props.message}
+        value={msgInput}
         onChange={handleChange}
         onClick={checkAuth}
       />

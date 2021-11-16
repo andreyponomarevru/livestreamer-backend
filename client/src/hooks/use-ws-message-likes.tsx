@@ -13,73 +13,23 @@ import { ROUTES } from "../config/routes";
 
 // TODO: refactor in redux-like state
 
-type UseWSMessageLikes = {
-  likes: Set<number>;
-  toggleLike: (like: NewLike) => void;
-};
-type NewLike = { userId: number; messageId?: number };
-type Message = { id: ChatMsg["id"]; likedByUserIds: ChatMsg["likedByUserId"] };
+// Hook 1
+// POST like + add like in state
+// Hook 2
+// DELETE like + delete like from state
+// Hook 3
+// Subscribe to msg_like/unlike event in upper component and pass down as props new set of likes (recall, WS msg contains *full* set of likes, not only a new like so we don't have to care about managing likes manually)
 
-function useLikeToggle() {}
-
-function useWSMessageLikes(message: Message): UseWSMessageLikes {
-  function isLiked() {
-    return auth.user && likes.has(auth.user.id);
-  }
-
-  function toggleLike(like: NewLike) {
-    if (isLiked()) {
-      sendUnlikeMsgRequest(`${API_ROOT_URL}/chat/messages/${message.id}/like`, {
-        method: "DELETE",
-      });
-      setLikes((prev) => new Set([...prev].filter((id) => id !== like.userId)));
-    } else {
-      sendLikeMsgRequest(`${API_ROOT_URL}/chat/messages/${message.id}/like`, {
-        method: "POST",
-      });
-      setLikes(new Set([...likes, like.userId]));
-    }
-  }
-
+/*
+function useLikeToggle(
+  message: Message,
+  setLikes: React.Dispatch<React.SetStateAction<Set<number>>>
+): UseWSMessageLikes {
   const auth = useAuthN();
   const isMounted = useIsMounted();
-  const [likes, setLikes] = React.useState(new Set(message.likedByUserIds));
-
-  const likeEvent = useWebSocketEvents<ChatMsgLike | null>(
-    "chat:liked_message",
-    null
-  );
-  const unlikeEvent = useWebSocketEvents<ChatMsgUnlike | null>(
-    "chat:unliked_message",
-    null
-  );
-
-  const { state: likeMsgResponse, fetchNow: sendLikeMsgRequest } = useFetch();
-  React.useEffect(() => {
-    if (auth.user && likeMsgResponse.response) {
-      toggleLike({ userId: auth.user.id, messageId: message.id });
-    }
-  }, [likeMsgResponse]);
-  React.useEffect(() => {
-    if (likeEvent && likeEvent.messageId === message.id) {
-      setLikes(new Set(likeEvent.likedByUserIds));
-    }
-  }, [isMounted, likeEvent]);
-
-  const { state: unlikeMsgResponse, fetchNow: sendUnlikeMsgRequest } =
-    useFetch();
-  React.useEffect(() => {
-    if (auth.user && unlikeMsgResponse.response) {
-      toggleLike({ userId: auth.user.id, messageId: message.id });
-    }
-  }, [unlikeMsgResponse]);
-  React.useEffect(() => {
-    if (unlikeEvent && unlikeEvent.messageId === message.id) {
-      setLikes(new Set(unlikeEvent.likedByUserIds));
-    }
-  }, [isMounted, unlikeEvent]);
 
   return { likes, toggleLike };
 }
 
-export { useWSMessageLikes };
+export { useLikeToggle };
+*/
