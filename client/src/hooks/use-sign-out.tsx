@@ -20,7 +20,6 @@ function useSignOut(): {
   }
 
   const { setUser } = useAuthN();
-  const isMounted = useIsMounted();
   const { state: signOutResponse, fetchNow: sendSignOutRequest } =
     useFetch<undefined>();
   React.useEffect(() => {

@@ -5,24 +5,18 @@ import { Counter } from "../counter/counter";
 import { API_STREAM_URL, API_ROOT_URL } from "../../config/env";
 import { usePlayer } from "../../hooks/use-player";
 import { PlayToggleBtn } from "../play-toggle-btn/play-toggle-btn";
-import { useWebSocketEvents } from "../../hooks/use-ws-stream-like";
-import { SavedBroadcastLike, BroadcastState, ClientCount } from "../../types";
+import { useStreamLikeWSEvent } from "../../hooks/websocket/use-stream-like-ws-event";
+import { useStreamStateWSEvent } from "../../hooks/websocket/use-stream-state-ws-event";
+import { useClientCountWSEvent } from "../../hooks/websocket/use-client-count-ws--event";
 
 import "./stream-bar.scss";
 
 type Props = React.HTMLAttributes<HTMLDivElement>;
 
 export function StreamBar(props: Props): React.ReactElement {
-  const clientCount = useWebSocketEvents<ClientCount>("chat:client_count", {
-    count: 0,
-  });
-  const streamState = useWebSocketEvents<BroadcastState>("stream:state", {
-    isOnline: false,
-  });
-  const streamLike = useWebSocketEvents<SavedBroadcastLike | null>(
-    "stream:like",
-    null
-  );
+  const { clientCount } = useClientCountWSEvent();
+  const { streamState } = useStreamStateWSEvent();
+  const { streamLike } = useStreamLikeWSEvent();
   const [player, togglePlay] = usePlayer(`${API_ROOT_URL}${API_STREAM_URL}`);
 
   const [likeCount, setLikeCount] = React.useState(

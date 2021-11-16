@@ -1,6 +1,6 @@
 import React, { ReactElement } from "react";
 
-import { useWSTimer } from "../../hooks/use-ws-timer";
+import { useStreamTimer } from "../../hooks/use-stream-timer";
 
 import "./clock.scss";
 
@@ -10,7 +10,7 @@ interface Props extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export function Clock(props: Props): ReactElement {
-  const timePassed = useWSTimer(props.startAt);
+  const timePassed = useStreamTimer(props.startAt);
 
   return <span className={`clock ${props.className}`}>{timePassed}</span>;
 }

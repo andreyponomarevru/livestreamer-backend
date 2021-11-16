@@ -6,39 +6,13 @@ import icons from "./../../../icons.svg";
 import { useAuthN } from "../../../hooks/use-authn";
 import { useNavigate } from "react-router-dom";
 import { HeartBtn } from "../heart-btn/heart-btn";
-import { BroadcastState, ChatMsg, ChatMessageResponse } from "../../../types";
-import { API_ROOT_URL } from "../../../config/env";
-import { useIsMounted } from "../../../hooks/use-is-mounted";
-import { useFetch } from "../../../hooks/use-fetch";
+import { BroadcastState, ChatMsg } from "../../../types";
 import { ROUTES } from "../../../config/routes";
-import { useWebSocketEvents } from "../../../hooks/use-ws-stream-like";
+import { useWebSocketEvents } from "../../../hooks/use-websocket-events";
+import { usePostMessage } from "../../../hooks/use-post-message";
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
   handleAddMessage: (message: ChatMsg) => void;
-}
-
-function usePostMessage() {
-  function sendMessage(message: string) {
-    sendPostMessageReq(`${API_ROOT_URL}/chat/messages`, {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        accept: "application/json",
-      },
-      body: JSON.stringify({ message: message }),
-    });
-  }
-
-  const {
-    state: postMessageRes,
-    fetchNow: sendPostMessageReq,
-    resetState,
-  } = useFetch<ChatMessageResponse>();
-  React.useEffect(() => {
-    if (postMessageRes.response?.body) resetState();
-  }, [postMessageRes]);
-
-  return { sendMessage, postMessageRes };
 }
 
 export function ChatControls(props: Props): React.ReactElement {
