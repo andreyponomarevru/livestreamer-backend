@@ -4,38 +4,17 @@ import "./chat-msg.scss";
 
 import { ChatIconBtn } from "../chat-icon-btn/chat-icon-btn";
 import { useAuthN } from "../../../hooks/use-authn";
-import { useFetch } from "../../../hooks/use-fetch";
-import { ChatMsg, ChatMsgUnlike } from "../../../types";
-import { useIsMounted } from "../../../hooks/use-is-mounted";
-import { API_ROOT_URL } from "../../../config/env";
+import { ChatMsg } from "../../../types";
 import { hasPermission } from "../../../utils/has-permission";
 import { useNavigate } from "react-router";
 import { ROUTES } from "../../../config/routes";
-import { useWebSocketEvents } from "../../../hooks/use-websocket-events";
 import { useMessageLikeToggle } from "../../../hooks/use-message-like-toggle";
 import { useLikeMessageWSEvent } from "../../../hooks/websocket/use-like-message-ws-event";
+import { useUnlikeMessageWSEvent } from "../../../hooks/websocket/use-unlike-message-ws-event";
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
   handleDeleteMessage: (msg: { messageId: number; userId: number }) => void;
   message: ChatMsg;
-}
-function useUnlikeMessageWSEvent(
-  messageId: number,
-  setLikes: React.Dispatch<React.SetStateAction<Set<number>>>
-) {
-  const isMounted = useIsMounted();
-
-  const unlikeEvent = useWebSocketEvents<ChatMsgUnlike | null>(
-    "chat:unliked_message",
-    null
-  );
-  React.useEffect(() => {
-    if (unlikeEvent && unlikeEvent.messageId === messageId) {
-      setLikes(new Set(unlikeEvent.likedByUserIds));
-    }
-  }, [isMounted, unlikeEvent]);
-
-  return unlikeEvent;
 }
 
 export function ChatMsg(props: Props): React.ReactElement {
