@@ -142,19 +142,26 @@ export type WSMsg =
   | StreamLikeMsg
   | DeleteClientMsg
   | UpdateClientCountMsg;
+// Client list events (currently supported by backend but not implemented on
+// frontend)
 export type AddClientMsg = {
   event: "chat:new_client";
   data: SanitizedWSChatClient;
+};
+export type DeleteClientMsg = {
+  event: "chat:deleted_client";
+  data: DeletedWSClient;
 };
 export type ClientsListMsg = {
   event: "chat:client_list";
   data: SanitizedWSChatClient[];
 };
-export type StreamStateMsg = {
-  event: "stream:state";
-  data: BroadcastState;
+
+// Chat events
+export type UpdateClientCountMsg = {
+  event: "chat:client_count";
+  data: ClientCount;
 };
-export type StreamLikeMsg = { event: "stream:like"; data: SavedBroadcastLike };
 export type CreateChatMsg = { event: "chat:created_message"; data: ChatMsg };
 export type DeleteChatMsg = {
   event: "chat:deleted_message";
@@ -165,14 +172,12 @@ export type UnlikeChatMsg = {
   event: "chat:unliked_message";
   data: ChatMsgUnlike;
 };
-export type DeleteClientMsg = {
-  event: "chat:deleted_client";
-  data: DeletedWSClient;
+// Stream events
+export type StreamStateMsg = {
+  event: "stream:state";
+  data: BroadcastState;
 };
-export type UpdateClientCountMsg = {
-  event: "chat:client_count";
-  data: ClientCount;
-};
+export type StreamLikeMsg = { event: "stream:like"; data: SavedBroadcastLike };
 
 //
 
@@ -182,13 +187,4 @@ export type DispatchEvent = {
   socket: WebSocket;
   event: WSMsgEvent;
   msg: WSMsgPayload;
-};
-
-// Requests/responses
-
-export type SignUpRes = {
-  email: string;
-  username: string;
-  isConfirmed: true;
-  permissions: Permissions;
 };
