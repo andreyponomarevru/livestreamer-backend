@@ -3,28 +3,27 @@ import React, { useState } from "react";
 import icons from "./../../icons.svg";
 
 import "./play-toggle-btn.scss";
+import { usePlayer } from "../../hooks/use-player";
+import { API_ROOT_URL } from "../../config/env";
+import { API_STREAM_URL } from "../../config/env";
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
-  handleBtnClick: () => void;
-  isDisabled: boolean;
+  isStreamOnline: boolean;
 }
 
 export function PlayToggleBtn(props: Props): JSX.Element {
-  const [isPlaying, setIsPlaying] = useState(false);
-
-  function handleClick() {
-    setIsPlaying((prev) => !prev);
-
-    props.handleBtnClick();
-  }
+  const { isPlaying, togglePlay } = usePlayer(
+    `${API_ROOT_URL}${API_STREAM_URL}`
+  );
 
   return (
     <button
-      disabled={props.isDisabled}
+      id="playstream"
+      disabled={!props.isStreamOnline}
       className={`play-toggle-btn ${
-        props.isDisabled ? "play-toggle-btn_disabled" : ""
+        props.isStreamOnline ? "" : "play-toggle-btn_disabled"
       }`}
-      onClick={handleClick}
+      onClick={togglePlay}
     >
       <svg className="play-toggle-btn__icon">
         <use href={`${icons}#${isPlaying ? "pause" : "play"}`} />

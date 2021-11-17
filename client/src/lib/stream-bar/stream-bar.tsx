@@ -8,6 +8,7 @@ import { PlayToggleBtn } from "../play-toggle-btn/play-toggle-btn";
 import { useStreamLikeWSEvent } from "../../hooks/websocket/use-stream-like-ws-event";
 import { useStreamStateWSEvent } from "../../hooks/websocket/use-stream-state-ws-event";
 import { useClientCountWSEvent } from "../../hooks/websocket/use-client-count-ws--event";
+import { useIsMounted } from "../../hooks/use-is-mounted";
 
 import "./stream-bar.scss";
 
@@ -17,7 +18,6 @@ export function StreamBar(props: Props): React.ReactElement {
   const { clientCount } = useClientCountWSEvent();
   const { streamState } = useStreamStateWSEvent();
   const { streamLike } = useStreamLikeWSEvent();
-  const [player, togglePlay] = usePlayer(`${API_ROOT_URL}${API_STREAM_URL}`);
 
   const [likeCount, setLikeCount] = React.useState(
     streamState.broadcast?.likeCount || 0
@@ -36,11 +36,8 @@ export function StreamBar(props: Props): React.ReactElement {
   }, [streamLike]);
 
   return (
-    <div className={`stream-bar ${props.className}`}>
-      <PlayToggleBtn
-        isDisabled={!streamState.isOnline}
-        handleBtnClick={togglePlay}
-      />
+    <div className={`stream-bar ${props.className || ""}`}>
+      <PlayToggleBtn isStreamOnline={streamState.isOnline} />
       <StreamBarState
         className="stream-bar__state"
         startAt={

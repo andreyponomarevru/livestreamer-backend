@@ -1,7 +1,7 @@
 import * as React from "react";
 
-import { useWebSocketEvents } from "./use-websocket-events";
-import { ChatMsg } from "../types";
+import { useWebSocketEvents } from "./../use-websocket-events";
+import { ChatMsg } from "../../types";
 
 function useCreateMessageWSEvent(addMessage: (message: ChatMsg) => void) {
   const newChatMessage = useWebSocketEvents<ChatMsg | null>(
