@@ -42,7 +42,6 @@ services:
     ports:
       # node.js process is listening for a debugging client on
       - 9230:9229
-      - 5000:5000
       # Port to unit test websocket connection
       - 5001:5001
     # Ports not exposed publicly i.e. to host machine
