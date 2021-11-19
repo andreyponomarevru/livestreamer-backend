@@ -25,7 +25,7 @@ class WSClientStore extends EventEmitter {
       this.emit("add_client", {
         client: sanitizeWSClient(client),
       });
-      console.log(`${__filename} new WS client is added`);
+      logger.debug(`${__filename} new WS client is added`);
     }
   }
 
@@ -46,11 +46,11 @@ class WSClientStore extends EventEmitter {
       this.statsUpdatesScheduler.stop();
     }
 
-    console.log(`${__filename} WS client deleted`);
+    logger.debug(`${__filename} WS client deleted`);
   }
 
   private scheduleStatsUpdates(): void {
-    console.log(
+    logger.debug(
       `${__filename} [scheduleStatsUpdates function], clientCount: ${this.clientCount}`,
     );
     // To avoid memory leaks, start timer only when the very first client connects. We will reuse this timer for all other clients, instead of creating a new timer per client.
