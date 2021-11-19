@@ -16,7 +16,8 @@
   "dependencies": {
     "react-hook-form": "^7.19.1",
     "react-router": "^6.0.1",
-    "react-router-dom": "^6.0.1"
+    "react-router-dom": "^6.0.1",
+    "reconnecting-websocket": "^4.4.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.16.0",

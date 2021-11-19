@@ -1,4 +1,5 @@
 import React, { createContext } from "react";
+import ReconnectingWebSocket, { CloseEvent } from "reconnecting-websocket";
 
 import { WSMsgEvent, WSMsgPayload } from "./types";
 import { WS_SERVER_URL } from "./config/env";
@@ -10,16 +11,19 @@ interface IWebSocketClient {
 }
 
 class WebSocketClient implements IWebSocketClient {
-  private socket: WebSocket;
-  private callbacks: { [key in WSMsgEvent]: Callback[] };
+  private socket?: ReconnectingWebSocket;
+  private callbacks?: { [key in WSMsgEvent]: Callback[] };
 
   constructor(url: string) {
-    this.socket = new WebSocket(url);
+    this.connect(url);
+  }
+
+  private connect(url: string) {
+    this.socket = new ReconnectingWebSocket(url);
     this.callbacks = {} as { [key in WSMsgEvent]: Callback[] };
 
     this.socket.onopen = this.onOpen.bind(this);
     this.socket.onmessage = this.onMessage.bind(this);
-    this.socket.onerror = this.onError.bind(this);
     this.socket.onclose = this.onClose.bind(this);
   }
 
@@ -31,11 +35,6 @@ class WebSocketClient implements IWebSocketClient {
     const { event: eventName, data: eventData } = JSON.parse(event.data);
 
     this.dispatch([eventName, eventData]);
-  }
-
-  private onError(err: Event) {
-    console.error("WS: [onerror]", err);
-    // TODO: when error event happens, usually it is followed by 'close' socket event so we need to implement the reconnect method right here in Error handler, not in onClose
   }
 
   private onClose(event: CloseEvent) {
@@ -50,7 +49,7 @@ class WebSocketClient implements IWebSocketClient {
   }
 
   private dispatch([eventName, eventData]: [WSMsgEvent, WSMsgPayload]) {
-    const callbacksChain = this.callbacks[eventName];
+    const callbacksChain = this.callbacks?.[eventName];
 
     if (callbacksChain === undefined) return;
     for (let i = 0; i < callbacksChain.length; i++) {
@@ -60,28 +59,33 @@ class WebSocketClient implements IWebSocketClient {
   }
 
   bindToServerEvents(eventName: WSMsgEvent, callback: any): this {
-    this.callbacks[eventName] = this.callbacks[eventName] || [];
-    this.callbacks[eventName].push(callback);
-    console.log("[bindToServerEvents]", this.callbacks);
-    // make chainable
+    if (this.callbacks) {
+      this.callbacks[eventName] = this.callbacks[eventName] || [];
+      this.callbacks[eventName].push(callback);
+      console.log("[bindToServerEvents]", this.callbacks);
+      // make chainable
+    }
     return this;
   }
 
   unbindFromServerEvents(eventName: WSMsgEvent, callback: any) {
-    if (!this.callbacks[eventName]) {
+    if (this.callbacks && !this.callbacks[eventName]) {
       console.log(
         "[unbindFromServerEvents] Can't unbind function which was not bound"
       );
       return;
     }
-    this.callbacks[eventName] = this.callbacks[eventName].filter((f) => {
-      return f !== callback;
-    });
+
+    if (this.callbacks) {
+      this.callbacks[eventName] = this.callbacks[eventName].filter((f) => {
+        return f !== callback;
+      });
+    }
   }
 
   send(eventName: WSMsgEvent, eventData: WSMsgPayload) {
     const payload = JSON.stringify([eventName, eventData]);
-    this.socket.send(payload);
+    this.socket?.send(payload);
     return this;
   }
 }
