@@ -23,12 +23,20 @@ export async function destroy(): Promise<void> {
 export async function read(): Promise<BroadcastDraft> {
   const client = redis.connectDB();
   const broadcast = await client.hgetall("live:broadcast");
-  return broadcast as unknown as BroadcastDraft;
+  const parsed: BroadcastDraft = {
+    id: Number(broadcast.id),
+    title: broadcast.title,
+    startAt: broadcast.startAt,
+    listenerPeakCount: Number(broadcast.listenerPeakCount),
+    likeCount: Number(broadcast.likeCount),
+  };
+  return parsed;
 }
 
 export async function readBroadcastId(): Promise<number> {
   const client = redis.connectDB();
-  return Number(await client.hget("live:broadcast", "id"));
+  const id = await client.hget("live:broadcast", "id");
+  return Number(id);
 }
 
 export async function updateListenerPeakCount(count: number): Promise<void> {
@@ -50,6 +58,8 @@ export async function createLike(
   likedByUsername: string;
   likeCount: number;
 }> {
+  // FIX" looks like you retrieve only particular user's likes, but you need to retrieve ALL user likes
+
   // If the user already has liked the broadcast, 'ON CONFLICT' clause allows us to just increment the counter of an existing row
   const insertSql =
     "WITH like_counter AS (\
