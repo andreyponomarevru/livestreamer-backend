@@ -172,6 +172,7 @@ export type UnlikeChatMsg = {
   event: "chat:unliked_message";
   data: ChatMsgUnlike;
 };
+
 // Stream events
 export type StreamStateMsg = {
   event: "stream:state";

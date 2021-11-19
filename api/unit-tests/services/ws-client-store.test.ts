@@ -43,7 +43,8 @@ describe("WSClientStore class", () => {
 
       expect(addClientSpy).toHaveBeenCalledTimes(1);
       expect(addClientSpy).toHaveBeenCalledWith({
-        client: { uuid: user.uuid, username: user.username },
+        uuid: user.uuid,
+        username: user.username,
       });
     });
 

@@ -1,73 +1,39 @@
 import { Server } from "ws";
 
-import WebSocket from "ws";
-
 import { logger } from "./config/logger";
 import { serverOptions } from "./config/ws-server";
-import { WSClient, ClientCount } from "./types";
+import { WSClient } from "./types";
 import {
   onCreateChatMsg,
   onDestroyChatMsg,
   onLikeChatMsg,
   onUnlikeChatMsg,
-} from "./services/ws/event-handlers/chat-event-handlers";
+  sendClientCount,
+  sendClientsList,
+  onStreamEnd,
+  onStreamLike,
+  onStreamStart,
+  sendBroadcastState,
+} from "./services/ws/ws-events";
 import {
   onAddClient,
   onDeleteClient,
   onUpdateClientCount,
-} from "./services/ws/event-handlers/ws-client-store-event-handlers";
+} from "./services/ws/ws-events";
 import * as chatService from "./services/chat/chat";
-import * as wsService from "./services/ws/ws";
 import * as streamService from "./services/stream/stream";
-import {
-  onStreamEnd,
-  onStreamLike,
-  onStreamStart,
-} from "./services/ws/event-handlers/stream-event-handlers";
 import { clientStore } from "./services/ws/ws";
 
 async function handleUpgrade(client: WSClient): Promise<void> {
   wsServer.emit("connection", client);
 }
 
-function addCloseSocketHandler(uuid: string, socket: WebSocket): void {
-  socket.on("close", () => clientStore.deleteClient(uuid));
-}
-
-async function sendBroadcastState(client: WSClient) {
-  wsService.send(
-    { event: "stream:state", data: await streamService.readBroadcastState() },
-    client,
-  );
-}
-
-function sendClientCount(client: WSClient): void {
-  wsService.send<ClientCount>(
-    {
-      event: "chat:client_count",
-      data: { count: clientStore.clientCount },
-    },
-    client,
-  );
-}
-
-function sendClientsList(client: WSClient): void {
-  wsService.send(
-    {
-      event: "chat:client_list",
-      data: clientStore.sanitizedClients,
-    },
-    client,
-  );
-}
-
 async function onConnection(client: WSClient): Promise<void> {
-  addCloseSocketHandler(client.uuid, client.socket);
-
-  await sendBroadcastState(client);
+  client.socket.on("close", () => clientStore.deleteClient(client.uuid));
+  sendBroadcastState(client, await streamService.readBroadcastState());
   clientStore.addClient(client);
-  sendClientsList(client);
-  sendClientCount(client);
+  sendClientsList(client, clientStore.sanitizedClients);
+  sendClientCount(client, clientStore.clientCount);
 }
 
 function onClose(): void {

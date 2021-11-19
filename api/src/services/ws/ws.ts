@@ -5,13 +5,13 @@ import { logger } from "./../../config/logger";
 import { IntervalScheduler } from "./scheduler";
 import { WSClient, WSMsg, WSUserMsg } from "./../../types";
 
-function send<Data>(msg: WSMsg | WSUserMsg<Data>, client: WSClient): void {
+function send<Data>(msg: WSMsg | WSUserMsg<Data>, reciever: WSClient): void {
   console.log(`${__filename} [send] ${msg}`);
 
-  if (client) {
-    client.socket.send(JSON.stringify(msg));
+  if (reciever) {
+    reciever.socket.send(JSON.stringify(msg));
     logger.info(
-      `${__filename}: [send] To ${client.username}: ${util.inspect(msg)}`,
+      `${__filename}: [send] To ${reciever.username}: ${util.inspect(msg)}`,
     );
   } else {
     logger.error(`${__filename} [send] Client doesn't exist`);
@@ -20,9 +20,9 @@ function send<Data>(msg: WSMsg | WSUserMsg<Data>, client: WSClient): void {
 
 function sendToAll<Data>(
   msg: WSMsg | WSUserMsg<Data>,
-  clients: WSClient[],
+  recievers: WSClient[],
 ): void {
-  for (const client of clients) {
+  for (const client of recievers) {
     client.socket.send(JSON.stringify(msg));
   }
 }
@@ -30,9 +30,9 @@ function sendToAll<Data>(
 function sendToAllExceptSender<Data>(
   msg: WSMsg | WSUserMsg<Data>,
   { senderUUID }: { senderUUID: string },
-  clients: WSClient[],
+  recievers: WSClient[],
 ): void {
-  for (const client of clients) {
+  for (const client of recievers) {
     if (senderUUID && senderUUID !== client.uuid)
       client.socket.send(JSON.stringify(msg));
   }

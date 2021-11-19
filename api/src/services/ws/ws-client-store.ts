@@ -22,9 +22,7 @@ class WSClientStore extends EventEmitter {
     this.scheduleStatsUpdates();
 
     if (client) {
-      this.emit("add_client", {
-        client: sanitizeWSClient(client),
-      });
+      this.emit("add_client", sanitizeWSClient(client));
       logger.debug(`${__filename} new WS client is added`);
     }
   }
