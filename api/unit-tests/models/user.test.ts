@@ -8,38 +8,38 @@ import { sanitizeUser } from "../../src/models/user/sanitize-user";
 
 describe("sanitizeUser function", () => {
   let user: User;
-  const uuid = uuidv4();
-  const id = 1;
-  const email = "info@test.ru";
-  const username = "test";
-  const password = "1234";
-  const createdAt = new Date().toISOString();
-  const isEmailConfirmed = true;
-  const isDeleted = false;
-  const permissions = { broadcast: ["read"] } as Permissions;
-  const lastLoginAt = new Date().toISOString();
+  const UUID = uuidv4();
+  const ID = 1;
+  const EMAIL = "info@test.ru";
+  const USERNAME = "test";
+  const PASSWORD = "1234";
+  const CREATED_AT = new Date().toISOString();
+  const IS_EMAIL_CONFIRMED = true;
+  const IS_DELETED = false;
+  const PERMISSIONS = { broadcast: ["read"] } as Permissions;
+  const LAST_LOGIN_AT = new Date().toISOString();
 
   beforeEach(() => {
     user = {
-      uuid,
-      id,
-      email,
-      username,
-      password,
-      createdAt,
-      isEmailConfirmed,
-      isDeleted,
-      permissions,
+      uuid: UUID,
+      id: ID,
+      email: EMAIL,
+      username: USERNAME,
+      password: PASSWORD,
+      createdAt: CREATED_AT,
+      isEmailConfirmed: IS_EMAIL_CONFIRMED,
+      isDeleted: IS_DELETED,
+      permissions: PERMISSIONS,
     };
   });
 
   it("returns sanitized user", () => {
     expect(sanitizeUser(user)).toStrictEqual({
-      uuid,
-      id,
-      email,
-      username,
-      permissions,
+      uuid: UUID,
+      id: ID,
+      email: EMAIL,
+      username: USERNAME,
+      permissions: PERMISSIONS,
     });
   });
 });
