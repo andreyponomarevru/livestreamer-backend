@@ -5,7 +5,8 @@ function useStreamStateWSEvent() {
   const streamState = useWebSocketEvents<BroadcastState>("stream:state", {
     isOnline: false,
   });
-  return { streamState };
+
+  return streamState;
 }
 
 export { useStreamStateWSEvent };

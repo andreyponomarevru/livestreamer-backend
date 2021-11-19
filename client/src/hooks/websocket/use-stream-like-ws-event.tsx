@@ -6,7 +6,7 @@ function useStreamLikeWSEvent() {
     "stream:like",
     null
   );
-  return { streamLike };
+  return streamLike;
 }
 
 export { useStreamLikeWSEvent };

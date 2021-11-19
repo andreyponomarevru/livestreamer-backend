@@ -10,7 +10,11 @@ import { useDeleteMessageWSEvent } from "../../hooks/websocket/use-delete-messag
 
 import "./chat.scss";
 
-function PagesChat(): React.ReactElement {
+interface Props {
+  isStreamOnline: boolean;
+}
+
+function PagesChat(props: Props): React.ReactElement {
   const { messages, addMessage, deleteMessage } = useChatHistory();
 
   useCreateMessageWSEvent(addMessage);
@@ -20,7 +24,10 @@ function PagesChat(): React.ReactElement {
   return (
     <Page className="chat-page">
       <MsgsList messages={messages} handleDeleteMessage={handleDeleteMessage} />
-      <ChatControls handleAddMessage={addMessage} />
+      <ChatControls
+        isStreamOnline={props.isStreamOnline}
+        handleAddMessage={addMessage}
+      />
     </Page>
   );
 }

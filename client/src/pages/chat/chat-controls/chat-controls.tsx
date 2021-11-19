@@ -6,16 +6,16 @@ import icons from "./../../../icons.svg";
 import { useAuthN } from "../../../hooks/use-authn";
 import { useNavigate } from "react-router-dom";
 import { HeartBtn } from "../heart-btn/heart-btn";
-import { BroadcastState, ChatMsg } from "../../../types";
+import { ChatMsg } from "../../../types";
 import { ROUTES } from "../../../config/routes";
-import { useWebSocketEvents } from "../../../hooks/use-websocket-events";
 import { usePostMessage } from "../../../hooks/use-post-message";
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
   handleAddMessage: (message: ChatMsg) => void;
+  isStreamOnline: boolean;
 }
 
-export function ChatControls(props: Props): React.ReactElement {
+function ChatControls(props: Props): React.ReactElement {
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     setMsgInput(e.target.value);
   }
@@ -42,10 +42,6 @@ export function ChatControls(props: Props): React.ReactElement {
       setMsgInput("");
     }
   }, [postMessageRes]);
-
-  const streamStateEvent = useWebSocketEvents<BroadcastState>("stream:state", {
-    isOnline: false,
-  });
 
   const { user } = useAuthN();
   const navigate = useNavigate();
@@ -77,8 +73,10 @@ export function ChatControls(props: Props): React.ReactElement {
             <use href={`${icons}#arrow-right`} />
           </svg>
         </button>
-        <HeartBtn isStreamOnline={streamStateEvent.isOnline} />
+        <HeartBtn isStreamOnline={props.isStreamOnline} />
       </div>
     </form>
   );
 }
+
+export { ChatControls };
