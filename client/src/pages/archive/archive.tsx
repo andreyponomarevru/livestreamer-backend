@@ -12,7 +12,7 @@ import { Page } from "../../lib/page/page";
 
 import "../../lib/items-list/items-list.scss";
 
-export function PagesArchive(
+function PagesArchive(
   props: React.HTMLAttributes<HTMLDivElement>
 ): React.ReactElement {
   const isMounted = useIsMounted();
@@ -66,3 +66,5 @@ export function PagesArchive(
     </Page>
   );
 }
+
+export { PagesArchive };

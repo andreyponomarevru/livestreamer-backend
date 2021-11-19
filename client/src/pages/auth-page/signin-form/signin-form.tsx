@@ -1,6 +1,6 @@
 import React from "react";
 
-import { NavLink, Navigate, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 
 import "../../../lib/link/link.scss";
@@ -18,7 +18,7 @@ import { Loader } from "../../../lib/loader/loader";
 import { ROUTES } from "../../../config/routes";
 import { useAuthN } from "../../../hooks/use-authn";
 
-export function SignInForm(
+function SignInForm(
   props: React.HTMLAttributes<HTMLDivElement>
 ): React.ReactElement {
   const handleSignIn = async ({ emailOrUsername, password }: SignInForm) => {
@@ -104,3 +104,5 @@ export function SignInForm(
     </form>
   );
 }
+
+export { SignInForm };

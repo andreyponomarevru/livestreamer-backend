@@ -2,14 +2,14 @@ import React, { ReactElement } from "react";
 
 import { PlayerLinkForm } from "../../../lib/player-link-form/player-link-form";
 import { TracklistForm } from "../../../lib/tracklist-form/tracklist-form";
+import { Btn } from "../../../lib/btn/btn";
+import { Loader } from "../../../lib/loader/loader";
 
 import "../../../lib/btn/btn.scss";
 import "./archive-item-controls.scss";
 import "../../../lib/text-input/text-input.scss";
-import { Btn } from "../../../lib/btn/btn";
-import { Loader } from "../../../lib/loader/loader";
 
-export function ArchiveItemControls(
+function ArchiveItemControls(
   props: React.HTMLAttributes<HTMLDivElement>
 ): ReactElement {
   // TODO: send request to API and change the hardcoded 'isLoaded' value on buttons
@@ -38,3 +38,5 @@ export function ArchiveItemControls(
     </div>
   );
 }
+
+export { ArchiveItemControls };

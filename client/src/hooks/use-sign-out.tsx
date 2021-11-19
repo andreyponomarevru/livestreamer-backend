@@ -3,11 +3,7 @@ import * as React from "react";
 import { API_ROOT_URL } from "../config/env";
 import { useFetch } from "./use-fetch";
 import { useAuthN } from "./use-authn";
-import { useIsMounted } from "./use-is-mounted";
 import { State as UseFetchState } from "./use-fetch";
-
-// TODO
-// user doesn't get deleted from localStorage on Sign Out
 
 function useSignOut(): {
   signOut: () => void;

@@ -1,10 +1,8 @@
 import * as React from "react";
 
-import { useAuthN } from "../../../hooks/use-authn";
 import { useIsMounted } from "../../../hooks/use-is-mounted";
 import { LIKE_TIMEOUT_MS } from "../../../config/env";
 import { useStreamLikeButton } from "../../../hooks/use-stream-like-button";
-import { useWebSocketEvents } from "../../../hooks/use-websocket-events";
 
 import icons from "./../../../icons.svg";
 import "./heart-btn.scss";
@@ -13,7 +11,7 @@ interface Props extends React.HTMLAttributes<HTMLDivElement> {
   isStreamOnline: boolean;
 }
 
-export function HeartBtn(props: Props): React.ReactElement {
+function HeartBtn(props: Props): React.ReactElement {
   const isMounted = useIsMounted();
 
   const { handleBtnClick, setIsBtnEnabled, isBtnEnabled } =
@@ -59,3 +57,5 @@ export function HeartBtn(props: Props): React.ReactElement {
     </button>
   );
 }
+
+export { HeartBtn };

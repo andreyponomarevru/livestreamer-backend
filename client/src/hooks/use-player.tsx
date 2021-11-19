@@ -1,6 +1,4 @@
 import * as React from "react";
-import { API_ROOT_URL } from "../config/env";
-import { useIsMounted } from "./use-is-mounted";
 
 function usePlayer(url: string) {
   const [audio, setAudio] = React.useState<HTMLAudioElement | null>(null);

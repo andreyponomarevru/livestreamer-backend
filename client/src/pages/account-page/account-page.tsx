@@ -15,7 +15,7 @@ import "./account-page.scss";
 import { useNavigate } from "react-router";
 import { ROUTES } from "../../config/routes";
 
-export function PagesAccount(
+function PagesAccount(
   props: React.HTMLAttributes<HTMLDivElement>
 ): React.ReactElement {
   function deleteAccount() {
@@ -55,3 +55,5 @@ export function PagesAccount(
     </Page>
   );
 }
+
+export { PagesAccount };

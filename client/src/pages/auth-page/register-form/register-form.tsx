@@ -17,7 +17,7 @@ import { Btn } from "../../../lib/btn/btn";
 import { ROUTES } from "../../../config/routes";
 import { FormError } from "../../../lib/form-error/form-error";
 
-export function RegisterForm(
+function RegisterForm(
   props: React.HTMLAttributes<HTMLDivElement>
 ): React.ReactElement {
   function handleSignUp(form: RegisterForm) {
@@ -118,3 +118,5 @@ export function RegisterForm(
     </form>
   );
 }
+
+export { RegisterForm };

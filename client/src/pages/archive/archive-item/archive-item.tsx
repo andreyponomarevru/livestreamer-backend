@@ -3,7 +3,6 @@ import React, { ReactElement, useState } from "react";
 import { IconBtn } from "../../../lib/icon-btn/icon-btn";
 import { ArchiveItemControls } from "../archive-item-controls/archive-item-controls";
 import { useAuthN } from "../../../hooks/use-authn";
-import { Icon } from "../../../lib/icon/icon";
 import { hasPermission } from "../../../utils/has-permission";
 
 import "./archive-item.scss";
@@ -21,7 +20,7 @@ interface Props extends React.HTMLAttributes<HTMLDivElement> {
   };
 }
 
-export function ArchiveItem(props: Props): ReactElement {
+function ArchiveItem(props: Props): ReactElement {
   const { className = "", isBookmarked = false } = props;
 
   const auth = useAuthN();
@@ -80,3 +79,5 @@ export function ArchiveItem(props: Props): ReactElement {
     </li>
   );
 }
+
+export { ArchiveItem };

@@ -18,7 +18,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { ROUTES } from "../../../config/routes";
 import { useQuery } from "../../../hooks/use-query";
 
-export function PassResetForm(
+function PassResetForm(
   props: React.HTMLAttributes<HTMLDivElement>
 ): React.ReactElement {
   async function handlePasswordReset({ password }: { password: string }) {
@@ -121,3 +121,5 @@ export function PassResetForm(
     </form>
   );
 }
+
+export { PassResetForm };

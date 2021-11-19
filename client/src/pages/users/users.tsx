@@ -10,7 +10,7 @@ import { useIsMounted } from "../../hooks/use-is-mounted";
 import { Message } from "../../lib/message/message";
 import { Page } from "../../lib/page/page";
 
-export function PagesUsers(
+function PagesUsers(
   props: React.HTMLAttributes<HTMLDivElement>
 ): React.ReactElement {
   const isMounted = useIsMounted();
@@ -52,3 +52,5 @@ export function PagesUsers(
     </Page>
   );
 }
+
+export { PagesUsers };

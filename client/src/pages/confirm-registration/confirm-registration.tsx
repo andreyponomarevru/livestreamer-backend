@@ -12,7 +12,7 @@ import { Help } from "../../lib/help/help";
 import { ROUTES } from "../../config/routes";
 import { useAuthN } from "../../hooks/use-authn";
 
-export function ConfirmRegistrationPage(
+function ConfirmRegistrationPage(
   props: React.HTMLAttributes<HTMLDivElement>
 ): React.ReactElement {
   const navigate = useNavigate();
@@ -72,3 +72,5 @@ export function ConfirmRegistrationPage(
     </Page>
   );
 }
+
+export { ConfirmRegistrationPage };

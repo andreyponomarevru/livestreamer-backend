@@ -17,7 +17,7 @@ interface Props extends React.HTMLAttributes<HTMLDivElement> {
   message: ChatMsg;
 }
 
-export function ChatMsg(props: Props): React.ReactElement {
+function ChatMsg(props: Props): React.ReactElement {
   const auth = useAuthN();
   const navigate = useNavigate();
 
@@ -84,3 +84,5 @@ export function ChatMsg(props: Props): React.ReactElement {
     </li>
   );
 }
+
+export { ChatMsg };

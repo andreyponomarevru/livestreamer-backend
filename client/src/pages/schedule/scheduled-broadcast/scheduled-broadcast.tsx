@@ -8,7 +8,7 @@ interface Props extends React.HTMLAttributes<HTMLDivElement> {
   endAt: string;
 }
 
-export function ScheduledBroadcast(props: Props): ReactElement {
+function ScheduledBroadcast(props: Props): ReactElement {
   return (
     <li className={`scheduled-broadcast ${props.className || ""}`}>
       <span className="scheduled-broadcast__start">{props.startAt}</span>
@@ -17,3 +17,5 @@ export function ScheduledBroadcast(props: Props): ReactElement {
     </li>
   );
 }
+
+export { ScheduledBroadcast };

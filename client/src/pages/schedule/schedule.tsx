@@ -17,7 +17,7 @@ import "../../lib/btn/btn.scss";
 import "../../lib/items-list/items-list.scss";
 import "./schedule.scss";
 
-export function PagesSchedule(
+function PagesSchedule(
   props: React.HTMLAttributes<HTMLDivElement>
 ): React.ReactElement {
   const auth = useAuthN();
@@ -93,3 +93,5 @@ export function PagesSchedule(
     </Page>
   );
 }
+
+export { PagesSchedule };

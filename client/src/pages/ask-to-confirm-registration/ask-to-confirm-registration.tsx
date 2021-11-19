@@ -1,13 +1,13 @@
 import * as React from "react";
 
 import "./ask-to-confirm-registration.scss";
-import { Message } from "../../lib/message/message";
+
 import { Page } from "../../lib/page/page";
 import { useNavigate } from "react-router";
 import { useAuthN } from "../../hooks/use-authn";
 import { ROUTES } from "../../config/routes";
 
-export function AskToConfirmRegistrationPage(
+function AskToConfirmRegistrationPage(
   props: React.HTMLAttributes<HTMLDivElement>
 ): React.ReactElement {
   const navigate = useNavigate();
@@ -37,3 +37,5 @@ export function AskToConfirmRegistrationPage(
     </Page>
   );
 }
+
+export { AskToConfirmRegistrationPage };

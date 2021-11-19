@@ -6,7 +6,7 @@ import { Page } from "../../lib/page/page";
 import { ForgotPassBox } from "./forgot-pass-box/forgot-pass-box";
 import { ROUTES } from "../../config/routes";
 
-export function ForgotPassPage(): ReactElement {
+function ForgotPassPage(): ReactElement {
   const navigate = useNavigate();
 
   const auth = useAuthN();
@@ -20,3 +20,5 @@ export function ForgotPassPage(): ReactElement {
     </Page>
   );
 }
+
+export { ForgotPassPage };

@@ -19,7 +19,6 @@ export function AccountBtn(props: Props): ReactElement {
   return (
     <NavLink
       className="account__link"
-      /*activeClassName="account__link_active"*/
       onClick={props.handleAutoClose}
       to={user ? "/account" : "/signin"}
     >

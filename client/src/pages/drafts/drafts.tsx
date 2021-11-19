@@ -12,7 +12,7 @@ import { Message } from "../../lib/message/message";
 
 import "../../lib/items-list/items-list.scss";
 
-export function PagesDrafts(
+function PagesDrafts(
   props: React.HTMLAttributes<HTMLDivElement>
 ): React.ReactElement {
   const isMounted = useIsMounted();
@@ -72,3 +72,5 @@ export function PagesDrafts(
     </Page>
   );
 }
+
+export { PagesDrafts };

@@ -9,7 +9,7 @@ interface Props extends React.HTMLAttributes<HTMLDivElement> {
   isActive?: boolean;
 }
 
-export function ChatIconBtn(props: Props): ReactElement {
+function ChatIconBtn(props: Props): ReactElement {
   return (
     <button
       className={`chat-icon-btn ${props.className || ""}`}
@@ -28,3 +28,5 @@ export function ChatIconBtn(props: Props): ReactElement {
     </button>
   );
 }
+
+export { ChatIconBtn };

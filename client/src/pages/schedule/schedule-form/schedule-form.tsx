@@ -5,7 +5,7 @@ import "./schedule-form.scss";
 import { Btn } from "../../../lib/btn/btn";
 import { Loader } from "../../../lib/loader/loader";
 
-export function ScheduleForm(): ReactElement {
+function ScheduleForm(): ReactElement {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [broadcastTitle, setBroadcastTitle] = useState("");
@@ -89,3 +89,5 @@ export function ScheduleForm(): ReactElement {
     </form>
   );
 }
+
+export { ScheduleForm };

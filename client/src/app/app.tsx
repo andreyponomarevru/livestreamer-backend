@@ -10,7 +10,8 @@ import { ErrorBoundary } from "../lib/error-boundary/error-boundary";
 import { PagesChat } from "../pages/chat/chat";
 import { PagesArchive } from "../pages/archive/archive";
 import { PagesSchedule } from "../pages/schedule/schedule";
-import { PagesBookmarks } from "../pages/bookmarks/bookmarks";
+// TODO: implement Bookmarks page
+// import { PagesBookmarks } from "../pages/bookmarks/bookmarks";
 import { PagesUsers } from "../pages/users/users";
 import { ForgotPassPage } from "../pages/forgot-pass/forgot-pass";
 import { PagesAccount } from "../pages/account-page/account-page";
@@ -23,14 +24,13 @@ import { PassResetPage } from "../pages/pass-reset/pass-reset";
 import { AskToConfirmRegistrationPage } from "../pages/ask-to-confirm-registration/ask-to-confirm-registration";
 import { ConfirmRegistrationPage } from "../pages/confirm-registration/confirm-registration";
 import { PagesDrafts } from "../pages/drafts/drafts";
-import { WebSocketContext } from "../ws-client";
 import { ROUTES } from "../config/routes";
 import { StreamLikeCountProvider } from "../hooks/use-stream-like-count";
 import { useStreamStateWSEvent } from "../hooks/websocket/use-stream-state-ws-event";
 
 import "./app.scss";
 
-export function App(): ReactElement {
+function App(): ReactElement {
   const streamState = useStreamStateWSEvent();
 
   return (
@@ -110,3 +110,5 @@ export function App(): ReactElement {
     </HashRouter>
   );
 }
+
+export { App };

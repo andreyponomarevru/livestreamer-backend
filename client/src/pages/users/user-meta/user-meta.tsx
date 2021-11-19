@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 
 import "./user-meta.scss";
-import { UserResponse, User } from "../../../types";
+import { User } from "../../../types";
 import { Btn } from "../../../lib/btn/btn";
 import { Loader } from "../../../lib/loader/loader";
 
-export function UserMeta(props: User) {
+function UserMeta(props: User) {
   const [isOpen, setIsOpen] = useState(false);
 
   function toggleDetails() {
@@ -38,3 +38,5 @@ export function UserMeta(props: User) {
     </div>
   );
 }
+
+export { UserMeta };

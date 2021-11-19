@@ -4,7 +4,6 @@ import { Box } from "../../../lib/box/box";
 import { PassResetForm } from "../pass-reset-form/pass-reset-form";
 import { useNavigate } from "react-router";
 import { useAuthN } from "../../../hooks/use-authn";
-import { useQuery } from "../../../hooks/use-query";
 import { ROUTES } from "../../../config/routes";
 
 function PassResetBox() {

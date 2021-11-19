@@ -16,7 +16,7 @@ import { Help } from "../../../lib/help/help";
 import { Btn } from "../../../lib/btn/btn";
 import { FormError } from "../../../lib/form-error/form-error";
 
-export function ForgotPasswordForm(
+function ForgotPasswordForm(
   props: React.HTMLAttributes<HTMLDivElement>
 ): React.ReactElement {
   function handlePasswordReset(email: { email: string }) {
@@ -105,3 +105,5 @@ export function ForgotPasswordForm(
     </form>
   );
 }
+
+export { ForgotPasswordForm };

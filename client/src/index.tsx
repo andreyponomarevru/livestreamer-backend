@@ -1,5 +1,4 @@
-import React, { createContext } from "react";
-import { HashRouter } from "react-router-dom";
+import * as React from "react";
 import ReactDOM from "react-dom";
 
 import { App } from "./app/app";
@@ -16,5 +15,3 @@ ReactDOM.render(
   </WebSocketProvider>,
   document.getElementById("root")
 );
-
-//export default hot(App);

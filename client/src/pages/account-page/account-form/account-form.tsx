@@ -17,7 +17,7 @@ import "./account-form.scss";
 
 type UserSettings = { username: string };
 
-export function AccountForm(): React.ReactElement {
+function AccountForm(): React.ReactElement {
   function handleSaveChanges(userSettings: UserSettings) {
     clearErrors();
     sendUpdatedUserRequest(`${API_ROOT_URL}/user`, {
@@ -98,3 +98,5 @@ export function AccountForm(): React.ReactElement {
     </form>
   );
 }
+
+export { AccountForm };

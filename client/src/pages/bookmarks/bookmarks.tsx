@@ -9,7 +9,7 @@ import { API_ROOT_URL } from "../../config/env";
 import { BroadcastResponse } from "../../types";
 import { Loader } from "../../lib/loader/loader";
 
-export function PagesBookmarks(
+function PagesBookmarks(
   props: React.HTMLAttributes<HTMLDivElement>
 ): ReactElement {
   // TODO: Add 'Bookmark broadcast' feature
@@ -72,3 +72,5 @@ export function PagesBookmarks(
     );
   }*/
 }
+
+export { PagesBookmarks };

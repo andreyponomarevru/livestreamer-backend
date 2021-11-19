@@ -1,4 +1,4 @@
-export type ParsedResponse<T> = {
+type ParsedResponse<T> = {
   status: number;
   body: T | null;
 };
@@ -25,4 +25,4 @@ async function parseResponse<T>(
   }
 }
 
-export { parseResponse };
+export { parseResponse, ParsedResponse };

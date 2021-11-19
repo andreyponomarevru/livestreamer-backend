@@ -6,7 +6,7 @@ import "../../lib/btn/btn.scss";
 
 import "./no-bookmarks-msg.scss";
 
-export function NoBookmarksMsg(): ReactElement {
+function NoBookmarksMsg(): ReactElement {
   return (
     <div className="no-bookmarks-msg">
       <p className="no-bookmarks-msg__main-text">Nothing saved yet :(</p>
@@ -21,3 +21,5 @@ export function NoBookmarksMsg(): ReactElement {
     </div>
   );
 }
+
+export { NoBookmarksMsg };

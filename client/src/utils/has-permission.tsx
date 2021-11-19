@@ -6,7 +6,7 @@ interface HasPermission {
   resource: typeof RESOURCES[number];
 }
 
-export function hasPermission(
+function hasPermission(
   checkPermission: HasPermission,
   user?: UserState
 ): boolean {
@@ -18,3 +18,5 @@ export function hasPermission(
 
   return isAuthenticated && hasPermission;
 }
+
+export { hasPermission };
