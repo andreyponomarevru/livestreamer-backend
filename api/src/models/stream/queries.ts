@@ -1,4 +1,4 @@
-import { BroadcastDraft, SavedBroadcastLike } from "../../types";
+import { BroadcastDraft } from "../../types";
 import * as redis from "../../config/redis";
 import * as postgres from "../../config/postgres";
 
