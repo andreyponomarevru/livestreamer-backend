@@ -11,4 +11,4 @@ function PassResetPage(): ReactElement {
   );
 }
 
-export { PassResetBox };
+export { PassResetPage };
