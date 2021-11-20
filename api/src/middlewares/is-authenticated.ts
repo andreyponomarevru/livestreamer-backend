@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 
-import { HttpError } from "../../utils/http-error";
-import { User } from "../../models/user/user";
+import { HttpError } from "../utils/http-error";
+import { User } from "../models/user/user";
 
 declare module "express-session" {
   interface SessionData {

@@ -2,7 +2,7 @@ import util from "util";
 
 import { Request, Response, NextFunction } from "express";
 
-import { logger } from "../../config/logger";
+import { logger } from "../config/logger";
 
 declare module "http" {
   interface IncomingHttpHeaders {

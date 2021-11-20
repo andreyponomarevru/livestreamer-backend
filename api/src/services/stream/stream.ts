@@ -1,9 +1,10 @@
+import fs from "fs";
+
 import { InOutStream } from "./inout-stream";
 import { BroadcastDraft, BroadcastState } from "../../types";
 import * as broadcastDB from "../../models/broadcast/queries";
 import * as streamCacheDB from "../../models/stream/queries";
 import { StreamEmitter } from "./events";
-
 async function readBroadcastState(): Promise<BroadcastState> {
   if (inoutStream.isPaused()) {
     return { isOnline: false };
@@ -84,6 +85,10 @@ function buildStreamTitle(): string {
 
 const events = new StreamEmitter();
 const inoutStream = new InOutStream();
+// By default, new readable streams are set to the 'paused' mode. But when we add 'data' event handler or use `pipe`, we auto set readable stream into 'flowing' mode. So, when there are no listeners (hence no 'pipe' method is attached to stream), the stream will switch back to pause mode (although broadcaster may still continue to stream). We don't want that to happen, so to set the stream to flowing mode from the ground up, we pipe it to nowhere. It doesn't matter where to pipe, as long as the 'pipe' method is used, because as I've already mentioned, we use 'pipe' only to set the stream into 'flowing' mode and don't care where it will send the data
+inoutStream.pipe(fs.createWriteStream("\\\\.\\NUL"));
+// Pause the stream on app startup because initially there is no broadcaster, so there is nothing to stream. Without pausing, clients trying to connect won't recieve 404, the request will just hang without response
+inoutStream.pause();
 
 export {
   inoutStream,

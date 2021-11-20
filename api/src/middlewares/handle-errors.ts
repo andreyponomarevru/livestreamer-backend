@@ -3,8 +3,8 @@ import util from "util";
 import { Request, Response, NextFunction } from "express";
 import Joi, { ValidationError as JoiValidationError } from "joi";
 
-import { HttpError } from "../../utils/http-error";
-import { logger } from "../../config/logger";
+import { HttpError } from "../utils/http-error";
+import { logger } from "../config/logger";
 
 // Main error handler (this is a centralized error handler — all error handling logic is here)
 // - handle errors passed to next() handler

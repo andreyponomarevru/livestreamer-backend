@@ -2,8 +2,8 @@ import util from "util";
 
 import { Request, Response, NextFunction } from "express";
 
-import { HttpError } from "../../utils/http-error";
-import { logger } from "../../config/logger";
+import { HttpError } from "../utils/http-error";
+import { logger } from "../config/logger";
 
 export function handle404Error(
   req: Request,

@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { jest, describe, it, expect } from "@jest/globals";
 
-import { handle404Error } from "../../src/controllers/middlewares/handle-404-error";
+import { handle404Error } from "../../src/middlewares/handle-404-error";
 import { HttpError } from "../../src/utils/http-error";
 
 jest.mock("../../src/utils/http-error");

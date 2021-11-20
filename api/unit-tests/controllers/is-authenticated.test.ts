@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { jest, describe, it, expect } from "@jest/globals";
 
-import { isAuthenticated } from "../../src/controllers/middlewares/is-authenticated";
+import { isAuthenticated } from "../../src/middlewares/is-authenticated";
 import { HttpError } from "../../src/utils/http-error";
 
 jest.mock("../../src/utils/http-error");
