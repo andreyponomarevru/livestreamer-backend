@@ -19,7 +19,7 @@ function PagesUsers(
 
   React.useEffect(() => {
     if (isMounted) {
-      sendhUsersRequest(`${API_ROOT_URL}/admin/users`, {
+      sendhUsersRequest(`${API_ROOT_URL}/users`, {
         method: "get",
         headers: {
           "content-type": "application/json",

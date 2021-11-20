@@ -21,7 +21,7 @@ function PagesDrafts(
 
   React.useEffect(() => {
     if (isMounted) {
-      sendGetDraftsRequest(`${API_ROOT_URL}/streams/drafts`, {
+      sendGetDraftsRequest(`${API_ROOT_URL}/broadcasts/drafts`, {
         method: "GET",
         headers: {
           "content-type": "application/json",
@@ -33,13 +33,13 @@ function PagesDrafts(
 
   //  TODO: Add new features using these endpoints
   function getAllBroadcastDrafts() {
-    const URL = `${API_ROOT_URL}/streams/drafts`; // GET
+    const URL = `${API_ROOT_URL}/broadcasts/drafts`; // GET
   }
   function updateBroadcastDraft(id: number) {
-    const URL = `${API_ROOT_URL}/streams/drafts/${id}`; // PATCH
+    const URL = `${API_ROOT_URL}/broadcasts/drafts/${id}`; // PATCH
   }
   function destroyBroadcastDraft(id: number) {
-    const URL = `${API_ROOT_URL}/streams/drafts/${id}`; // DELETE
+    const URL = `${API_ROOT_URL}/broadcasts/drafts/${id}`; // DELETE
   }
 
   //

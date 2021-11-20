@@ -15,23 +15,23 @@ import "../../lib/items-list/items-list.scss";
 function PagesArchive(): React.ReactElement {
   const isMounted = useIsMounted();
 
-  const { state: streams, fetchNow: sendGetStreamsRequest } =
+  const { state: broadcasts, fetchNow: sendGetBroadcastsRequest } =
     useFetch<BroadcastResponse>();
 
   React.useEffect(() => {
     if (isMounted) {
-      sendGetStreamsRequest(`${API_ROOT_URL}/streams`);
+      sendGetBroadcastsRequest(`${API_ROOT_URL}/broadcasts`);
     }
   }, [isMounted]);
 
   // TODO: Add 'Edit broadcast' feature
   function updateBroadcast(id: number) {
-    const URL = `${API_ROOT_URL}/streams/${id}`; // PATCH
+    const URL = `${API_ROOT_URL}/broadcasts/${id}`; // PATCH
   }
 
   // TODO: Add 'Delete broadcast' feature
   function destroyBroadcast(id: number) {
-    const URL = `${API_ROOT_URL}/streams/${id}`; // DELETE
+    const URL = `${API_ROOT_URL}/broadcasts/${id}`; // DELETE
   }
 
   //
@@ -40,15 +40,15 @@ function PagesArchive(): React.ReactElement {
     <Page className="page_list">
       <PageHeading iconName="archive" name="Archive" />
 
-      {streams.isLoading && <Loader for="page" color="pink" />}
+      {broadcasts.isLoading && <Loader for="page" color="pink" />}
 
-      {streams.error && (
+      {broadcasts.error && (
         <Message type="danger">Something went wrong :(</Message>
       )}
 
-      {streams.response?.body && (
+      {broadcasts.response?.body && (
         <ul className="items-list">
-          {streams.response.body.results.map((broadcast) => {
+          {broadcasts.response.body.results.map((broadcast) => {
             return (
               <ArchiveItem
                 key={broadcast.id}

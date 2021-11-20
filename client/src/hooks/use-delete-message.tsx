@@ -18,7 +18,7 @@ function useDeleteMessage(deleteMessage: (id: number) => void) {
 
     if (hasPermissionToDeleteAnyMsg) {
       sendDeleteMessageReq(
-        `${API_ROOT_URL}/admin/chat/messages/${msg.messageId}?user_id=${msg.userId}`,
+        `${API_ROOT_URL}/moderation/chat/messages/${msg.messageId}?user_id=${msg.userId}`,
         { method: "DELETE" }
       );
       setDeletedMessageId(msg.messageId);

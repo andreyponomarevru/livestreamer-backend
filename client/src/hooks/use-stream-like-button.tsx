@@ -18,7 +18,7 @@ function useStreamLikeButton(): StreamLikeButton {
     if (!auth.user) {
       navigate(ROUTES.signIn);
     } else {
-      sendLikeBroadcastRequest(`${API_ROOT_URL}/streams/live/like`, {
+      sendLikeBroadcastRequest(`${API_ROOT_URL}/stream/like`, {
         method: "PUT",
       });
     }
