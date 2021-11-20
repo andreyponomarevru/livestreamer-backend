@@ -8,10 +8,10 @@ import * as streamService from "../services/stream/stream";
 import * as websocketService from "../services/ws/ws";
 
 async function onReqData(chunk: Buffer) {
-  /*showReadableStreamMode(
-    streamService.inoutStream,
-    "broadcaster's push stream",
-  );*/
+  //showReadableStreamMode(
+  //  streamService.inoutStream,
+  //  "broadcaster's push stream",
+  //);
 
   // Push incoming request data into Readable stream in order to be able to consume it later on listener-client request (it doesn't accumulates in memory, it is just lost)
   streamService.inoutStream.push(chunk);
