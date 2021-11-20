@@ -2,8 +2,6 @@
 // Joi Validation Schemas
 //
 
-// TODO: add descriptive error messages
-
 import Joi from "joi";
 
 export const asciiRegex = new RegExp("^[\x00-\x7F]+$");
@@ -153,8 +151,6 @@ export const tokenSchema = Joi.object({
 })
   .required()
   .unknown(true);
-
-export const userIdSchema = Joi.object({ userId: id }).required().unknown(true);
 
 export const destroyChatMsgSchema = Joi.object({ user_id: id })
   .optional()

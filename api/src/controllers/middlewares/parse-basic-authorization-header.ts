@@ -1,15 +1,12 @@
 import util from "util";
 
 import { Request, Response, NextFunction } from "express";
+
 import { logger } from "../../config/logger";
 
 declare module "http" {
   interface IncomingHttpHeaders {
-    basicauth: {
-      schema: string;
-      username: string;
-      password: string;
-    };
+    basicauth: { schema: string; username: string; password: string };
   }
 }
 

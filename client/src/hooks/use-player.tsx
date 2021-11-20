@@ -1,11 +1,12 @@
 import * as React from "react";
 
-function usePlayer(url: string) {
+type Player = { isPlaying: boolean; togglePlay: () => void };
+
+function usePlayer(url: string): Player {
   const [audio, setAudio] = React.useState<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = React.useState(false);
 
   function togglePlay() {
-    console.log("toggle");
     setIsPlaying((prev) => !prev);
   }
 

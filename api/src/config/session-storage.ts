@@ -2,8 +2,6 @@ import session from "express-session";
 import redisSession from "connect-redis";
 
 import {
-  REDIS_PORT,
-  REDIST_HOST,
   AUTH_COOKIE_SECRET,
   COOKIE_NAME,
   REDIS_COOKIE_EXPIRATION_TTL,

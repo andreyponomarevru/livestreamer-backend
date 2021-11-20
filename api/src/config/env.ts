@@ -43,8 +43,8 @@ export const DEBUG_LOG_NAME = process.env.DEBUG_LOG_NAME!;
 export const MAIL_FROM_HOST = process.env.MAIL_FROM_HOST!;
 export const MAIL_FROM_SERVICE = process.env.MAIL_FROM_SERVICE!;
 export const MAIL_FROM_EMAIL = process.env.MAIL_FROM_EMAIL!;
-export const SENDINBLUE_LOGIN = process.env.SENDINBLUE_LOGIN!;
-export const SENDINBLUE_PASSWORD = process.env.SENDINBLUE_PASSWORD!;
+export const MAIL_SERVICE_LOGIN = process.env.MAIL_SERVICE_LOGIN!;
+export const MAIL_SERVICE_PASSWORD = process.env.MAIL_SERVICE_PASSWORD!;
 export const MAIL_FROM_PORT = Number(process.env.MAIL_FROM_PORT)!;
 
 //

@@ -1,7 +1,7 @@
 {
   "name": "client",
   "version": "1.0.0",
-  "description": "client",
+  "description": "React.js Client",
   "main": "index.js",
   "scripts": {
     "serve": "webpack serve --mode development",
@@ -11,7 +11,7 @@
     "lint": "eslint . --ext .ts",
     "lint-and-fix": "eslint . --ext .ts --fix"
   },
-  "author": "",
+  "author": "Andrey Ponomarev",
   "license": "ISC",
   "dependencies": {
     "react-hook-form": "^7.20.1",

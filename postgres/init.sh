@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# We need this file to be a Bash script instead of reqgular .sql file in order to be able to inject env vars into SQL statements
+# We need this file to be a Bash script instead of regular .sql file in order to be able to inject env vars into SQL statements
 
 echo "Initializing database: creating tables, views and seeding the database"
 

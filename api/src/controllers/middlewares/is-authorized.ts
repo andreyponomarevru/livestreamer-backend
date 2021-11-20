@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+
 import { HttpError } from "../../utils/http-error";
 import { logger } from "../../config/logger";
 import { RESOURCES, PERMISSIONS } from "../../config/constants";
@@ -8,7 +9,11 @@ export function isAuthorized(
   resource: typeof RESOURCES[number],
   extraAuthZ?: ((req: Request) => boolean)[],
 ) {
-  return async function (req: Request, res: Response, next: NextFunction) {
+  return async function (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
     logger.info(`${__filename}: Access "${resource}", action: "${action}"`);
 
     const authUser = req.session.authenticatedUser;

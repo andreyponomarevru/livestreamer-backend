@@ -1,4 +1,5 @@
 import { RESOURCES, PERMISSIONS } from "./config/constants";
+import { ParsedResponse } from "./utils/parse-response";
 
 //
 // Forms
@@ -20,14 +21,15 @@ export type Credentials = {
 // API
 //
 
+export interface APIResponse<Results> {
+  error: APIError | null;
+  isLoading: boolean;
+  response: ParsedResponse<Results> | null;
+}
 export type Permissions = {
   [key in typeof RESOURCES[number]]?: typeof PERMISSIONS[number][];
 };
-export type APIError = {
-  status: number;
-  moreInfo: string;
-  message: string;
-};
+export type APIError = { status: number; moreInfo: string; message: string };
 export type ScheduledBroadcastResponse = { results: ScheduledBroadcast[] };
 export type BroadcastResponse = { results: Broadcast[] };
 export type UserResponse = { results: User };

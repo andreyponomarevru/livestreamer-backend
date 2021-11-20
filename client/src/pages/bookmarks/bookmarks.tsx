@@ -13,19 +13,19 @@ function PagesBookmarks(
   props: React.HTMLAttributes<HTMLDivElement>
 ): ReactElement {
   // TODO: Add 'Bookmark broadcast' feature
-  function bookmarkBroadcast(broadcstId: number) {
-    const URL = `${API_ROOT_URL}/broadcasts/${broadcstId}/bookmark`; // POST
+  function bookmarkBroadcast(streamId: number) {
+    const URL = `${API_ROOT_URL}/streams/${streamId}/bookmark`; // POST
   }
 
   // TODO: Add "Delete broadcast from bookmarks" feature
-  function removeBroadcastFromBookmarks(broadcastId: number) {
-    const URL = `${API_ROOT_URL}/broadcasts/${broadcastId}/bookmark`; // DELETE
+  function removeBroadcastFromBookmarks(streamId: number) {
+    const URL = `${API_ROOT_URL}/streams/${streamId}/bookmark`; // DELETE
   }
 
   return <div></div>;
   /*
   const { state: broadcastResponse, sendBookmarksRequest} = useFetch<BroadcastResponse>({
-    url: `${API_ROOT_URL}/user/broadcasts/bookmarked`,
+    url: `${API_ROOT_URL}/user/streams/bookmarked`,
     options: {
       method: "get",
       headers: {

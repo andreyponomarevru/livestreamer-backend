@@ -15,9 +15,7 @@ import "./account-page.scss";
 import { useNavigate } from "react-router";
 import { ROUTES } from "../../config/routes";
 
-function PagesAccount(
-  props: React.HTMLAttributes<HTMLDivElement>
-): React.ReactElement {
+function PagesAccount(): React.ReactElement {
   function deleteAccount() {
     sendDeleteUserRequest(`${API_ROOT_URL}/user`, { method: "DELETE" });
   }

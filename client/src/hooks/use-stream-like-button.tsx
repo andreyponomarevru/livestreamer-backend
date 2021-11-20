@@ -7,12 +7,18 @@ import { useAuthN } from "./use-authn";
 import { useFetch } from "./use-fetch";
 import { useStreamLikeCount } from "./use-stream-like-count";
 
-function useStreamLikeButton() {
+type StreamLikeButton = {
+  handleBtnClick: () => void;
+  isBtnEnabled: boolean;
+  setIsBtnEnabled: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
+function useStreamLikeButton(): StreamLikeButton {
   function handleBtnClick() {
     if (!auth.user) {
       navigate(ROUTES.signIn);
     } else {
-      sendLikeBroadcastRequest(`${API_ROOT_URL}/stream/like`, {
+      sendLikeBroadcastRequest(`${API_ROOT_URL}/streams/live/like`, {
         method: "PUT",
       });
     }
@@ -25,7 +31,6 @@ function useStreamLikeButton() {
     resetState,
   } = useFetch();
   React.useEffect(() => {
-    console.log("PROBABLY RUNS TWICE");
     if (likeBroadcastResponse.response) {
       resetState();
       setLikeCount((likeCount) => ++likeCount);

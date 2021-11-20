@@ -3,19 +3,7 @@ import { useReducer } from "react";
 import { parseResponse } from "../utils/parse-response";
 import { useIsMounted } from "./use-is-mounted";
 import { handleResponseErr } from "../utils/handle-response-err";
-import { ParsedResponse } from "../utils/parse-response";
-
-interface APIResponse<Results> {
-  error: APIError | null;
-  isLoading: boolean;
-  response: ParsedResponse<Results> | null;
-}
-
-type APIError = {
-  message: string;
-  moreInfo: string;
-  status: number;
-};
+import { APIResponse } from "../types";
 
 type FetchInit = { type: "FETCH_INIT" };
 type FetchSuccess<T> = {
@@ -29,7 +17,7 @@ type FetchFailure<T> = {
 type ResetState = { type: "RESET_STATE" };
 
 type Action<T> = FetchInit | FetchSuccess<T> | FetchFailure<T> | ResetState;
-export type State<T> = {
+type State<T> = {
   isLoading: boolean;
   error: null | Error | APIResponse<T>["error"];
   response: null | APIResponse<T>["response"];
@@ -60,7 +48,7 @@ function createDataFetchReducer<T>() {
   };
 }
 
-export function useFetch<ResponseBody>(): {
+function useFetch<ResponseBody>(): {
   state: APIResponse<ResponseBody>;
   fetchNow: (
     url: RequestInfo,
@@ -121,3 +109,5 @@ export function useFetch<ResponseBody>(): {
 
   return { state: state as APIResponse<ResponseBody>, fetchNow, resetState };
 }
+
+export { State, useFetch };

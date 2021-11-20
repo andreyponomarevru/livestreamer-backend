@@ -1,7 +1,7 @@
 {
   "name": "api",
   "version": "1.0.0",
-  "description": "app server",
+  "description": "API server",
   "main": "index.js",
   "scripts": {
     "build": "tsc",
@@ -11,8 +11,8 @@
     "test:integration": "jest --detectOpenHandles integration-tests",
     "migrate": "node-pg-migrate"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["rest", "api", "live streaming", "broadcasting"],
+  "author": "Andrey Ponomarev",
   "license": "ISC",
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",

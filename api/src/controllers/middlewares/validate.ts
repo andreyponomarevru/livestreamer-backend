@@ -2,17 +2,19 @@ import util from "util";
 
 import { Request, Response, NextFunction } from "express";
 import Joi from "joi";
+
 import { logger } from "../../config/logger";
 
-export function validate(
-  schema:
-    | Joi.ObjectSchema<any>
-    | Joi.AlternativesSchema
-    | Joi.StringSchema
-    | Joi.NumberSchema
-    | Joi.ArraySchema,
-  location: "body" | "headers" | "query" | "params",
-) {
+type Schema =
+  | Joi.ObjectSchema<any>
+  | Joi.AlternativesSchema
+  | Joi.StringSchema
+  | Joi.NumberSchema
+  | Joi.ArraySchema;
+
+type Location = "body" | "headers" | "query" | "params";
+
+export function validate(schema: Schema, location: Location) {
   return async function (
     req: Request,
     res: Response,

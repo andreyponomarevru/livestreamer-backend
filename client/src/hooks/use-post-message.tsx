@@ -2,9 +2,14 @@ import * as React from "react";
 
 import { API_ROOT_URL } from "../config/env";
 import { useFetch } from "./use-fetch";
-import { ChatMessageResponse } from "../types";
+import { ChatMessageResponse, APIResponse } from "../types";
 
-function usePostMessage() {
+type Message = {
+  sendMessage: (message: string) => void;
+  postMessageRes: APIResponse<ChatMessageResponse>;
+};
+
+function usePostMessage(): Message {
   function sendMessage(message: string) {
     sendPostMessageReq(`${API_ROOT_URL}/chat/messages`, {
       method: "POST",

@@ -8,13 +8,11 @@ import { isAuthorized } from "./middlewares/is-authorized";
 import * as sessionsController from "./sessions";
 import * as chatController from "./chat";
 import * as usersController from "./users";
-import * as broadcastsController from "./broadcasts";
+import * as broadcastsController from "./streams";
 import * as scheduleController from "./schedule";
-import * as streamController from "./stream";
-
+import * as streamController from "./live-stream";
 import {
   basicAuthZHeaderSchema,
-  userIdSchema,
   emailSchema,
   tokenSchema,
   updatePasswordSchema,
@@ -117,16 +115,16 @@ router.delete(
   scheduleController.destroyScheduledBroadcast,
 );
 
-// Broadcast
+// Streams
 
-router.get("/broadcasts", broadcastsController.readAllPublished);
+router.get("/streams", broadcastsController.readAllPublished);
 router.get(
-  "/user/broadcasts/bookmarked",
+  "/user/streams/bookmarked",
   isAuthenticated,
   broadcastsController.readAllBookmarked,
 );
 router.patch(
-  "/broadcasts/:id",
+  "/streams/:id",
   isAuthenticated,
   isAuthorized("update_partially", "broadcast"),
   validate(idSchema, "params"),
@@ -135,21 +133,21 @@ router.patch(
   broadcastsController.updatePublished,
 );
 router.delete(
-  "/broadcasts/:id",
+  "/streams/:id",
   isAuthenticated,
   isAuthorized("delete", "broadcast"),
   validate(idSchema, "params"),
   broadcastsController.softDestroy,
 );
 router.post(
-  "/broadcasts/:id/bookmark",
+  "/streams/:id/bookmark",
   isAuthenticated,
   isAuthorized("create", "user_own_bookmarks"),
   validate(idSchema, "params"),
   broadcastsController.bookmark,
 );
 router.delete(
-  "/broadcasts/:id/bookmark",
+  "/streams/:id/bookmark",
   isAuthenticated,
   isAuthorized("delete", "user_own_bookmarks"),
   validate(idSchema, "params"),
@@ -157,13 +155,13 @@ router.delete(
 );
 
 router.get(
-  "/broadcasts/drafts",
+  "/streams/drafts",
   isAuthenticated,
   isAuthorized("read", "broadcast_draft"),
   broadcastsController.readAllHidden,
 );
 router.patch(
-  "/broadcasts/drafts/:id",
+  "/streams/drafts/:id",
   isAuthenticated,
   isAuthorized("update_partially", "broadcast_draft"),
   validate(idSchema, "params"),
@@ -172,24 +170,24 @@ router.patch(
   broadcastsController.updateHidden,
 );
 router.delete(
-  "/broadcasts/drafts/:id",
+  "/streams/drafts/:id",
   isAuthenticated,
   isAuthorized("delete", "broadcast_draft"),
   validate(idSchema, "params"),
   broadcastsController.destroy,
 );
 
-// Stream
+// Live Stream
 
-router.get("/stream", streamController.pull);
+router.get("/streams/live", streamController.pull);
 router.put(
-  "/stream",
+  "/streams/live",
   isAuthenticated,
   isAuthorized("create", "audio_stream"),
   validate(audioContentTypeSchema, "headers"),
   streamController.push,
 );
-router.put("/stream/like", isAuthenticated, broadcastsController.like);
+router.put("/streams/live/like", isAuthenticated, broadcastsController.like);
 
 // Chat
 
