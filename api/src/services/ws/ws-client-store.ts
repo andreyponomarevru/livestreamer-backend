@@ -53,10 +53,12 @@ class WSClientStore extends EventEmitter {
     );
     // To avoid memory leaks, start timer only when the very first client connects. We will reuse this timer for all other clients, instead of creating a new timer per client.
     if (this.clientCount === 1 && !this.statsUpdatesScheduler.timerId) {
-      console.log(`${__filename} Start Scheduler`);
+      logger.debug(`${__filename} Start Scheduler`);
+
       this.statsUpdatesScheduler.start(() => {
         this.emit("update_client_count", this.clientCount);
-        console.log(
+
+        logger.debug(
           `${__filename} =========== [update_client_count] ${this.clientCount}`,
         );
       }, STATS_MSG_TIME_INTERVAL);
