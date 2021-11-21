@@ -329,26 +329,6 @@ SELECT role_id, resource_id, permission_id FROM rrp_ids;
 
 
 
-WITH rrp_ids AS (
-  SELECT 
-    role.role_id,
-    resource.resource_id,
-    permission.permission_id
-  FROM 
-    role,
-    resource,
-    permission
-  WHERE 
-    role.name = 'superadmin' AND
-    resource.name = 'user_own_account' AND
-    permission.name = 'delete'
-)
-INSERT INTO role_resource_permission 
-  (role_id, resource_id, permission_id)
-SELECT role_id, resource_id, permission_id FROM rrp_ids;
-
-
-
 -- "any_chat_message"
 
 WITH rrp_ids AS (
