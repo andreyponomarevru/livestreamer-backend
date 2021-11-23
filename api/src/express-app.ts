@@ -32,7 +32,7 @@ const sessionParser = session(sess);
 
 expressApp.use(cors());
 expressApp.use((req, res, next) => {
-  logger.debug(req.headers);
+  // logger.debug(req.headers);
   next();
 });
 expressApp.use(sessionParser);
