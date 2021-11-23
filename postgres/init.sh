@@ -4,7 +4,7 @@
 
 echo "Initializing database: creating tables, views and seeding the database"
 
-# 1. Create tables
+# 1. Create and seed tables with the most basic data
 psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" \
   -f "/schema/tables.sql" \
   -f "/schema/views.sql" \
