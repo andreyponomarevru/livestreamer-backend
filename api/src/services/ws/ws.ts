@@ -5,7 +5,9 @@ import { logger } from "./../../config/logger";
 import { IntervalScheduler } from "./scheduler";
 import { WSClient, WSMsg, WSUserMsg } from "./../../types";
 
-function send<Data>(msg: WSMsg | WSUserMsg<Data>, reciever: WSClient): void {
+type Message<Data> = WSMsg | WSUserMsg<Data>;
+
+function send<Data>(msg: Message<Data>, reciever: WSClient): void {
   console.log(`${__filename} [send] ${msg}`);
 
   if (reciever) {
@@ -27,14 +29,16 @@ function sendToAll<Data>(
   }
 }
 
+// TODO: too complex function signature, simplify it. Maybe move some functionality to separate function to decrease the number of arguments and the voerall complexity.
 function sendToAllExceptSender<Data>(
-  msg: WSMsg | WSUserMsg<Data>,
+  msg: Message<Data>,
   { senderUUID }: { senderUUID: string },
   recievers: WSClient[],
 ): void {
   for (const client of recievers) {
-    if (senderUUID && senderUUID !== client.uuid)
+    if (senderUUID && senderUUID !== client.uuid) {
       client.socket.send(JSON.stringify(msg));
+    }
   }
 }
 
