@@ -26,11 +26,3 @@ then
 else
   echo -ne "Invalid argument. Allowed values are: 'dev', 'test', 'prod'\n\n"
 fi
-
-#
-#
-#
-
-echo "Run PostgreSQL migrations..."
-
-source migrate.sh
