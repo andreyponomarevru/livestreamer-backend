@@ -14,14 +14,22 @@ const ENCODED_NEXT_CURSOR = "MTk5NS0xMi0xN1QwMDoyNDowMC4wMDBaLDE=";
 describe("Handle database cursors", () => {
   describe("decodeNextPageCursor function", function () {
     it("returns an object containing db record's timestamp and id", function () {
-      expect(decodeNextPageCursor(ENCODED_NEXT_CURSOR)).toStrictEqual({
+      // Act
+      const decodedCursor = decodeNextPageCursor(ENCODED_NEXT_CURSOR);
+
+      // Assert
+      expect(decodedCursor).toStrictEqual({
         timestampCursor: DB_RECORD_TIMESTAMP,
         idCursor: 1,
       });
     });
 
     it("returns an object containing 'undefined' values if no argument has been passed", function () {
-      expect(decodeNextPageCursor()).toStrictEqual({
+      // Act
+      const decodedCursor = decodeNextPageCursor();
+
+      // Assert
+      expect(decodedCursor).toStrictEqual({
         timestampCursor: undefined,
         idCursor: undefined,
       });
@@ -38,9 +46,14 @@ describe("Handle database cursors", () => {
 
   describe("encodeNextPageCursor function", function () {
     it("returns encoded cursor as a string", function () {
-      expect(encodeNextPageCursor(DB_RECORD_TIMESTAMP, DB_RECORD_ID)).toEqual(
-        ENCODED_NEXT_CURSOR,
+      // Act
+      const encodedCursor = encodeNextPageCursor(
+        DB_RECORD_TIMESTAMP,
+        DB_RECORD_ID,
       );
+
+      // Assert
+      expect(encodedCursor).toEqual(ENCODED_NEXT_CURSOR);
     });
   });
 });
