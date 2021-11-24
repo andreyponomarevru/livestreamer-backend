@@ -29,7 +29,7 @@ const logFormat = printf(({ level, message, label, timestamp }) => {
 // TIP: to write logs to console isntead of file, remove "filename" key below and replace `transport.File` with `transport.Console`
 const consoleTransport = new transports.Console({
   level: "debug",
-  //filename: `${LOG_LOCATION}/${DEBUG_LOG_NAME}`,
+  // filename: `${LOG_LOCATION}/${DEBUG_LOG_NAME}`,
   format: combine(
     label({ label: APP_NAME }),
     timestamp(),
@@ -63,7 +63,7 @@ const infoFileTransport = new transports.File({
 
 function createTransports(env = "dev") {
   return env === "dev"
-    ? [consoleTransport]
+    ? [debugFileTransport]
     : [errorFileTransport, infoFileTransport];
 }
 
