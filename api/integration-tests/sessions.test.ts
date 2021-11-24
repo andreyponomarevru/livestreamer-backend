@@ -48,14 +48,14 @@ describe("Sign In and Sign Out", () => {
           expect(res.body).toStrictEqual({
             message: expect.any(String),
             moreInfo: expect.any(String),
-            statusCode: expect.any(Number),
+            status: 401,
+            statusText: expect.any(String),
           });
         });
     });
 
-    it("return 401 when the user has been already authenticated and sends the seconds request with valid credentials but without session attached", async () => {
-      throw new Error();
-      /*await request(httpServer)
+    it("return 401 when the user has been already authenticated and sends the seconds request with valid credentials but without session cookie attached", async () => {
+      await request(httpServer)
         .post("/sessions")
         .set("accept", "application/json")
         .set("content-type", "application/json")
@@ -69,9 +69,10 @@ describe("Sign In and Sign Out", () => {
           expect(res.body).toStrictEqual({
             message: expect.any(String),
             moreInfo: expect.any(String),
-            statusCode: expect.any(Number),
+            status: 401,
+            statusText: expect.any(String),
           });
-        });*/
+        });
     });
   });
 

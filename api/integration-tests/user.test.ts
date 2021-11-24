@@ -39,6 +39,7 @@ describe("GET /user", () => {
             username: expect.any(String),
             email: expect.any(String),
             id: expect.any(Number),
+            uuid: expect.any(String),
             permissions: expect.any(Object),
           },
         });
@@ -55,9 +56,10 @@ describe("GET /user", () => {
       .expect(401)
       .then((res) => {
         expect(res.body).toStrictEqual({
-          message: "Unauthorized",
-          moreInfo: "https://github.com/ponomarevandrey/",
-          statusCode: 401,
+          message: expect.any(String),
+          moreInfo: expect.any(String),
+          status: 401,
+          statusText: expect.any(String),
         });
       });
   });
@@ -72,9 +74,10 @@ describe("GET /user", () => {
       .expect(401)
       .then((res) => {
         expect(res.body).toStrictEqual({
-          message: "Unauthorized",
-          moreInfo: "https://github.com/ponomarevandrey/",
-          statusCode: 401,
+          message: expect.any(String),
+          moreInfo: expect.any(String),
+          status: 401,
+          statusText: expect.any(String),
         });
       });
   });

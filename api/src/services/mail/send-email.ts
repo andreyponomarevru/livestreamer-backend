@@ -3,7 +3,6 @@ import nodemailer, { SendMailOptions } from "nodemailer";
 import { config } from "../../config/mail";
 import { logger } from "../../config/logger";
 import SMTPTransport from "nodemailer/lib/smtp-transport";
-import { NODE_ENV } from "../../config/env";
 
 async function sendEmail(
   mailOptions: SendMailOptions,
@@ -22,5 +21,5 @@ export { sendEmail };
 export {
   createConfirmationEmail,
   createWelcomeEmail,
-  createResetPasswordEmail,
+  createPasswordResetEmail,
 } from "./email-templates";

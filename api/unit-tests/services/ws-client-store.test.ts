@@ -209,8 +209,8 @@ describe("WSClientStore class", () => {
     it("returns array of all clients sanitized", () => {
       // Arrange
       clientStore = new WSClientStore(new SchedulerMock());
-      const user1 = { uuid: uuidv4() } as WSClient;
-      const user2 = { uuid: uuidv4() } as WSClient;
+      const user1 = { username: "test", uuid: uuidv4() } as WSClient;
+      const user2 = { username: "test", uuid: uuidv4() } as WSClient;
       clientStore.addClient(user1);
       clientStore.addClient(user2);
 
