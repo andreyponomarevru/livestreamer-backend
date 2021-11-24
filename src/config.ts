@@ -1,7 +1,6 @@
 export const USERNAME = process.env.BROADCASTER_USERNAME;
 export const PASSWORD = process.env.BROADCASTER_PASSWORD;
 export const API_URL = "http://mix.ru:8000/api/v1";
-export const WS_SERVER_URL = "ws://localhost:5000/stream";
 export const STREAM_AUDIO_CONFIG = {
   encoding: "mp3",
   bitrate: "192k",
