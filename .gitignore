@@ -2,7 +2,9 @@
 # Project files
 #
 
-.code-workspace
+session-cookie
+recordings
+ws.code-workspace
 build/
 node_modules/
 package-lock.json
