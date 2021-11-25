@@ -1,48 +1,72 @@
-import { spawn } from "child_process";
+import util from "util";
 
 import { v4 as uuidv4 } from "uuid";
-import fs from "fs-extra";
 
-import { FFMPEG_ARGS } from "./config";
-import { startStream } from "./http-client";
-import { onUncaughtException, onUnhandledRejection } from "./process-handlers";
-import { signIn, signOut } from "./http-client";
+import { startStream, buildRequestOptions, signOut } from "./http-client";
+import { signIn } from "./http-client";
+import { writeStream } from "./utils";
+import { audioStream } from "./audio-process";
 
-async function start() {
-  const child = spawn("ffmpeg", FFMPEG_ARGS);
-  // Without piping to process.stderr, ffmpeg silently hangs
-  // after a few minutes
-  child.stderr.pipe(process.stderr);
-
-  //
-
-  await signIn();
-  const httpReq = await startStream();
-  process.on("SIGINT", async () => {
-    httpReq.end();
-    console.log("Broadcast is finished.\nConnections has been closed.");
-    await signOut();
-    process.exit(0);
-  });
-  // intercept Ctrl+C
-  process.on("uncaughtException", async () => {
-    httpReq.end();
-    console.error("Broadcast is finished.\nConnections has been closed.");
-    await signOut();
-    process.exit(1);
-  });
-
-  // Pass audio stream into request stream
-  child.stdout.pipe(httpReq);
-
-  // Write readable to disk i.e. push data into writable stream to save audio
-  const writableStream = fs.createWriteStream(`./recordings/${uuidv4()}.wav`);
-  child.stdout.pipe(writableStream);
+async function onCtrlC(): Promise<void> {
+  console.error("Broadcast is finished.\nConnection has been closed.");
+  process.exit(0);
 }
 
-process.on("uncaughtException", onUncaughtException);
-process.on("uncaughtException", signOut);
-process.on("unhandledRejection", onUnhandledRejection);
-process.on("unhandledRejection", signOut);
+async function onUncaughtException(err: Error): Promise<void> {
+  console.error(`uncaughtException: ${err.message} \n${err.stack}\n`);
+  process.exit(1);
+}
 
-start().catch(console.log);
+async function onUnhandledRejection(
+  reason: string,
+  p: Promise<Error>,
+): Promise<void> {
+  console.error(`UnhandledRejection: ${util.inspect(p)}, reason "${reason}"`);
+  process.exit(1);
+}
+
+async function startBroadcast() {
+  const options = await buildRequestOptions();
+  startStream(options);
+
+  setInterval(function () {
+    const timestamp = new Date().toISOString();
+    console.log(`Sending audio to server... ${timestamp}`);
+  }, 1000);
+}
+
+async function startApp(action?: string) {
+  switch (action) {
+    case "log-in": {
+      await signIn();
+      break;
+    }
+
+    case "stream": {
+      await startBroadcast();
+      SAVE_STREAM = args[1] === "save" ? true : false;
+      if (SAVE_STREAM) {
+        const saveTo = `./recordings/${uuidv4()}.wav`;
+        writeStream(audioStream.stdout, saveTo);
+      }
+      break;
+    }
+
+    case "log-out": {
+      await signOut();
+      break;
+    }
+    default:
+      process.exit(0);
+  }
+}
+
+process.on("SIGINT", onCtrlC);
+process.on("uncaughtException", onUncaughtException);
+process.on("unhandledRejection", onUnhandledRejection);
+
+const args = process.argv.slice(2);
+const ACTION = args[0];
+let SAVE_STREAM = false;
+
+startApp(ACTION).catch(console.error);
