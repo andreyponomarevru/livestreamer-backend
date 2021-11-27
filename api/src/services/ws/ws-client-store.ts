@@ -58,9 +58,7 @@ class WSClientStore extends EventEmitter {
       this.statsUpdatesScheduler.start(() => {
         this.emit("update_client_count", this.clientCount);
 
-        logger.debug(
-          `${__filename} =========== [update_client_count] ${this.clientCount}`,
-        );
+        logger.debug(`${__filename} [update_client_count] ${this.clientCount}`);
       }, STATS_MSG_TIME_INTERVAL);
     }
   }
