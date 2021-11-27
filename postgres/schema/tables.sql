@@ -124,8 +124,8 @@ ON
 
 CREATE TABLE IF NOT EXISTS appuser_setting (
   -- NOTE: `user setting_id` is used as PK because there may be settings allowing multiple values
-  PRIMARY KEY (user_setting_id),
-  user_setting_id               integer            GENERATED ALWAYS AS IDENTITY,
+  PRIMARY KEY (appuser_setting_id),
+  appuser_setting_id            integer            GENERATED ALWAYS AS IDENTITY,
   appuser_id                    integer            NOT NULL,
   setting_id                    integer            NOT NULL, 
   allowed_setting_value_id      integer            DEFAULT NULL,
