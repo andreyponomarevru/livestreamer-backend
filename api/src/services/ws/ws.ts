@@ -8,7 +8,7 @@ import { WSClient, WSMsg, WSUserMsg } from "./../../types";
 type Message<Data> = WSMsg | WSUserMsg<Data>;
 
 function send<Data>(msg: Message<Data>, reciever: WSClient): void {
-  console.log(`${__filename} [send] ${msg}`);
+  logger.info(`${__filename} [send] ${util.inspect(msg)}`);
 
   if (reciever) {
     reciever.socket.send(JSON.stringify(msg));
