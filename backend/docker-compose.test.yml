@@ -5,7 +5,7 @@ services:
     container_name: api
     build:
       context: ./api
-      dockerfile: ./docker/Dockerfile
+      dockerfile: ./docker/Dockerfile.test
     restart: "no"
     volumes:
       # set the same timezone and time same as on the host
