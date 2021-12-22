@@ -10,7 +10,7 @@
     "types": ["node"],
 
 
-    "rootDirs": ["unit-tests", "integration-tests"],
+    "rootDirs": ["_unit-tests_", "_integration-tests_"],
     "target": "es6",
     "module": "commonjs",
     "sourceMap": true,
@@ -30,7 +30,7 @@
     "useUnknownInCatchVariables": false
   },
   "compileOnSave": true,
-  "include": ["src/**/*", "unit-tests/**/*", "integration-tests/**/*"],
+  "include": ["src/**/*", "_unit-tests_/**/*", "_integration-tests_/**/*"],
   "exclude": ["node_modules"]
 }
 

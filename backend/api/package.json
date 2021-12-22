@@ -5,10 +5,10 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "serve:dev": "nodemon --watch ./unit-tests --watch ./src -e ts,json --exec 'npm run test:unit & TS_NODE_PROJECT=tsconfig.json node --inspect=0.0.0.0:9229 --require ts-node/register ./src/index.ts'",
-    "serve:test": "nodemon --watch ./integration-tests --watch ./src -e ts,json --exec 'npm run test:integration & TS_NODE_PROJECT=tsconfig.json node --inspect=0.0.0.0:9229 --require ts-node/register ./src/index.ts'",
+    "serve:dev": "nodemon --watch ./_unit-tests_ --watch ./src -e ts,json --exec 'npm run test:unit & TS_NODE_PROJECT=tsconfig.json node --inspect=0.0.0.0:9229 --require ts-node/register ./src/index.ts'",
+    "serve:test": "nodemon --watch ./_integration-tests_ --watch ./src -e ts,json --exec 'npm run test:integration & TS_NODE_PROJECT=tsconfig.json node --inspect=0.0.0.0:9229 --require ts-node/register ./src/index.ts'",
     "test:unit": "jest --detectOpenHandles unit-tests",
-    "test:integration": "jest --detectOpenHandles integration-tests",
+    "test:integration": "jest --detectOpenHandles _integration-tests_",
     "migrate": "node-pg-migrate"
   },
   "keywords": [
