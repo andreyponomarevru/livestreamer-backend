@@ -10,7 +10,7 @@ COPY package*.json ./
 COPY tsconfig*.json ./
 RUN npm install
 COPY ./src ./src
-CMD npm run build
+RUN npm run build
 
 #
 # Stage 2 (strip all things TypeScript from our image)
@@ -18,7 +18,7 @@ CMD npm run build
 
 FROM node:lts-alpine AS production_base
 
-WORKDIR /node
+WORKDIR /api
 
 COPY --from=js /api/package*.json ./
 COPY --from=js /api/build ./
@@ -29,7 +29,7 @@ RUN npm ci --only-production
 # Stage 3 (copy only the required files from stages above)
 #
 
-FROM gcr.io/distroless/nodejs:16 AS production
+FROM node:lts-alpine AS production
 
 WORKDIR /api
 

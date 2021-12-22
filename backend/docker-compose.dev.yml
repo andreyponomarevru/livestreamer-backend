@@ -2,9 +2,7 @@ version: "3.7"
 
 services:
   api:
-    container_name: api
     build:
-      context: ./api
       dockerfile: ./docker/Dockerfile.dev
     restart: always
     volumes:
@@ -15,6 +13,7 @@ services:
       - ./api/src:/api/src
       - ./api/_unit-tests_:/api/_unit-tests_
       - ./api/tsconfig.json:/api/tsconfig.json
+      - /api/node_modules
     # Publicly exposed ports
     ports:
       # Port for the app
