@@ -1,0 +1,36 @@
+{
+ "ts-node": {
+    "transpileOnly": true,
+    "files": true,
+    "compilerOptions": {
+    "rootDir": "."
+    }
+  },
+  "compilerOptions": {
+    "types": ["node"],
+
+
+    "rootDirs": ["unit-tests", "integration-tests"],
+    "target": "es6",
+    "module": "commonjs",
+    "sourceMap": true,
+    "outDir": "./build",
+    
+    "strict": true,
+    "moduleResolution": "node",
+    "noUnusedLocals": false,
+    "noImplicitReturns": true,
+    "noImplicitAny": true,
+    "noFallthroughCasesInSwitch": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowJs": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "useUnknownInCatchVariables": false
+  },
+  "compileOnSave": true,
+  "include": ["src/**/*", "unit-tests/**/*", "integration-tests/**/*"],
+  "exclude": ["node_modules"]
+}
+

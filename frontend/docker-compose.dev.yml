@@ -1,0 +1,28 @@
+version: "3.7"
+
+services:
+  client:
+    container_name: client
+    build:
+      context: ./client
+      dockerfile: ./docker/Dockerfile.dev
+    restart: always
+    volumes:
+      - ./client/:/client/
+      # Take note of the volume. Without the anonymous volume 
+      # ('/app/node_modules'), the 'node_modules' directory would be 
+      # overwritten by the mounting of the host directory at runtime. In other
+      # words, this would happen:
+      #
+      # - Build - The node_modules directory is created in the image.
+      # - Run - The current directory is mounted into the container, 
+      # overwriting the node_modules that were installed during the build.
+    env_file:
+      - ./client/docker/.dev.env
+    ports:
+      - "8080:8080"
+    networks:
+      - livestreamer
+networks:
+  livestreamer:
+    driver: bridge

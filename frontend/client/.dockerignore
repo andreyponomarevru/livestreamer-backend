@@ -1,0 +1,11 @@
+*.env
+*.md
+node_modules/
+npm-debug.log
+.git
+.gitignore
+Dockerfile*
+.prettierrc.js
+.eslintrc.js
+.eslintignore
+tsconfig.json

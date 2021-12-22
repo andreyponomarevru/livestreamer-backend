@@ -1,0 +1,46 @@
+version: "3.7"
+
+services:
+  api:
+    container_name: api
+    build:
+      context: ./api
+      dockerfile: ./docker/Dockerfile
+    restart: always
+    volumes:
+      # set the same timezone and time same as on the host
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      # Recompile code on changes
+      - ./api/src:/api/src
+      - ./api/tsconfig.json:/api/tsconfig.json
+    # Publicly exposed ports
+    ports:
+      - 5000:5000
+    env_file:
+      - ./api/docker/.common.env
+      - ./api/docker/.prod.env
+      - ./postgres/docker/.common.env
+      - ./postgres/docker/.prod.env
+    depends_on:
+      - streamerdb
+      - redis
+# TODO: if everything works fine, remove these lines
+#    external_links:
+#      - streamerdb
+#      - redis
+
+  streamerdb:
+    container_name: streamerdb
+    build:
+      context: ./postgres
+      dockerfile: ./docker/Dockerfile
+    restart: "no"
+    env_file:
+      - ./postgres/docker/.common.env
+      - ./postgres/docker/.prod.env
+    ports:
+      - 5432:5432
+    volumes:
+      # Persist data outside container
+      - ./postgres/postgres-data:/var/lib/postgresql/data

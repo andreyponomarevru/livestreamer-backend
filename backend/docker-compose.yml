@@ -1,0 +1,19 @@
+version: "3.7"
+
+services:
+  api:
+    container_name: api
+    build:
+      context: ./api
+      dockerfile: ./docker/Dockerfile
+      
+  redis:
+    container_name: redis
+    build:
+      context: ./redis
+      dockerfile: ./docker/Dockerfile
+    volumes:
+      - ./redis/redis_data/:/opt/redis_data
+      - ./redis/redis.conf:/redis.conf
+    ports:
+      - 6379:6379
