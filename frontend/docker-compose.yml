@@ -5,9 +5,5 @@ services:
     container_name: client
     build:
       context: ./client
-      dockerfile: ./docker/Dockerfile.prod
-    restart: always
-    volumes:
-      - ./client/:/client/
     env_file:
       - ./client/docker/.prod.env

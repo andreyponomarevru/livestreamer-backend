@@ -2,9 +2,7 @@ version: "3.7"
 
 services:
   client:
-    container_name: client
     build:
-      context: ./client
       dockerfile: ./docker/Dockerfile.dev
     restart: always
     volumes:
@@ -23,6 +21,7 @@ services:
       - "8080:8080"
     networks:
       - livestreamer
+      
 networks:
   livestreamer:
     driver: bridge
