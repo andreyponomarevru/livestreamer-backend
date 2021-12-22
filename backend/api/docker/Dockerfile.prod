@@ -1,0 +1,38 @@
+#
+# Stage 1 (compile TS to JS)
+#
+
+FROM node:lts-alpine AS js
+
+WORKDIR /api
+
+COPY package*.json ./
+COPY tsconfig*.json ./
+RUN npm install
+COPY ./src ./src
+CMD npm run build
+
+#
+# Stage 2 (strip all things TypeScript from our image)
+#
+
+FROM node:lts-alpine AS production_base
+
+WORKDIR /node
+
+COPY --from=js /api/package*.json ./
+COPY --from=js /api/build ./
+
+RUN npm ci --only-production
+
+#
+# Stage 3 (copy only the required files from stages above)
+#
+
+FROM gcr.io/distroless/nodejs:16 AS production
+
+WORKDIR /api
+
+COPY --from=production_base /api ./
+
+CMD ["index.js"]
