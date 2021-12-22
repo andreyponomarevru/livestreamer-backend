@@ -8,13 +8,13 @@ services:
       dockerfile: ./docker/Dockerfile.dev
     restart: always
     volumes:
-      # set the same timezone and time same as on the host
+      # set the container timezone to the time zone of host machine
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
       # Recompile code on changes
       - ./api/src:/api/src
+      - ./api/_unit-tests_:/api/_unit-tests_
       - ./api/tsconfig.json:/api/tsconfig.json
-      - ./api/unit-tests:/api/unit-tests
     # Publicly exposed ports
     ports:
       # Port for the app

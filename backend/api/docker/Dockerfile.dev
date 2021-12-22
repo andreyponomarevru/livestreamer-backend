@@ -4,6 +4,8 @@ WORKDIR /api
 
 COPY package*.json ./
 RUN npm install
-COPY ./src ./src
+# We copy the whole dir instead of only "./src" because otherwise directories
+# with test files won't be included
+COPY . .
 
 CMD npm run serve:dev
