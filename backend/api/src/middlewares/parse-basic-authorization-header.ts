@@ -3,9 +3,10 @@ import util from "util";
 import { Request, Response, NextFunction } from "express";
 
 import { logger } from "../config/logger";
+import { CustomRequest } from "../types";
 
 export function parseBasicAuthorizationHeader(
-  req: Request,
+  req: CustomRequest,
   res: Response,
   next: NextFunction,
 ): void {

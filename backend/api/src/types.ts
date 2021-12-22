@@ -1,4 +1,7 @@
+import { Request } from "express";
 import WebSocket from "ws";
+import { IncomingHttpHeaders } from "http";
+
 import { Permissions } from "./config/constants";
 
 //
@@ -209,3 +212,13 @@ export type CreateMsgLikeDBResponse = {
   chat_message_id: number;
   liked_by_user_id: number[];
 };
+
+//
+// Extended types
+//
+
+export interface CustomRequest extends Request {
+  headers: IncomingHttpHeaders & {
+    basicauth?: { schema: string; username: string; password: string };
+  };
+}

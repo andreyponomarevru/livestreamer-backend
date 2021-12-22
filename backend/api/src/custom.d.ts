@@ -9,9 +9,3 @@ declare global {
     }
   }
 }
-
-declare module "http" {
-  interface IncomingHttpHeaders {
-    basicauth: { schema: string; username: string; password: string };
-  }
-}
