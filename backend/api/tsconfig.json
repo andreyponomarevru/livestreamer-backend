@@ -1,21 +1,16 @@
 {
- "ts-node": {
-    "transpileOnly": true,
-    "files": true,
-    "compilerOptions": {
-    "rootDir": "."
-    }
+  "ts-node": {
+    "files": true
   },
   "compilerOptions": {
     "types": ["node"],
 
-
-    "rootDirs": ["_unit-tests_", "_integration-tests_"],
+    "rootDir": "./src",
     "target": "es6",
     "module": "commonjs",
     "sourceMap": true,
     "outDir": "./build",
-    
+
     "strict": true,
     "moduleResolution": "node",
     "noUnusedLocals": false,
@@ -33,4 +28,3 @@
   "include": ["src/**/*", "_unit-tests_/**/*", "_integration-tests_/**/*"],
   "exclude": ["node_modules"]
 }
-
