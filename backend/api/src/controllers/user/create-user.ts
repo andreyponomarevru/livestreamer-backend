@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 
 import * as userService from "../../services/user/user";
 import { HttpError } from "../../utils/http-error";
+import { CustomRequest } from "../../types";
 
 type CreateUserReqBody = { email: string };
 
@@ -10,11 +11,16 @@ export async function createUser(
     Record<string, unknown>,
     Record<string, unknown>,
     CreateUserReqBody
-  >,
+  > &
+    CustomRequest,
   res: Response,
   next: NextFunction,
 ): Promise<void> {
   try {
+    if (!req.headers.basicauth?.username || !req.headers.basicauth?.password) {
+      throw new HttpError({ code: 400 });
+    }
+
     const username = req.headers.basicauth.username;
     const email = req.body.email;
 
@@ -27,8 +33,8 @@ export async function createUser(
 
     // TODO: don't hard code role id, pass it as a string like 'listener', trwite SQL to insert based on this string instead of id
     await userService.createUser({
-      username: req.headers.basicauth.username,
-      password: req.headers.basicauth.password,
+      username: req.headers.basicauth?.username,
+      password: req.headers.basicauth?.password,
       email: req.body.email,
       roleId: 2,
       isEmailConfirmed: false,
