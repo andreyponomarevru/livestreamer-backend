@@ -77,7 +77,7 @@ const errorFileTransport = new transports.File({
 });
 
 const logger = createLogger({
-  transports: [...createTransports(NODE_ENV)],
+  transports: [...createTransports(NODE_ENV), consoleTransport],
   exitOnError: false, // do not exit on uncaughtException
 });
 
