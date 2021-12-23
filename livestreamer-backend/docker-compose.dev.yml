@@ -6,25 +6,19 @@ services:
       dockerfile: ./docker/Dockerfile.dev
     restart: always
     volumes:
-      # set the container timezone to the time zone of host machine
-      - /etc/timezone:/etc/timezone:ro
-      - /etc/localtime:/etc/localtime:ro
       # Recompile code on changes
       - ./api/src:/api/src
       - ./api/_unit-tests_:/api/_unit-tests_
       - ./api/tsconfig.json:/api/tsconfig.json
       - /api/node_modules
-    # Publicly exposed ports
     ports:
       # Port for the app
       - 5000:8080
       # node.js process is listening for a debugging client on
       - 9230:9229
-    # Ports not exposed publicly i.e. to host machine
-    # (they are only exposed to other services)
     expose:
-      # Node.js application server
-      - 5001
+      # Port for the app
+      - 5000
     env_file:
       - ./api/docker/.common.env
       - ./api/docker/.dev.env
@@ -32,7 +26,7 @@ services:
       - ./postgres/docker/.dev.env
     depends_on:
       - devdb
-      - redis
+      - devredis
     networks:
       - frontend_livestreamer
 
@@ -48,18 +42,24 @@ services:
     ports:
       - 54324:5432
     # volumes:
-      # - ./postgres/init.sh:/docker-entrypoint-initdb.d/init.sh
-      # Files used by init.sh script
-      #- ./postgres/schema:/schema
-      #- ./postgres/seeds:/seeds
+    # Persist data outside container (useful if you need to edit config files)
+    # - ./postgres/postgres-data:/var/lib/postgresql/data
+    networks:
+      - frontend_livestreamer  
+
+  devredis:
+    container_name: redis
+    build:
+      context: ./redis
+      dockerfile: ./docker/Dockerfile
+    #volumes:
+    # Persist data outside container (useful if you need to edit config files)
+    #  - ./redis/redis.conf:/redis.conf
+    ports:
+      - 6379:6379
     networks:
       - frontend_livestreamer
 
-  redis:
-    container_name: redis
-    networks:
-      - frontend_livestreamer      
-      
 networks:
   frontend_livestreamer:
     external: true

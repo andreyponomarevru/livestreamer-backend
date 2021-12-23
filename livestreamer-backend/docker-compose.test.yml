@@ -8,23 +8,17 @@ services:
       dockerfile: ./docker/Dockerfile.test
     restart: "no"
     volumes:
-      # set the container timezone to the time zone of host machine
-      - /etc/timezone:/etc/timezone:ro
-      - /etc/localtime:/etc/localtime:ro
       # Recompile code on changes
       - ./api/src:/api/src
       - ./api/tsconfig.json:/api/tsconfig.json
       - ./api/_integration-tests_:/api/_integration-tests_
-    # Publicly exposed ports
     ports:
       # Port for the app
       - 5001:8080
       # node.js process is listening for a debugging client on
       - 9230:9229      
-    # Ports not exposed publicly i.e. to host machine
-    # (they are only exposed to other services)
     expose:
-      # Node.js application server
+      # Port for the app
       - 5001
     env_file:
       - ./api/docker/.common.env
@@ -33,7 +27,7 @@ services:
       - ./postgres/docker/.test.env
     depends_on:
       - testdb
-      - redis
+      - testredis
     networks:
       - frontend_livestreamer
 
@@ -46,16 +40,16 @@ services:
       - ./postgres/docker/.test.env
     ports:
       - 54323:5432
-    volumes:
-      - ./postgres/init.sh:/docker-entrypoint-initdb.d/init.sh
-      # Files used by init.sh script
-      - ./postgres/schema:/schema
-      - ./postgres/seeds:/seeds
     networks:
       - frontend_livestreamer
 
-  redis:
+  testredis:
     container_name: redis
+    build:
+      context: ./redis
+      dockerfile: ./docker/Dockerfile
+    ports:
+      - 6379:6379
     networks:
       - frontend_livestreamer
       
