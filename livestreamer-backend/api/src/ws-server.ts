@@ -14,12 +14,12 @@ import {
   onStreamLike,
   onStreamStart,
   sendBroadcastState,
-} from "./services/ws/ws-events";
+} from "./services/ws/ws-event-handlers";
 import {
   onAddClient,
   onDeleteClient,
   onUpdateClientCount,
-} from "./services/ws/ws-events";
+} from "./services/ws/ws-event-handlers";
 import * as chatService from "./services/chat/chat";
 import * as streamService from "./services/stream/stream";
 import { clientStore } from "./services/ws/ws";
