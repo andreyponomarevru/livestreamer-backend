@@ -33,11 +33,11 @@ if (env.NODE_ENV === "production") {
 const sessionParser = session(sess);
 
 expressApp.use(cors());
+expressApp.use(sessionParser);
 expressApp.use((req, res, next) => {
-  // logger.debug(req.headers);
+  logger.debug(req.headers);
   next();
 });
-expressApp.use(sessionParser);
 expressApp.use(morganLogger("combined", morganSettings));
 expressApp.use(express.json());
 expressApp.use(express.urlencoded({ extended: true }));
