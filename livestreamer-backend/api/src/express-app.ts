@@ -26,7 +26,9 @@ const expressApp = express();
 expressApp.set("port", HTTP_PORT);
 // If the Node app is behind a proxy (like Nginx), we have to set
 // proxy to true (more precisely to 'trust first proxy')
-if (env.NODE_ENV === "production") expressApp.set("trust proxy", 1);
+if (env.NODE_ENV === "production") {
+  expressApp.set("trust proxy", 1);
+}
 // Save in var in order to use it for WebSocket Upgrade request authentication:
 const sessionParser = session(sess);
 
