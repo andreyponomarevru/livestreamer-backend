@@ -84,20 +84,57 @@ Some screenshots (just to give you an idea of how the app looks in different sta
 
 
 
-## CI/CD, deployment
+## CI/CD
 
-Reverse proxy, frontend and backend are all deployed independently. 
+The app is comprised of the three main parts:
+* **Reverse proxy** (installed directly on VPS)
+* **Frontend (React.js app)** (currently deployed manually)
+* **Backend (Node.js app, PostgreSQL and Redis)** (deployed using Docker Compose + GitHub Actions)
 
-Reverse proxy is located in [separate repo](https://github.com/ponomarevandrey/simple-cloud-nginx).
+<del>Reverse proxy is located in [separate repo](https://github.com/ponomarevandrey/simple-cloud-nginx).</del>
 
 Frontend and backend as well as all database containers are all located in this repo.
 
+
+
+### Manual Deployment
+
+1. **Uncomment these lines *for each service* in `docker-compose.prod.yml`**
+   ```yml
+   build:
+     context: ...
+     dockerfile: ...
+   ```
+2. **Build production images of all services**
+   ```shell
+   cd livestreamer-backend
+   docker-compose -f docker-compose.yml -f docker-compose.prod.yml build
+   ```
+3. **Comment out the lines we've uncommented at step 1 again**; otherwise when you'll have this files copied to your server and passed to `docker-compose up -f ...`, Compose will build images localy using Dockerfiles instead of pulling the images from Docker Hub. This eventually won't allow us to set up CI/CD with GitHub Actions.
+
+4. **Authenticate to Docker Hub**
+   ```shell
+   docker login
+   ```
+
+5. **Push all images to Docker Hub**
+   ```shell
+   docker push ponomarevandrey/livestreamer-backend_api
+   docker push ponomarevandrey/livestreamer-backend_redis
+   docker push ponomarevandrey/livestreamer-backend_db
+   ```
+6. SSH into VPS and ... (check out my article on CI/CD, "Manual Deployment" section, from bullet point four and on).
+
+
+
+### Automated Deployment (CI/CD using GitHub Actions)
+
 The CI/CD pipeline is implemented using GitHub Actions. Here is the workflow logic. On every push:
+
 1. run tests
 2. build and upload images to DockerHub
 3. pull images from DockerHub to app server
 4. start the app using Docker Compose
-
 
 
 
