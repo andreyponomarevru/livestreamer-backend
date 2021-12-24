@@ -12,6 +12,7 @@ _source/
 *.env
 build
 dist
+docker-hub-password.txt
 
 !.gitignore
 !.gitattributes
