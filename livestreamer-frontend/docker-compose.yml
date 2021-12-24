@@ -5,5 +5,3 @@ services:
     container_name: client
     build:
       context: ./client
-    env_file:
-      - ./client/docker/.prod.env

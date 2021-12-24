@@ -3,6 +3,7 @@ version: "3.7"
 services:
   api:
     build:
+      context: ./api
       dockerfile: ./docker/Dockerfile.dev
     restart: always
     volumes:
@@ -28,7 +29,7 @@ services:
       - devdb
       - devredis
     networks:
-      - frontend_livestreamer
+      - livestreamer_backend
 
   devdb:
     container_name: devdb
@@ -45,7 +46,7 @@ services:
     # Persist data outside container (useful if you need to edit config files)
     # - ./postgres/postgres-data:/var/lib/postgresql/data
     networks:
-      - frontend_livestreamer  
+      - livestreamer_backend
 
   devredis:
     container_name: redis
@@ -58,8 +59,9 @@ services:
     ports:
       - 6379:6379
     networks:
-      - frontend_livestreamer
+      - livestreamer_backend
 
 networks:
-  frontend_livestreamer:
-    external: true
+  livestreamer_backend:
+    name: livestreamer_backend
+    driver: bridge

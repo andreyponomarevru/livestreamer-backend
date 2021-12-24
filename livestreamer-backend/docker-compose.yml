@@ -3,8 +3,6 @@ version: "3.7"
 services:
   api:
     container_name: api
-    build:
-      context: ./api
     volumes:
       # set the container timezone to the time zone of host machine
       - /etc/timezone:/etc/timezone:ro

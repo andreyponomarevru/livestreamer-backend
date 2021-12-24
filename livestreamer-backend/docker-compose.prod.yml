@@ -3,6 +3,10 @@ version: "3.7"
 services:
   api:
     container_name: api
+    image: ponomarevandrey/livestreamer-backend_api:latest
+    # Uncomment to build the image for the first-time deployment (i.e. to 
+    # upload to Docker Hub) or if you want to run prod env on local machine 
+    # instead of VPS
     build:
       context: ./api
       dockerfile: ./docker/Dockerfile.prod
@@ -19,10 +23,14 @@ services:
       - redis
 
   db:
-    container_name: streamer_db
-    build:
-      context: ./postgres
-      dockerfile: ./docker/Dockerfile
+    image: ponomarevandrey/livestreamer-backend_db:latest
+    container_name: db
+    # Uncomment to build the image for the first-time deployment (i.e. to 
+    # upload to Docker Hub) or if you want to run prod env on local machine 
+    # instead of VPS
+    #build:
+    #  context: ./postgres
+    #  dockerfile: ./docker/Dockerfile
     restart: always
     env_file:
       - ./postgres/docker/.common.env
@@ -31,9 +39,13 @@ services:
       - 5432:5432
       
   redis:
+    image: ponomarevandrey/livestreamer-backend_redis:latest
     container_name: redis
-    build:
-      context: ./redis
-      dockerfile: ./docker/Dockerfile
+    # Uncomment to build the image for the first-time deployment (i.e. to 
+    # upload to Docker Hub) or if you want to run prod env on local machine 
+    # instead of VPS
+    #build:
+    #  context: ./redis
+    #  dockerfile: ./docker/Dockerfile
     ports:
       - 6379:6379
