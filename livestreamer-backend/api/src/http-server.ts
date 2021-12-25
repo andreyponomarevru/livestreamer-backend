@@ -1,5 +1,6 @@
 import { Socket } from "net";
 import http from "http";
+import util from "util";
 
 import { v4 as uuidv4 } from "uuid";
 import { Request, Response } from "express";
@@ -49,8 +50,14 @@ async function onServerUpgrade(
   logger.debug("WS Server parsing session from request...");
 
   sessionParser(req, {} as Response, () => {
+    logger.debug(
+      `${__filename} onServerUpgrade > sessionParser: ${util.inspect(
+        req.session,
+      )}`,
+    );
+
     if (req.session && req.session.authenticatedUser) {
-      logger.debug(`${__filename} [upgrade] User successfully authenticated`);
+      logger.info(`${__filename} [upgrade] User successfully authenticated`);
 
       const username = req.session.authenticatedUser.username;
       const id = req.session.authenticatedUser.id;
@@ -67,7 +74,7 @@ async function onServerUpgrade(
         );
       });
     } else {
-      logger.debug(`${__filename}: [upgrade] User is not authenticated.`);
+      logger.info(`${__filename}: [upgrade] User is not authenticated.`);
       // Add unauthenticated users to the store too, to be able to track the total number of opened connections
       wsServer.handleUpgrade(req, socket, head, (newSocket) => {
         handleUpgrade(new WSChatClient({ uuid: uuidv4(), socket: newSocket }));
