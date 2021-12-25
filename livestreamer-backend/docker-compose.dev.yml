@@ -18,8 +18,8 @@ services:
       # node.js process is listening for a debugging client on
       - 9230:9229
     expose:
-      # Port for the app
-      - 5000
+      # Port for the app (i.e. webpack dev server port)
+      - 8080
     env_file:
       - ./api/docker/.common.env
       - ./api/docker/.dev.env
