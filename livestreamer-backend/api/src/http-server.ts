@@ -51,6 +51,9 @@ async function onServerUpgrade(
 
   sessionParser(req, {} as Response, () => {
     logger.debug(
+      `${__filename} onServerUpgrade > sessionParser: session ID is ${req.sessionID}`,
+    );
+    logger.debug(
       `${__filename} onServerUpgrade > sessionParser: ${util.inspect(
         req.session,
       )}`,
