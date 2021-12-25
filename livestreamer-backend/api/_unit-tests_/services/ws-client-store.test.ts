@@ -1,3 +1,5 @@
+process.env.NODE_ENV = "test"; // supress logging
+
 import { jest, describe, it, expect } from "@jest/globals";
 
 import { v4 as uuidv4 } from "uuid";

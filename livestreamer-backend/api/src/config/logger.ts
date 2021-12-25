@@ -27,16 +27,15 @@ const logFormat = printf(({ level, message, label, timestamp }) => {
 
 // Write all logs with level 'debug' and below to file
 // TIP: to write logs to console isntead of file, remove "filename" key below and replace `transport.File` with `transport.Console`
-const consoleTransport = new transports.Console({
+const debugConsoleTransport = new transports.Console({
   level: "debug",
-  // filename: `${LOG_LOCATION}/${DEBUG_LOG_NAME}`,
   format: combine(
     label({ label: APP_NAME }),
     timestamp(),
     colorize({ all: true }),
     logFormat,
   ),
-  silent: false,
+  silent: NODE_ENV === "test",
 });
 
 const debugFileTransport = new transports.File({
@@ -48,7 +47,7 @@ const debugFileTransport = new transports.File({
     colorize({ all: true }),
     logFormat,
   ),
-  silent: true,
+  silent: NODE_ENV === "development" || NODE_ENV === "test",
 });
 
 // Write all logs with level 'info' and below to INFO_LOG_NAME
@@ -58,14 +57,8 @@ const infoFileTransport = new transports.File({
   maxsize: 5242880, // 5MB
   maxFiles: 2,
   format: combine(label({ label: APP_NAME }), timestamp(), logFormat),
-  silent: true,
+  silent: NODE_ENV !== "test",
 });
-
-function createTransports(env = "dev") {
-  return env === "dev"
-    ? [debugFileTransport]
-    : [errorFileTransport, infoFileTransport];
-}
 
 // Write all logs with level 'error' and below to file
 const errorFileTransport = new transports.File({
@@ -76,8 +69,12 @@ const errorFileTransport = new transports.File({
   format: combine(label({ label: APP_NAME }), timestamp(), logFormat),
 });
 
+function createTransports(env = "development") {
+  return env === "development" ? [debugConsoleTransport] : [debugFileTransport];
+}
+
 const logger = createLogger({
-  transports: [...createTransports(NODE_ENV), consoleTransport],
+  transports: [...createTransports(NODE_ENV)],
   exitOnError: false, // do not exit on uncaughtException
 });
 

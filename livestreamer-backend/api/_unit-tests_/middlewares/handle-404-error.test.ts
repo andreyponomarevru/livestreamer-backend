@@ -1,3 +1,5 @@
+process.env.NODE_ENV = "test";
+
 import { Request, Response } from "express";
 import { jest, describe, it, expect } from "@jest/globals";
 
