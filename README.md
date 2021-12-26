@@ -84,20 +84,18 @@ Some screenshots (just to give you an idea of how the app looks in different sta
 
 
 
-## CI/CD
+## Deployment
 
 The app is comprised of the three main parts:
 * **Reverse proxy** (installed directly on VPS)
 * **Frontend (React.js app)** (currently deployed manually)
-* **Backend (Node.js app, PostgreSQL and Redis)** (deployed using Docker Compose + GitHub Actions)
-
-<del>Reverse proxy is located in [separate repo](https://github.com/ponomarevandrey/simple-cloud-nginx).</del>
-
-Frontend and backend as well as all database containers are all located in this repo.
-
-
+* **Backend (Node.js app, PostgreSQL and Redis)** (currently deployed manually) 
 
 ### Manual Deployment
+
+**Frontend** — to update frontend (React app), just run `livestreamer-frontend/build-and-deploy.sh` script.
+
+**Backend** — to update backend (only `api` container i.e. Express.js app):
 
 1. **Uncomment these lines *for each service* in `docker-compose.prod.yml`**
    ```yml
@@ -123,18 +121,8 @@ Frontend and backend as well as all database containers are all located in this 
    docker push ponomarevandrey/livestreamer-backend_redis
    docker push ponomarevandrey/livestreamer-backend_db
    ```
-6. SSH into VPS and ... (check out my article on CI/CD, "Manual Deployment" section, from bullet point four and on).
+6. **SSH into VPS** and ... (refer my article on CI/CD, "Manual Deployment" section, from bullet point four and on).
 
-
-
-### Automated Deployment (CI/CD using GitHub Actions)
-
-The CI/CD pipeline is implemented using GitHub Actions. Here is the workflow logic. On every push:
-
-1. run tests
-2. build and upload images to DockerHub
-3. pull images from DockerHub to app server
-4. start the app using Docker Compose
 
 
 
