@@ -32,6 +32,10 @@ function ChatControls(props: Props): React.ReactElement {
     if (trimmedMsg.length > 0 && trimmedMsg.length < 500) {
       sendMessage(trimmedMsg);
     }
+
+    // Hide keyboard on mobile devices
+    const input = document.getElementById("chat-message");
+    input?.blur();
   }
 
   const [msgInput, setMsgInput] = React.useState("");
