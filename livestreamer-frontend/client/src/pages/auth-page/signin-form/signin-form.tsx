@@ -57,6 +57,7 @@ function SignInForm(
       const user = signInResponse.response.body.results;
       setUser(user);
       navigate(ROUTES.root);
+      window.location.reload();
     }
   }, [isMounted, signInResponse]);
 
