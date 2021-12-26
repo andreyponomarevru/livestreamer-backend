@@ -1,3 +1,5 @@
+import util from "util";
+
 import { Request, Response, NextFunction } from "express";
 import { v4 as uuidv4 } from "uuid";
 
@@ -5,7 +7,8 @@ import * as authService from "../../services/authn/authn";
 import * as userService from "../../services/user/user";
 import { HttpError } from "../../utils/http-error";
 import { logger } from "../../config/logger";
-import { SanitizedUser } from "../../types";
+import { SanitizedUser, WSClient } from "../../types";
+import * as wsService from "../../services/ws/ws";
 import { sanitizeUser } from "../../models/user/sanitize-user";
 
 type CreateSessionReqBody = {
@@ -82,7 +85,7 @@ export async function createSession(
       logger.debug(
         `${__filename} [createSession] User ${user.username} is authenticated and saved in session`,
       );
-      logger.debug(user);
+      logger.debug(`${__filename} [createSession] ${util.inspect(user)}`);
 
       res.status(200).json({ results: sanitizeUser(user) });
     } else {
