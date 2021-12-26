@@ -35,7 +35,10 @@ function useStreamLikeButton(): StreamLikeButton {
       resetState();
       setLikeCount((likeCount) => ++likeCount);
       setIsBtnEnabled(false);
-    } else if (likeBroadcastResponse.error) {
+    } else if (likeBroadcastResponse.error?.status === 401) {
+      auth.setUser(null);
+      navigate(ROUTES.signIn);
+    } else {
       console.error(likeBroadcastResponse.error);
     }
   }, [likeBroadcastResponse]);

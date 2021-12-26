@@ -4,6 +4,8 @@ import { hasPermission } from "../utils/has-permission";
 import { API_ROOT_URL } from "../config/env";
 import { useAuthN } from "./use-authn";
 import { useFetch } from "./use-fetch";
+import { useNavigate } from "react-router";
+import { ROUTES } from "../config/routes";
 
 function useDeleteMessage(deleteMessage: (id: number) => void) {
   function handleDeleteMessage(msg: { messageId: number; userId: number }) {
@@ -30,6 +32,7 @@ function useDeleteMessage(deleteMessage: (id: number) => void) {
     }
   }
 
+  const navigate = useNavigate();
   const auth = useAuthN();
 
   const [deletedMessageId, setDeletedMessageId] = React.useState<number>();
@@ -38,6 +41,9 @@ function useDeleteMessage(deleteMessage: (id: number) => void) {
   React.useEffect(() => {
     if (deleteMessageRes.response && deletedMessageId) {
       deleteMessage(deletedMessageId);
+    } else if (deleteMessageRes.error?.status === 401) {
+      auth.setUser(null);
+      navigate(ROUTES.signIn);
     }
   }, [deleteMessageRes, deletedMessageId]);
 
