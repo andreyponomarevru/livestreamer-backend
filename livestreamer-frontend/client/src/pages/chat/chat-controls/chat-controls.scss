@@ -47,10 +47,6 @@
   cursor: pointer;
   padding: 0.3rem 0.5rem 0.2rem 0.5rem;
 
-  &:active {
-    // background-color: $color_gray-darken;
-  }
-
   // enable ':hover' only on non-touch devices
   @media (hover: hover) and (pointer: fine) {
     &:hover &__icon {
