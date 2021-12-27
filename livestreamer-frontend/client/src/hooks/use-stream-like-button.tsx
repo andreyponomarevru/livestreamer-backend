@@ -38,7 +38,7 @@ function useStreamLikeButton(): StreamLikeButton {
     } else if (likeBroadcastResponse.error?.status === 401) {
       auth.setUser(null);
       navigate(ROUTES.signIn);
-    } else {
+    } else if (likeBroadcastResponse.error) {
       console.error(likeBroadcastResponse.error);
     }
   }, [likeBroadcastResponse]);
