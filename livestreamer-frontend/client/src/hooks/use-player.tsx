@@ -11,23 +11,32 @@ function usePlayer(url: string): Player {
   }
 
   React.useEffect(() => {
+    if (audio && isPlaying) audio.play();
+  }, [audio]);
+
+  React.useEffect(() => {
     if (isPlaying) {
-      if (!audio) setAudio(new Audio(url));
+      if (audio === null) {
+        setAudio(new Audio(url));
+      }
       const audioPromise = audio?.play();
       if (audioPromise !== undefined) {
         audioPromise.catch((err) => console.error(err));
       }
     } else {
       audio?.pause();
+      if (audio) {
+        // Without this block, after pressing the "play" button again, instead of picking up a current live audio stream, the player will play the old audio starting from the position when you first had clicked "play"
+        audio.removeAttribute("src");
+        audio.load();
+      }
       setAudio(null);
     }
-  }, [audio, isPlaying]);
-
-  React.useEffect(() => {
-    if (audio) audio.play();
-  }, [audio]);
+  }, [audio, isPlaying, url]);
 
   return { isPlaying, togglePlay };
 }
 
 export { usePlayer };
+
+//(audio && audio.readyState >= 3)
