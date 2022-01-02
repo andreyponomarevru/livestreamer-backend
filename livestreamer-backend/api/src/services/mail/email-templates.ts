@@ -1,6 +1,11 @@
 import { SendMailOptions } from "nodemailer";
 
-import { MAIL_FROM_EMAIL } from "../../config/env";
+import {
+  MAIL_FROM_EMAIL,
+  EMAIL_CONFIRMATION_LINK,
+  SIGN_IN_LINK,
+  SUBMIT_NEW_PASSWORD_LINK,
+} from "../../config/env";
 import Mail from "nodemailer/lib/mailer";
 
 type MailConfirmationEmail = {
@@ -25,13 +30,13 @@ function createConfirmationEmail({
   email,
   userToken,
 }: MailConfirmationEmail): Mail.Options {
-  const emailConfirmationlink = `http://mix.ru:8000/#/confirm-registration?token=${userToken}`;
+  const emailConfirmationlink = `${EMAIL_CONFIRMATION_LINK}?token=${userToken}`;
 
   const options: SendMailOptions = {
     from: MAIL_FROM_EMAIL,
     to: email,
     subject: "Confirm your email",
-    html: `<h1>Email Confirmation</h1>
+    html: `<h1>Confirm your email</h1>
         <p>Hi ${username}.</p>
 				<p>
 					Thanks for registering. Please confirm your email by clicking <a href="${emailConfirmationlink}">here</a>.
@@ -43,7 +48,7 @@ function createConfirmationEmail({
 }
 
 function createWelcomeEmail({ username, email }: WelcomeEmail): Mail.Options {
-  const signInLink = "http://mix.ru:8000";
+  const signInLink = SIGN_IN_LINK;
 
   const options: SendMailOptions = {
     from: MAIL_FROM_EMAIL,
@@ -61,13 +66,13 @@ function createPasswordResetEmail({
   token,
 }: ResetPasswordTokenEMail): Mail.Options {
   // Link to react app, not to API
-  const resetPasswordLink = `http://mix.ru:8000/#/password-reset?token=${token}`;
+  const submitNewPasswordLink = `${SUBMIT_NEW_PASSWORD_LINK}?token=${token}`;
 
   const options: SendMailOptions = {
     from: MAIL_FROM_EMAIL,
     to: email,
     subject: "Reset Password",
-    html: `<p>To reset your password, click <a href="${resetPasswordLink}">here</a>.</p>`,
+    html: `<p>To reset your password, click <a href="${submitNewPasswordLink}">here</a>.</p>`,
     replyTo: MAIL_FROM_EMAIL,
   };
 
