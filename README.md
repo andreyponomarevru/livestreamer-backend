@@ -1,13 +1,17 @@
 # LiveStreamer
 
 * [About](#about)
-* [Stack](#stack)
-* [Backend](#backend)
-* [Frontend](#frontend)
-* [App Architecture](#app-architecture)
-* [CI/CD, deployment]
-* [How it works (high-level overview)](#how-it-works-high-level-overview)
-* [How it works (low-level overview)](#how-it-works-low-level-overview)
+  * [Stack](#stack)
+  * [Backend](#backend)
+  * [Frontend](#frontend)
+  * [App Architecture](#app-architecture)
+  * [Database Schema](#database-schema)
+* [How it works](#how-it-works)
+  * [High-level overview](#high-level-overview)
+  * [Low-level overview](#low-level-overview)
+* [Deployment](#deployment)
+  * [Frontend](#frontend-1)
+  * [Backend](#backend-1)
 * [Current Development Status](#current-development-status)
 
 
@@ -24,8 +28,6 @@ Suppose you're a dj and you want to broadcast your mix live. All you need to do 
 
 * **backend:** TypeScript, Node.js (Express.js), PostgreSQL (raw SQL, without ORM), Redis
 * **frontend:** React.js, SASS
-
-Deployed with Docker using GitHub Actions.
 
 
 
@@ -65,6 +67,25 @@ Some screenshots (just to give you an idea of how the app looks in different sta
 
 ## App Architecture
 
+The app is comprised of the two main parts:
+
+* `livestreamer-backend/` — **Docker Compose project for the application backend.**
+  * `api/` service — Node.js REST API
+  * `postgres/` service — application main database, PostgreSQL
+  * `redis/` service — used as cache and storage for the real-time data
+  * `nginx` — this directory is NOT a part of Docker Compose project, Nginx is deployed manually by copying config files from this directory to server.
+  
+* `livestreamer-frontend/`. **Docker Compose project for the application frontend.**
+  * `client/` service — React.js app. Run this container only in development environment.
+
+There are 3 environments set up in Compose:
+
+* production
+* development
+* test (not configured yet)
+
+---
+
 ```
                                                         chat over WebSocket + HTTP
             auido stream over HTTPS/1.1           audio stream over HTTP WebSocket
@@ -77,53 +98,6 @@ Some screenshots (just to give you an idea of how the app looks in different sta
 
 ![](./doc/architecture.png)
 
-> There is only one difference between development and production environment — the presence of `client` container:
->
-> * in the dev environment, React app runs in a separate `client` container and is served by `webpack-dev-server`
-> * in production, I don't use the `client` container but serve the React app directly with Nginx instead i.e. I put all Webpack output into the `nginx` container
-
-
-
-## Deployment
-
-The app is comprised of the three main parts:
-* **Reverse proxy** (installed directly on VPS)
-* **Frontend (React.js app)** (currently deployed manually)
-* **Backend (Node.js app, PostgreSQL and Redis)** (currently deployed manually) 
-
-### Manual Deployment
-
-**Frontend** — to update frontend (React app), just run `livestreamer-frontend/build-and-deploy.sh` script.
-
-**Backend** — to update backend (only `api` container i.e. Express.js app):
-
-1. **Uncomment these lines *for each service* in `docker-compose.prod.yml`**
-   ```yml
-   build:
-     context: ...
-     dockerfile: ...
-   ```
-2. **Build production images of all services**
-   ```shell
-   cd livestreamer-backend
-   docker-compose -f docker-compose.yml -f docker-compose.prod.yml build
-   ```
-3. **Comment out the lines we've uncommented at step 1 again**; otherwise when you'll have this files copied to your server and passed to `docker-compose up -f ...`, Compose will build images localy using Dockerfiles instead of pulling the images from Docker Hub. This eventually won't allow us to set up CI/CD with GitHub Actions.
-
-4. **Authenticate to Docker Hub**
-   ```shell
-   docker login
-   ```
-
-5. **Push all images to Docker Hub**
-   ```shell
-   docker push ponomarevandrey/livestreamer-backend_api
-   docker push ponomarevandrey/livestreamer-backend_redis
-   docker push ponomarevandrey/livestreamer-backend_db
-   ```
-6. **SSH into VPS** and ... (refer my article on CI/CD, "Manual Deployment" section, from bullet point four and on).
-
-
 
 
 ## Database Schema
@@ -132,7 +106,9 @@ The app is comprised of the three main parts:
 
 
 
-## How it works (high-level overview)
+# How it works 
+
+## High-level overview
 
 The app involves three parties: **source client (aka broadcaster)**, **Application Server** and **consuming client (aka listener(s))**:
 
@@ -142,7 +118,7 @@ The app involves three parties: **source client (aka broadcaster)**, **Applicati
 
 
 
-## How it works (low-level overview)
+## Low-level overview
 
 The application server is implemented as REST API and provides two main features of the app: audio broadcasting and chat.
 
@@ -163,7 +139,87 @@ All chat functionality, notifications as well as other real-time features are im
     Thus we get the benefits of REST architecture and Websocket protocol at the same time. While WebSocket allows us to do everything in real-time, REST provides the structure and order in client-server communication.
 
 
-## Current Development Status
+
+# Deployment
+
+## Frontend 
+
+To build and deploy the app to production env., run `build-and-deploy.sh` script located in `livestreamer-frontend` directory. 
+
+It will start Compose with `client` container with all production environment variables, compile the code, stop the container and upload the compiled code to the server (`/var/www/...`) where the app will be served by Nginx. 
+
+
+
+## Backend
+
+To build and deploy the app to production env., manually rebuild local image(s) > upload them to Docker Hub > on VPS pull images from Docker Hub and restart all or only the required containers. 
+
+Here is a short explanation of how to do this:
+
+> Steps 1 and 3 are required only when you deploy the app to the server for the very first time. 
+>
+> After that, when you're just updating the code, skip those steps.
+
+1. **Uncomment these lines *for each service* in `docker-compose.prod.yml`**
+   ```yml
+   build:
+     context: ...
+     dockerfile: ...
+   ```
+2. **Build production images of all or only the required services**
+   ```shell
+   cd livestreamer-backend
+   docker-compose -f docker-compose.yml -f docker-compose.prod.yml build
+   
+   # OR build image for only one service:
+   docker-compose -f docker-compose.yml -f docker-compose.prod.yml build api
+   ```
+3. **Comment out the lines we've uncommented at step 1 again**; otherwise when you'll have this files copied to your server and passed to `docker-compose up -f ...`, Compose will build images localy using Dockerfiles instead of pulling the images from Docker Hub. This eventually won't allow us to set up CI/CD with GitHub Actions.
+
+4. **Authenticate to Docker Hub**
+   ```shell
+   docker login
+   ```
+5. **Push all or only the required images to Docker Hub**
+   ```shell
+   docker push ponomarevandrey/livestreamer-backend_api
+   docker push ponomarevandrey/livestreamer-backend_redis
+   docker push ponomarevandrey/livestreamer-backend_db
+   ```
+6. **SSH into VPS**
+
+7. **Pull new image**
+   ```shell
+   # 'api' is the container name
+   docker-compose -f docker-compose.yml -f docker-compose.prod.yml pull api
+   ```
+8. **Restart the container**. If you need to restart only the containers whose image was updated (as we usually do) add the `--no-deps` flag. 
+   ```shell
+   docker-compose \
+     -f docker-compose.yml \
+     -f docker-compose.prod.yml \
+     up
+       --force-recreate \
+       --build 
+       # + optional `--no-deps` and `-d`
+   ```
+   * Without `--force-recreate` Compose will use the old image
+   * Without `-d` flag Compose will run in "attached mode" outputing everything to console. 
+     > By default, Docker runs the container in attached mode. In the attached mode, Docker can start the process in the container and attach the console to the process’s standard input, standard output, and standard error ([source](https://www.java4coding.com/contents/docker/docker-attached-vs-detached-mode))
+      
+     So later when we will be automating the deployment with GitHub Actions, always use `-d` everywhere to detach the terminal from Compose process stdout/stderr. When we write any deployment Bash scripts we should use the '-d' flag as well.
+
+9. **Delete old image** to free up the disk space
+   ```shell 
+   docker image prune -f
+   ```
+
+   * If you're deploying the app for the first time — refer to [my article on setting up CI/CD with GitHub Actions](https://andreyponomarev.ru/articles/2021-02-12-ci-cd-for-vps-with-github-actions.html), "Manual Deployment" section, from bullet point four and on.
+   * If you want just to update the specific container — refer to [my article on setting up CI/CD with GitHub Actions](https://andreyponomarev.ru/articles/2021-02-12-ci-cd-for-vps-with-github-actions.html), "Redeployment" section.
+
+
+
+# Current Development Status
 
 * all of the essential features of the app server are implemented; the code needs some refactoring, but I decided not to touch anything until I write more unit tests
 * yep, there are very few tests written overall; I'm currently working to fix this
