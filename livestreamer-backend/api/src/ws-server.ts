@@ -1,6 +1,5 @@
 import { Server } from "ws";
 
-import { logger } from "./config/logger";
 import { serverOptions } from "./config/ws-server";
 import { WSClient } from "./types";
 import {
@@ -8,36 +7,22 @@ import {
   onDestroyChatMsg,
   onLikeChatMsg,
   onUnlikeChatMsg,
-  sendClientCount,
-  sendClientsList,
   onStreamEnd,
   onStreamLike,
   onStreamStart,
-  sendBroadcastState,
-} from "./services/ws/ws-event-handlers";
+} from "./event-handlers/ws-server";
 import {
   onAddClient,
   onDeleteClient,
   onUpdateClientCount,
-} from "./services/ws/ws-event-handlers";
+} from "./event-handlers/ws-server";
 import * as chatService from "./services/chat/chat";
 import * as streamService from "./services/stream/stream";
 import { clientStore } from "./services/ws/ws";
+import { onConnection, onClose } from "./event-handlers/ws-server";
 
 async function handleUpgrade(client: WSClient): Promise<void> {
   wsServer.emit("connection", client);
-}
-
-async function onConnection(client: WSClient): Promise<void> {
-  client.socket.on("close", () => clientStore.deleteClient(client.uuid));
-  sendBroadcastState(client, await streamService.readBroadcastState());
-  clientStore.addClient(client);
-  sendClientsList(client, clientStore.sanitizedClients);
-  sendClientCount(client, clientStore.clientCount);
-}
-
-function onClose(): void {
-  logger.info(`${__filename}: WebSocket Server closed, bye.`);
 }
 
 const wsServer = new Server(serverOptions);
