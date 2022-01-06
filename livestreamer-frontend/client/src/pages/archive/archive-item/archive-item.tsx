@@ -45,7 +45,7 @@ function ArchiveItem(props: Props): ReactElement {
         />*/}
       </span>
       <header className="archive-item__header">
-        <a href="https://www.mixcloud.com/andreygornarchive/">
+        <a href="https://www.mixcloud.com/">
           <h3
             className="archive-item__heading"
             contentEditable={hasPermission(
