@@ -3,7 +3,7 @@ import { describe, it, expect } from "@jest/globals";
 import {
   encodeNextPageCursor,
   decodeNextPageCursor,
-} from "../src/utils/handle-db-cursors";
+} from "../../src/utils/handle-db-cursors";
 
 const DB_RECORD_TIMESTAMP = new Date(
   "December 17, 1995 03:24:00",
