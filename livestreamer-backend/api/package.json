@@ -9,6 +9,7 @@
     "serve:test": "nodemon --watch ./_integration-tests_ --watch ./src -e ts,json --exec 'npm run test:integration & TS_NODE_PROJECT=tsconfig.json node --inspect=0.0.0.0:9229 --require ts-node/register ./src/index.ts'",
     "test:unit": "jest --detectOpenHandles _unit-tests_",
     "test:integration": "jest --detectOpenHandles _integration-tests_",
+    "test:e2e-api": "jest --detectOpenHandles _e2e-api-tests_",
     "migrate": "node-pg-migrate"
   },
   "keywords": [
@@ -26,6 +27,7 @@
     "@types/cors": "^2.8.10",
     "@types/express": "^4.17.8",
     "@types/express-session": "^1.17.4",
+    "@types/faker": "^5.5.3",
     "@types/fs-extra": "^9.0.13",
     "@types/jest": "^27.0.3",
     "@types/joi": "^17.2.3",
@@ -42,6 +44,7 @@
     "eslint": "^8.5.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
+    "faker": "^5.5.3",
     "jest": "^27.4.5",
     "prettier": "^2.5.1",
     "superagent": "^6.1.0",
