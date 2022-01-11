@@ -1,5 +1,18 @@
 import { Permissions } from "../../config/constants";
 
+interface UserProfile {
+  uuid: string;
+  id: number;
+  email: string;
+  username: string;
+  password: string;
+  createdAt: string;
+  lastLoginAt?: string;
+  isEmailConfirmed: boolean;
+  isDeleted: boolean;
+  permissions: Permissions;
+}
+
 export class User {
   uuid: string;
   readonly id: number;
@@ -12,18 +25,7 @@ export class User {
   readonly isDeleted: boolean;
   readonly permissions: Permissions;
 
-  constructor(profile: {
-    uuid: string;
-    id: number;
-    email: string;
-    username: string;
-    password: string;
-    createdAt: string;
-    lastLoginAt?: string;
-    isEmailConfirmed: boolean;
-    isDeleted: boolean;
-    permissions: Permissions;
-  }) {
+  constructor(profile: UserProfile) {
     this.uuid = profile.uuid;
     this.id = profile.id;
     this.email = profile.email;
