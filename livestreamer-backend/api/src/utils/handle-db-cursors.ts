@@ -10,7 +10,8 @@ export function decodeNextPageCursor(cursor?: string): {
   timestampCursor?: string;
   idCursor?: number;
 } {
-  let timestampCursor: string | undefined, idCursor: number | undefined;
+  let timestampCursor: string | undefined;
+  let idCursor: number | undefined;
 
   if (cursor === "") throw new Error("Empty string is not allowed");
   if (cursor) {
