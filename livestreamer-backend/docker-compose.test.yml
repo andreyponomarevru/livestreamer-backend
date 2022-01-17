@@ -2,11 +2,11 @@ version: "3.7"
 
 services:
   api:
-    container_name: api
     build:
       context: ./api
       dockerfile: ./docker/Dockerfile.test
-    restart: "no"
+    restart: always
+    tty: true
     volumes:
       # Recompile code on changes
       - ./api/src:/api/src
@@ -29,11 +29,13 @@ services:
       - testdb
       - testredis
     networks:
-      - frontend_livestreamer
+      - livestreamer_backend
 
   testdb:
     container_name: testdb
-    image: postgres
+    build: 
+      context: ./postgres
+      dockerfile: ./docker/Dockerfile.test
     restart: "no"
     env_file:
       - ./postgres/docker/.common.env
@@ -41,7 +43,7 @@ services:
     ports:
       - 54323:5432
     networks:
-      - frontend_livestreamer
+      - livestreamer_backend
 
   testredis:
     container_name: redis
@@ -51,8 +53,9 @@ services:
     ports:
       - 6379:6379
     networks:
-      - frontend_livestreamer
+      - livestreamer_backend
       
 networks:
-  frontend_livestreamer:
-    external: true
+  livestreamer_backend:
+    name: livestreamer_backend
+    driver: bridge
