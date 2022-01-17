@@ -1,5 +1,0 @@
-*.env
-redis_data
-Dockerfile*
-.dockerignore
-*.log

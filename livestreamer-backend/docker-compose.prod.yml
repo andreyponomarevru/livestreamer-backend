@@ -10,6 +10,7 @@ services:
     build:
       context: ./api
       dockerfile: ./docker/Dockerfile.prod
+    tty: true
     restart: always
     ports:
       - 5000:5000
@@ -30,7 +31,7 @@ services:
     # instead of VPS
     #build:
     #  context: ./postgres
-    #  dockerfile: ./docker/Dockerfile
+    #  dockerfile: ./docker/Dockerfile.prod
     restart: always
     env_file:
       - ./postgres/docker/.common.env

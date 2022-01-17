@@ -196,8 +196,8 @@ export type SignUpData = {
 export type ScheduledBroadcastDBResponse = {
   scheduled_broadcast_id: number;
   title: string;
-  start_at: string;
-  end_at: string;
+  start_at: Date;
+  end_at: Date;
 };
 export type ReadMsgDBResponse = {
   chat_message_id: number;

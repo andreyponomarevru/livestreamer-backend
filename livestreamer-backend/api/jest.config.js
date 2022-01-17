@@ -9,4 +9,6 @@ module.exports = {
       },
     },
   },
+  // Extends Jest with assertions from jest-extended
+  setupFilesAfterEnv: ["jest-extended/all"],
 };

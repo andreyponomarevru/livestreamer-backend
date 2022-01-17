@@ -1,20 +1,23 @@
 import { connectDB } from "../../config/postgres";
 import { ScheduledBroadcastDBResponse, Schedule } from "../../types";
 
-export async function create({
-  title,
-  startAt,
-  endAt,
-}: {
+type NewScheduledBroadcast = {
   title: string;
   startAt: string;
   endAt: string;
-}): Promise<{
+};
+type SavedScheduledBroadcast = {
   id: number;
   title: string;
   startAt: string;
   endAt: string;
-}> {
+};
+
+export async function create({
+  title,
+  startAt,
+  endAt,
+}: NewScheduledBroadcast): Promise<SavedScheduledBroadcast> {
   const sql =
     "INSERT INTO\
 			scheduled_broadcast (title, start_at, end_at)\
@@ -53,8 +56,8 @@ export async function readAll(): Promise<Schedule[]> {
     return {
       id: row.scheduled_broadcast_id,
       title: row.title,
-      startAt: row.start_at,
-      endAt: row.end_at,
+      startAt: row.start_at.toISOString(),
+      endAt: row.end_at.toISOString(),
     };
   });
 

@@ -1,59 +1,57 @@
-import { describe, it, expect } from "@jest/globals";
+import { describe, it, expect, beforeEach } from "@jest/globals";
+import faker from "faker";
 
 import {
   encodeNextPageCursor,
   decodeNextPageCursor,
 } from "../../src/utils/handle-db-cursors";
 
-const DB_RECORD_TIMESTAMP = new Date(
-  "December 17, 1995 03:24:00",
-).toISOString();
-const DB_RECORD_ID = 1;
-const ENCODED_NEXT_CURSOR = "MTk5NS0xMi0xN1QwMDoyNDowMC4wMDBaLDE=";
+const dbRecordTimestamp = faker.date.past().toISOString();
+const dbRecordId = faker.datatype.number();
 
-describe("Handle database cursors", () => {
-  describe("decodeNextPageCursor function", function () {
-    it("returns an object containing db record's timestamp and id", function () {
-      // Act
-      const decodedCursor = decodeNextPageCursor(ENCODED_NEXT_CURSOR);
+describe("decodeNextPageCursor function", function () {
+  it("returns decoded cursor if valid cursor has been passed", () => {
+    const decodedCursor = {
+      timestampCursor: dbRecordTimestamp,
+      idCursor: dbRecordId,
+    };
+    const encodedCursor = encodeNextPageCursor(dbRecordTimestamp, dbRecordId);
 
-      // Assert
-      expect(decodedCursor).toStrictEqual({
-        timestampCursor: DB_RECORD_TIMESTAMP,
-        idCursor: 1,
-      });
-    });
+    expect(decodedCursor).toStrictEqual(decodeNextPageCursor(encodedCursor));
+  });
 
-    it("returns an object containing 'undefined' values if no argument has been passed", function () {
-      // Act
-      const decodedCursor = decodeNextPageCursor();
+  it("returns an object containing 'undefined' values if no argument has been passed", function () {
+    const decodedCursor = decodeNextPageCursor();
 
-      // Assert
-      expect(decodedCursor).toStrictEqual({
-        timestampCursor: undefined,
-        idCursor: undefined,
-      });
-    });
-
-    it("throws an error if invalid argument has been passed", () => {
-      expect(() => decodeNextPageCursor("MTk")).toThrow();
-    });
-
-    it("throws an error if empty string has been passed", () => {
-      expect(() => decodeNextPageCursor("")).toThrow();
+    expect(decodedCursor).toStrictEqual({
+      timestampCursor: undefined,
+      idCursor: undefined,
     });
   });
 
-  describe("encodeNextPageCursor function", function () {
-    it("returns encoded cursor as a string", function () {
-      // Act
-      const encodedCursor = encodeNextPageCursor(
-        DB_RECORD_TIMESTAMP,
-        DB_RECORD_ID,
-      );
+  it("throws an error if invalid cursor has been passed", () => {
+    expect(() => decodeNextPageCursor("abc")).toThrow();
+  });
 
-      // Assert
-      expect(encodedCursor).toEqual(ENCODED_NEXT_CURSOR);
-    });
+  it("throws an error if empty string has been passed", () => {
+    expect(() => decodeNextPageCursor("")).toThrow();
+  });
+});
+
+describe("encodeNextPageCursor function", function () {
+  let encodedCursor: string;
+
+  beforeEach(() => {
+    encodedCursor = encodeNextPageCursor(dbRecordTimestamp, dbRecordId);
+  });
+
+  it("returns encoded cursor as valid base64 string", () => {
+    expect(typeof encodedCursor).toBe("string");
+  });
+
+  it("encodes to valid base64", () => {
+    expect(() =>
+      Buffer.from(encodedCursor, "base64").toString("ascii"),
+    ).not.toThrow();
   });
 });

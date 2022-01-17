@@ -6,6 +6,7 @@ services:
       context: ./api
       dockerfile: ./docker/Dockerfile.dev
     restart: always
+    tty: true
     volumes:
       # Recompile code on changes
       - ./api/src:/api/src
@@ -35,7 +36,7 @@ services:
     container_name: devdb
     build:
       context: ./postgres
-      dockerfile: ./docker/Dockerfile
+      dockerfile: ./docker/Dockerfile.dev
     restart: "no"
     env_file:
       - ./postgres/docker/.common.env

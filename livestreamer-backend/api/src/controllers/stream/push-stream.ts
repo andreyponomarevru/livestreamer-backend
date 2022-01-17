@@ -3,7 +3,7 @@ import { Request, Response, NextFunction } from "express";
 import { logger } from "../../config/logger";
 import * as streamService from "../../services/stream/stream";
 import * as websocketService from "../../services/ws/ws";
-import { showReadableStreamMode } from "../../utils/log";
+import { printReadableStreamMode } from "../../utils/print-readable-stream-mode";
 
 export async function push(
   req: Request,
@@ -57,7 +57,7 @@ async function onClose() {
 
   // We shouldn't use 'close' and/or 'end' methods on the read/write streams of our duplex stream, otherwise the broadcast-client won't be able to reconnect and start pushing again until the server restart. 'pause' is the most appropriate alternative to these methods
   streamService.inoutStream.pause();
-  showReadableStreamMode(
+  printReadableStreamMode(
     streamService.inoutStream,
     "broadcaster's push stream",
   );
@@ -65,7 +65,7 @@ async function onClose() {
 
 function onEnd() {
   logger.debug(`${__filename} [end] No more data in request stream.`);
-  showReadableStreamMode(
+  printReadableStreamMode(
     streamService.inoutStream,
     "broadcaster's push stream",
   );
@@ -73,7 +73,7 @@ function onEnd() {
 
 async function onErr(err: Error) {
   logger.error(`${__filename} [error] ${err}`);
-  showReadableStreamMode(
+  printReadableStreamMode(
     streamService.inoutStream,
     "broadcaster's push stream",
   );
