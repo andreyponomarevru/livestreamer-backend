@@ -222,5 +222,4 @@ Here is a short explanation of how to do this:
 # Current Development Status
 
 * all of the essential features of the app server are implemented; the code needs some refactoring, but I decided not to touch anything until I write more unit tests
-* yep, there are very few tests written overall; I'm currently working to fix this
-* also, at the moment of writing, React client uses only a fraction of the existing API
+* at the moment of writing, React client uses only a fraction of the existing API
