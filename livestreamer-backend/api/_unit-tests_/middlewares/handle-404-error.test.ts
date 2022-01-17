@@ -10,15 +10,12 @@ jest.mock("../../src/utils/http-error");
 
 describe("handle404Error middleware", () => {
   it("forwards 404 error to the next middleware", () => {
-    // Arrange
     const req = {} as Request;
     const res = {} as Response;
     const next = jest.fn();
 
-    // Act
     handle404Error(req, res, next);
 
-    // Assert
     expect(next).toBeCalledTimes(1);
     expect(next).toBeCalledWith(new HttpError({ code: 404 }));
   });
