@@ -1,0 +1,10 @@
+FROM postgres:latest
+
+WORKDIR /sql
+
+# Copy SQL files executed by init script(s)
+# It copies the _content_ of ./schema/ and ./seeds/ dirs into respective dirs in image 
+COPY ./schema/ ./schema
+COPY ./seeds/ ./seeds
+# Copy init script(s)
+COPY ./docker-entrypoint-initdb.d/init-test.sh /docker-entrypoint-initdb.d/init-test.sh
