@@ -1,6 +1,6 @@
 import { Readable, Duplex } from "stream";
 
-export function showReadableStreamMode(
+export function printReadableStreamMode(
   stream: Readable | Duplex,
   streamName: string,
 ): void {
