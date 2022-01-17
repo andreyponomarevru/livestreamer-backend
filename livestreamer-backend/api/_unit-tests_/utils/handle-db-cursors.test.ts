@@ -6,19 +6,16 @@ import {
   decodeNextPageCursor,
 } from "../../src/utils/handle-db-cursors";
 
-const DB_RECORD_TIMESTAMP = new Date().toISOString();
-const DB_RECORD_ID = faker.datatype.number();
+const dbRecordTimestamp = faker.date.past().toISOString();
+const dbRecordId = faker.datatype.number();
 
 describe("decodeNextPageCursor function", function () {
   it("returns decoded cursor if valid cursor has been passed", () => {
     const decodedCursor = {
-      timestampCursor: DB_RECORD_TIMESTAMP,
-      idCursor: DB_RECORD_ID,
+      timestampCursor: dbRecordTimestamp,
+      idCursor: dbRecordId,
     };
-    const encodedCursor = encodeNextPageCursor(
-      DB_RECORD_TIMESTAMP,
-      DB_RECORD_ID,
-    );
+    const encodedCursor = encodeNextPageCursor(dbRecordTimestamp, dbRecordId);
 
     expect(decodedCursor).toStrictEqual(decodeNextPageCursor(encodedCursor));
   });
@@ -45,7 +42,7 @@ describe("encodeNextPageCursor function", function () {
   let encodedCursor: string;
 
   beforeEach(() => {
-    encodedCursor = encodeNextPageCursor(DB_RECORD_TIMESTAMP, DB_RECORD_ID);
+    encodedCursor = encodeNextPageCursor(dbRecordTimestamp, dbRecordId);
   });
 
   it("returns encoded cursor as valid base64 string", () => {

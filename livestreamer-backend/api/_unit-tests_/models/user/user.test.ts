@@ -5,32 +5,32 @@ import faker from "faker";
 
 import { v4 as uuidv4 } from "uuid";
 
-import { User } from "../../src/models/user/user";
-import { Permissions } from "../../src/config/constants";
+import { User } from "../../../src/models/user/user";
+import { Permissions } from "../../../src/config/constants";
 
-const UUID = uuidv4();
-const ID = faker.datatype.number();
-const EMAIL = faker.internet.exampleEmail();
-const USERNAME = faker.internet.userName();
-const PASSWORD = faker.internet.password();
-const CREATED_AT = String(faker.date.past());
-const IS_EMAIL_CONFIRMED = faker.datatype.boolean();
-const IS_DELETED = faker.datatype.boolean();
-const PERMISSIONS = { broadcast: [faker.datatype.string()] } as Permissions;
-const LAST_LOGIN_AT = String(faker.date.past());
+const uuid = uuidv4();
+const id = faker.datatype.number();
+const email = faker.internet.exampleEmail();
+const username = faker.internet.userName();
+const password = faker.internet.password();
+const createdAt = faker.date.past().toISOString();
+const isEmailConfirmed = faker.datatype.boolean();
+const isDeleted = faker.datatype.boolean();
+const permissions = { broadcast: [faker.datatype.string()] } as Permissions;
+const lastLoginAt = faker.date.past().toISOString();
 
 describe("User class", () => {
-  it("returns new user", () => {
+  it("returns a new user instance", () => {
     const USER: User = {
-      uuid: UUID,
-      id: ID,
-      email: EMAIL,
-      username: USERNAME,
-      password: PASSWORD,
-      createdAt: CREATED_AT,
-      isEmailConfirmed: IS_EMAIL_CONFIRMED,
-      isDeleted: IS_DELETED,
-      permissions: PERMISSIONS,
+      uuid,
+      id,
+      email,
+      username,
+      password,
+      createdAt,
+      isEmailConfirmed,
+      isDeleted,
+      permissions,
     };
     const user = new User(USER);
 
@@ -48,16 +48,16 @@ describe("User class", () => {
 
   it("sets the last login date if it is provided", () => {
     const USER: User = {
-      uuid: UUID,
-      id: ID,
-      email: EMAIL,
-      username: USERNAME,
-      password: PASSWORD,
-      createdAt: CREATED_AT,
-      isEmailConfirmed: IS_EMAIL_CONFIRMED,
-      isDeleted: IS_DELETED,
-      permissions: PERMISSIONS,
-      lastLoginAt: LAST_LOGIN_AT,
+      uuid,
+      id,
+      email,
+      username,
+      password,
+      createdAt,
+      isEmailConfirmed,
+      isDeleted,
+      permissions,
+      lastLoginAt,
     };
     const user = new User(USER);
 
@@ -66,15 +66,15 @@ describe("User class", () => {
 
   it("doesn't set the last login date if it is not provided", () => {
     const USER: User = {
-      uuid: UUID,
-      id: ID,
-      email: EMAIL,
-      username: USERNAME,
-      password: PASSWORD,
-      createdAt: CREATED_AT,
-      isEmailConfirmed: IS_EMAIL_CONFIRMED,
-      isDeleted: IS_DELETED,
-      permissions: PERMISSIONS,
+      uuid,
+      id,
+      email,
+      username,
+      password,
+      createdAt,
+      isEmailConfirmed,
+      isDeleted,
+      permissions,
     };
     const user = new User(USER);
 
