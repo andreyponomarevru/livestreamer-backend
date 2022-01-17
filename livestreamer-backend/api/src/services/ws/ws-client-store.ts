@@ -18,13 +18,10 @@ class WSClientStore extends EventEmitter {
 
   addClient(client: WSClient): void {
     this._clients.set(client.uuid, client);
-
     this.scheduleStatsUpdates();
+    this.emit("add_client", sanitizeWSClient(client));
 
-    if (client) {
-      this.emit("add_client", sanitizeWSClient(client));
-      logger.debug(`${__filename} new WS client is added`);
-    }
+    logger.debug(`${__filename} new WS client is added`);
   }
 
   deleteClient(uuid: string): void {
