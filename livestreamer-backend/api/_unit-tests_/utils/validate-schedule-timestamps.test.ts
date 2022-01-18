@@ -3,11 +3,11 @@ import faker from "faker";
 
 import { validateScheduleTimestamps } from "../../src/utils/validate-schedule-timestamps";
 
-// now + 1sec
-const future1 = new Date().getTime() + 1000;
-const future2 = future1 + 1 * 60 * 60 * 1000;
-
 describe("validateScheduleTimestamps", () => {
+  // now + 1sec
+  const future1 = new Date().getTime() + 1000;
+  const future2 = future1 + 1 * 60 * 60 * 1000;
+
   it("passes validation if both timestamps are set in the future and if an end timestamp is later than a start timestamp", () => {
     expect(() =>
       validateScheduleTimestamps(
