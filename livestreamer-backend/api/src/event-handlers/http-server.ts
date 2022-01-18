@@ -46,7 +46,7 @@ async function onServerUpgrade(
   socket: Socket,
   head: Buffer,
 ): Promise<void> {
-  logger.debug("WS Server parsing session from request...");
+  logger.debug("Parse session from request");
 
   sessionParser(req, {} as Response, () => {
     logger.debug(
