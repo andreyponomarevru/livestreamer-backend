@@ -192,7 +192,10 @@ export type SignUpData = {
   isEmailConfirmed: boolean;
 };
 
-// DB
+//
+// Database responses
+//
+
 export type ScheduledBroadcastDBResponse = {
   scheduled_broadcast_id: number;
   title: string;
@@ -207,7 +210,6 @@ export type ReadMsgDBResponse = {
   created_at: string;
   liked_by_user_id: number[];
 };
-
 export type CreateMsgLikeDBResponse = {
   chat_message_id: number;
   liked_by_user_id: number[];
