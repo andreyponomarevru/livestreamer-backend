@@ -40,21 +40,21 @@ function onClose(): void {
 // WS Client Store events
 //
 
-export function onAddClient(client: SanitizedWSChatClient): void {
+function onAddClient(client: SanitizedWSChatClient): void {
   sendToAll<SanitizedWSChatClient>(
     { event: "chat:new_client", data: client },
     clientStore.clients,
   );
 }
 
-export function onDeleteClient(client: DeletedWSClient): void {
+function onDeleteClient(client: DeletedWSClient): void {
   sendToAll<DeletedWSClient>(
     { event: "chat:deleted_client", data: client },
     clientStore.clients,
   );
 }
 
-export function onUpdateClientCount(clientCount: number): void {
+function onUpdateClientCount(clientCount: number): void {
   sendToAll<ClientCount>(
     { event: "chat:client_count", data: { count: clientCount } },
     clientStore.clients,
@@ -65,7 +65,7 @@ export function onUpdateClientCount(clientCount: number): void {
 // Chat Events
 //
 
-export function onCreateChatMsg(msg: ChatMsg & { userUUID: string }): void {
+function onCreateChatMsg(msg: ChatMsg & { userUUID: string }): void {
   sendToAllExceptSender(
     { event: "chat:created_message", data: msg },
     { senderUUID: msg.userUUID },
@@ -73,7 +73,7 @@ export function onCreateChatMsg(msg: ChatMsg & { userUUID: string }): void {
   );
 }
 
-export function onDestroyChatMsg(msg: ChatMsgId & { userUUID: string }): void {
+function onDestroyChatMsg(msg: ChatMsgId & { userUUID: string }): void {
   sendToAllExceptSender(
     { event: "chat:deleted_message", data: msg },
     { senderUUID: msg.userUUID },
@@ -81,9 +81,7 @@ export function onDestroyChatMsg(msg: ChatMsgId & { userUUID: string }): void {
   );
 }
 
-export function onLikeChatMsg(
-  like: ChatMsgLike & { likedByUserUUID: string },
-): void {
+function onLikeChatMsg(like: ChatMsgLike & { likedByUserUUID: string }): void {
   sendToAllExceptSender(
     { event: "chat:liked_message", data: like },
     { senderUUID: like.likedByUserUUID },
@@ -91,7 +89,7 @@ export function onLikeChatMsg(
   );
 }
 
-export function onUnlikeChatMsg(
+function onUnlikeChatMsg(
   unlike: ChatMsgUnlike & { unlikedByUserUUID: string },
 ): void {
   sendToAllExceptSender(
@@ -101,14 +99,14 @@ export function onUnlikeChatMsg(
   );
 }
 
-export function sendClientsList(
+function sendClientsList(
   reciever: WSClient,
   clients: SanitizedWSChatClient[],
 ): void {
   send({ event: "chat:client_list", data: clients }, reciever);
 }
 
-export function sendClientCount(reciever: WSClient, clientCount: number): void {
+function sendClientCount(reciever: WSClient, clientCount: number): void {
   send<ClientCount>(
     { event: "chat:client_count", data: { count: clientCount } },
     reciever,
@@ -119,7 +117,7 @@ export function sendClientCount(reciever: WSClient, clientCount: number): void {
 // Stream Events
 //
 
-export function onStreamLike(
+function onStreamLike(
   like: SavedBroadcastLike & { likedByUserUUID: string },
 ): void {
   sendToAllExceptSender(
@@ -129,25 +127,41 @@ export function onStreamLike(
   );
 }
 
-export function onStreamStart(broadcast: BroadcastDraft): void {
+function onStreamStart(broadcast: BroadcastDraft): void {
   sendToAll(
     { event: "stream:state", data: { isOnline: true, broadcast } },
     clientStore.clients,
   );
 }
 
-export function onStreamEnd(): void {
+function onStreamEnd(): void {
   sendToAll(
     { event: "stream:state", data: { isOnline: false } },
     clientStore.clients,
   );
 }
 
-export function sendBroadcastState(
+function sendBroadcastState(
   reciever: WSClient,
   broadcastState: BroadcastState,
 ): void {
   send({ event: "stream:state", data: broadcastState }, reciever);
 }
 
-export { onClose, onConnection };
+export {
+  onClose,
+  onConnection,
+  sendBroadcastState,
+  onStreamEnd,
+  onStreamStart,
+  onStreamLike,
+  sendClientCount,
+  sendClientsList,
+  onUnlikeChatMsg,
+  onLikeChatMsg,
+  onDestroyChatMsg,
+  onCreateChatMsg,
+  onUpdateClientCount,
+  onDeleteClient,
+  onAddClient,
+};
