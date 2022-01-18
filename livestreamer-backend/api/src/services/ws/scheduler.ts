@@ -1,3 +1,5 @@
+import { logger } from "../../../src/config/logger";
+
 interface Scheduler {
   start: (callback: () => void, interfval: number) => void;
   stop: () => void;
@@ -16,7 +18,7 @@ class IntervalScheduler implements Scheduler {
 
     clearInterval(this.timerId);
     this.timerId = undefined;
-    console.log(
+    logger.debug(
       `${__filename} Scheduler stopped, cleare timeerId ${this.timerId}`,
     );
   }
