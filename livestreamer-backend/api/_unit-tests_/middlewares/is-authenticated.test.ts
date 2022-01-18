@@ -2,47 +2,43 @@ import { Request, Response } from "express";
 import { jest, describe, it, expect } from "@jest/globals";
 
 import { isAuthenticated } from "../../src/middlewares/is-authenticated";
-import { HttpError } from "../../src/utils/http-error";
-
-jest.mock("../../src/utils/http-error");
+import type { HttpError } from "../../src/utils/http-error";
 
 describe("isAuthenticated middleware", () => {
-  it("calls next function with an error, if there is no session", async () => {
-    // Arrange
+  const httpError = {
+    message: expect.any(String),
+    moreInfo: expect.any(String),
+    status: 401,
+    statusText: expect.any(String),
+  } as unknown as HttpError;
+
+  it("calls the next function with an error, if session doesn't exist", async () => {
     const req = {} as Request;
     const res = {} as Response;
     const next = jest.fn();
 
-    // Act
     await isAuthenticated(req, res, next);
 
-    // Assert
-    expect(next).toBeCalledWith(new HttpError({ code: 401 }));
+    expect(next).toBeCalledWith(httpError);
   });
 
-  it("calls next function with an error, if there is no authenticatedUser in 'session'", async () => {
-    // Arrange
+  it("calls the next function with an error, if the session doesn't contain the authenticated user data", async () => {
     const req = { session: {} } as Request;
     const res = {} as Response;
     const next = jest.fn();
 
-    // Act
     await isAuthenticated(req, res, next);
 
-    // Assert
-    expect(next).toBeCalledWith(new HttpError({ code: 401 }));
+    expect(next).toBeCalledWith(httpError);
   });
 
-  it("calls next function with no arguments, if there is a session and authenticated user object", async () => {
-    // Arrange
+  it("calls the next function with no arguments, if there is a session and it contains the authenticated user data", async () => {
     const req = { session: { authenticatedUser: {} } } as Request;
     const res = {} as Response;
     const next = jest.fn();
 
-    // Act
     await isAuthenticated(req, res, next);
 
-    // Assert
     expect(next).toBeCalledTimes(1);
     expect(next.mock.calls[0].length).toEqual(0);
   });

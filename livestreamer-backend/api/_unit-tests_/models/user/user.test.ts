@@ -8,18 +8,18 @@ import { v4 as uuidv4 } from "uuid";
 import { User } from "../../../src/models/user/user";
 import { Permissions } from "../../../src/config/constants";
 
-const uuid = uuidv4();
-const id = faker.datatype.number();
-const email = faker.internet.exampleEmail();
-const username = faker.internet.userName();
-const password = faker.internet.password();
-const createdAt = faker.date.past().toISOString();
-const isEmailConfirmed = faker.datatype.boolean();
-const isDeleted = faker.datatype.boolean();
-const permissions = { broadcast: [faker.datatype.string()] } as Permissions;
-const lastLoginAt = faker.date.past().toISOString();
-
 describe("User class", () => {
+  const uuid = uuidv4();
+  const id = faker.datatype.number();
+  const email = faker.internet.exampleEmail();
+  const username = faker.internet.userName();
+  const password = faker.internet.password();
+  const createdAt = faker.date.past().toISOString();
+  const isEmailConfirmed = faker.datatype.boolean();
+  const isDeleted = faker.datatype.boolean();
+  const permissions = { broadcast: [faker.datatype.string()] } as Permissions;
+  const lastLoginAt = faker.date.past().toISOString();
+
   it("returns a new user instance", () => {
     const USER: User = {
       uuid,
@@ -34,7 +34,6 @@ describe("User class", () => {
     };
     const user = new User(USER);
 
-    expect(user).toBeInstanceOf(User);
     expect(user.uuid).toBe(USER.uuid);
     expect(user.id).toBe(USER.id);
     expect(user.email).toBe(USER.email);

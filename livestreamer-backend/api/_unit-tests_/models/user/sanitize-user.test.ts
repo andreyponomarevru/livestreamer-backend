@@ -2,7 +2,6 @@ process.env.NODE_ENV = "test"; // supress logging
 
 import { describe, it, beforeEach, expect } from "@jest/globals";
 import faker from "faker";
-
 import { v4 as uuidv4 } from "uuid";
 
 import { User } from "../../../src/models/user/user";
@@ -32,7 +31,7 @@ describe("sanitizeUser function", () => {
     permissions,
   };
 
-  it("returns sanitized user", () => {
+  it("returns user with sensitive data stripped out", () => {
     expect(sanitizeUser(user)).toStrictEqual({
       uuid,
       id,
