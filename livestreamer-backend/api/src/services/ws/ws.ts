@@ -8,16 +8,10 @@ import { WSClient, WSMsg, WSUserMsg } from "./../../types";
 type Message<Data> = WSMsg | WSUserMsg<Data>;
 
 function send<Data>(msg: Message<Data>, reciever: WSClient): void {
-  logger.info(`${__filename} [send] ${util.inspect(msg)}`);
-
-  if (reciever) {
-    reciever.socket.send(JSON.stringify(msg));
-    logger.info(
-      `${__filename}: [send] To ${reciever.username}: ${util.inspect(msg)}`,
-    );
-  } else {
-    logger.error(`${__filename} [send] Client doesn't exist`);
-  }
+  reciever.socket.send(JSON.stringify(msg));
+  logger.info(
+    `${__filename}: [send] To ${reciever.username}: ${util.inspect(msg)}`,
+  );
 }
 
 function sendToAll<Data>(
@@ -36,7 +30,7 @@ function sendToAllExceptSender<Data>(
   recievers: WSClient[],
 ): void {
   for (const client of recievers) {
-    if (senderUUID && senderUUID !== client.uuid) {
+    if (senderUUID !== client.uuid) {
       client.socket.send(JSON.stringify(msg));
     }
   }
