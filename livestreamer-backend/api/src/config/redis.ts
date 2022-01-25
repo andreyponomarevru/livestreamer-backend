@@ -5,7 +5,7 @@ import { REDIS_PORT, REDIST_HOST } from "./env";
 
 let client: WrappedNodeRedisClient | undefined;
 
-export function connectDB(): WrappedNodeRedisClient {
+function connectDB(): WrappedNodeRedisClient {
   if (client) {
     logger.debug(`${__filename} Used existing Redis connection`);
 
@@ -20,16 +20,18 @@ export function connectDB(): WrappedNodeRedisClient {
   }
 }
 
-export function end(): void {
+function end(): void {
   if (client) client.end(true);
   client = undefined;
 
   logger.error("Redis connection was forcibly closed");
 }
 
-export function quit(): void {
+function quit(): void {
   if (client) client.quit();
   client = undefined;
 
   logger.debug("Redis connection closed cleanly");
 }
+
+export { connectDB, end, quit };

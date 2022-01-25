@@ -1,7 +1,6 @@
 import { Server } from "ws";
 
 import { serverOptions } from "./config/ws-server";
-import { WSClient } from "./types";
 import {
   onCreateChatMsg,
   onDestroyChatMsg,
@@ -10,20 +9,14 @@ import {
   onStreamEnd,
   onStreamLike,
   onStreamStart,
-} from "./event-handlers/ws-server";
-import {
   onAddClient,
   onDeleteClient,
   onUpdateClientCount,
-} from "./event-handlers/ws-server";
+} from "./event-handlers/services-handlers";
 import * as chatService from "./services/chat/chat";
 import * as streamService from "./services/stream/stream";
 import { clientStore } from "./services/ws/ws";
-import { onConnection, onClose } from "./event-handlers/ws-server";
-
-async function handleUpgrade(client: WSClient): Promise<void> {
-  wsServer.emit("connection", client);
-}
+import { onConnection, onClose } from "./event-handlers/ws-server-handlers";
 
 const wsServer = new Server(serverOptions);
 
@@ -41,4 +34,4 @@ chatService.events.on("delete_message", onDestroyChatMsg);
 chatService.events.on("like_message", onLikeChatMsg);
 chatService.events.on("unlike_message", onUnlikeChatMsg);
 
-export { wsServer, handleUpgrade };
+export { wsServer };

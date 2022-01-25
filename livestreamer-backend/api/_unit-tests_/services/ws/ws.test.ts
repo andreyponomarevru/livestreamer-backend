@@ -15,8 +15,6 @@ import type { WSMsg, WSClient } from "../../../src/types";
 
 jest.mock("../../../src/config/logger");
 
-// TODO: what to do if 'id' prop doesnt exist - write test for this
-
 const wsMessage: WSMsg = {
   event: "chat:new_client",
   data: { uuid: uuidv4(), username: faker.internet.userName() },

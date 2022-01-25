@@ -6,7 +6,7 @@ import {
   onServerUpgrade,
   onServerError,
   onServerListening,
-} from "./event-handlers/http-server";
+} from "./event-handlers/http-server-handlers";
 
 const httpServer = http.createServer(expressApp);
 httpServer.on("error", onServerError);

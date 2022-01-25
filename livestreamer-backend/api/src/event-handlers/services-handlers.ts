@@ -1,5 +1,3 @@
-import { logger } from "./../config/logger";
-import * as streamService from "./../services/stream/stream";
 import {
   sendToAll,
   sendToAllExceptSender,
@@ -21,23 +19,7 @@ import {
 } from "../types";
 
 //
-// Socket events
-//
-
-async function onConnection(client: WSClient): Promise<void> {
-  client.socket.on("close", () => clientStore.deleteClient(client.uuid));
-  sendBroadcastState(client, await streamService.readBroadcastState());
-  clientStore.addClient(client);
-  sendClientsList(client, clientStore.sanitizedClients);
-  sendClientCount(client, clientStore.clientCount);
-}
-
-function onClose(): void {
-  logger.info(`${__filename}: WebSocket Server closed, bye.`);
-}
-
-//
-// WS Client Store events
+// WS Service events (WS Client Store)
 //
 
 function onAddClient(client: SanitizedWSChatClient): void {
@@ -62,7 +44,7 @@ function onUpdateClientCount(clientCount: number): void {
 }
 
 //
-// Chat Events
+// Chat Service Events
 //
 
 function onCreateChatMsg(msg: ChatMsg & { userUUID: string }): void {
@@ -114,7 +96,7 @@ function sendClientCount(reciever: WSClient, clientCount: number): void {
 }
 
 //
-// Stream Events
+// Stream Service Events
 //
 
 function onStreamLike(
@@ -149,8 +131,6 @@ function sendBroadcastState(
 }
 
 export {
-  onClose,
-  onConnection,
   sendBroadcastState,
   onStreamEnd,
   onStreamStart,

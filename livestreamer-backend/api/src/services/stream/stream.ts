@@ -5,6 +5,7 @@ import { BroadcastDraft, BroadcastState } from "../../types";
 import * as broadcastDB from "../../models/broadcast/queries";
 import * as streamCacheDB from "../../models/stream/queries";
 import { StreamEmitter } from "./events";
+
 async function readBroadcastState(): Promise<BroadcastState> {
   if (inoutStream.isPaused()) {
     return { isOnline: false };

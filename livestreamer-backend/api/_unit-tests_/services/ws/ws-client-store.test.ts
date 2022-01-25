@@ -10,7 +10,6 @@ import { WSClientStore } from "./../../../src/services/ws/ws-client-store";
 
 // Supress logging
 jest.mock("../../../src/config/logger");
-(logger.debug as any).mockReturnValue(() => jest.fn());
 
 describe("WSClientStore class", () => {
   function createClient() {
