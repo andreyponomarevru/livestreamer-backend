@@ -1,4 +1,5 @@
-import http, { ClientRequest, RequestOptions } from "http";
+import http from "http";
+import https from "https";
 
 import fs from "fs-extra";
 import axios, { AxiosResponse } from "axios";
@@ -6,7 +7,8 @@ import { wrapper } from "axios-cookiejar-support";
 import { CookieJar } from "tough-cookie";
 
 import { audioStream } from "./audio-process";
-import {
+import { apiConfig, NDOE_ENV } from "./config/api";
+const {
   API_HOST,
   API_PORT,
   BROADCASTER_PASSWORD,
@@ -14,16 +16,18 @@ import {
   API_SESSION_URL,
   API_ROOT_PATH,
   API_STREAM_PATH,
-} from "./config/api";
+} = apiConfig[NDOE_ENV];
 
 const jar = new CookieJar();
 const client = wrapper(axios.create({ jar }));
 
-async function buildRequestOptions(): Promise<RequestOptions> {
+async function buildRequestOptions(): Promise<
+  http.RequestOptions | https.RequestOptions
+> {
   const sessionCookie = await (await fs.readFile("session-cookie")).toString();
   // await jar.getCookieString(`http://${API_HOST}`);
 
-  const options: RequestOptions = {
+  const options: http.RequestOptions | https.RequestOptions = {
     host: API_HOST,
     port: API_PORT,
     path: `${API_ROOT_PATH}${API_STREAM_PATH}`,
@@ -35,6 +39,9 @@ async function buildRequestOptions(): Promise<RequestOptions> {
       cookie: sessionCookie,
     },
   };
+
+  console.log("Sending requesting with this config: ", options);
+
   return options;
 }
 
@@ -75,8 +82,12 @@ async function onRequestError(err: Error): Promise<void> {
   process.exit(1);
 }
 
-function startStream(requestOptions: RequestOptions): ClientRequest {
-  const request = http.request(requestOptions);
+async function startStream(
+  requestOptions: http.RequestOptions | https.RequestOptions,
+) {
+  const request = (
+    process.env.NODE_ENV === "production" ? https : http
+  ).request(requestOptions);
 
   request.on("response", (res) => {
     console.log(`Response status code: ${res.statusCode}`);
