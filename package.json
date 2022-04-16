@@ -5,7 +5,14 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "start": "nodemon --watch ./src -e ts,json --exec TS_NODE_PROJECT=tsconfig.json node --inspect=0.0.0.0:9229 -r ts-node/register ./src/index.ts"
+    "start:dev": "nodemon --watch ./src -e ts,json --exec TS_NODE_PROJECT=tsconfig.json node --inspect=0.0.0.0:9229 -r ts-node/register ./src/index.ts",
+    "login:prod": "NODE_ENV=production node ./build/index.js login",
+    "logout:prod": "NODE_ENV=production node ./build/index.js logout",
+    "stream:prod": "NODE_ENV=production node ./build/index.js stream",
+    "------": "---------------------------------------------------------------",
+    "login:dev": "NODE_ENV=development node ./build/index.js login",
+    "logout:dev": "NODE_ENV=development node ./build/index.js logout",
+    "stream:dev": "NODE_ENV=development node ./build/index.js stream"
   },
   "keywords": [],
   "author": "",
