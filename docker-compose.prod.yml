@@ -1,0 +1,11 @@
+version: "3.7"
+
+services:
+  client:
+    build:
+      dockerfile: ./docker/Dockerfile.prod
+    volumes:
+      - ./client/dist:/client/dist
+      - ./client/tsconfig.json:/client/tsconfig.json
+    env_file:
+      - ./client/docker/.prod.env
