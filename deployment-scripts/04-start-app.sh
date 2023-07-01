@@ -33,6 +33,6 @@ ssh \
 
 echo
 
-echo "Tha app has been started successfully!"
+echo "The app has been started successfully!"
 
 echo "Now update your Nginx config to make the app available to the world."
