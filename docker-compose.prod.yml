@@ -13,7 +13,9 @@ services:
     tty: true
     restart: always
     ports:
-      - 5000:5000
+      # Adding '127.0.0.1:' hides opened ports from Internet, 5000 is available
+      # only in internal network on host machine
+      - 127.0.0.1:5000:5000
     env_file:
       - ./api/docker/.common.env
       - ./api/docker/.prod.env
@@ -39,7 +41,7 @@ services:
     volumes:
       - /var/backups/:/var/backups/
     ports:
-      - 5432:5432
+      - 127.0.0.1:5432:5432
       
   redis:
     image: ponomarevandrey/livestreamer-backend_redis:latest
@@ -51,4 +53,4 @@ services:
     #  context: ./redis
     #  dockerfile: ./docker/Dockerfile
     ports:
-      - 6379:6379
+      - 127.0.0.1:6379:6379
