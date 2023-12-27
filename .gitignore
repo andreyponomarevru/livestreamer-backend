@@ -5,7 +5,6 @@ redis_data
 postgres-data
 volume
 node_modules/
-package-lock.json
 _source/
 *.wav
 *.mp3
