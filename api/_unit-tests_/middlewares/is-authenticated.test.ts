@@ -40,6 +40,6 @@ describe("isAuthenticated middleware", () => {
     await isAuthenticated(req, res, next);
 
     expect(next).toBeCalledTimes(1);
-    expect(next.mock.calls[0].length).toEqual(0);
+    expect(next.mock.calls[0].length).toBe(0);
   });
 });
