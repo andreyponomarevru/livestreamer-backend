@@ -12,7 +12,7 @@ import {
   sendBroadcastState,
   sendClientsList,
   sendClientCount,
-} from "../../src/event-handlers/services-handlers";
+} from "../../src/services/ws/services-handlers";
 import { clientStore } from "../../src/services/ws/ws";
 
 jest.mock("../../src/services/stream/stream", () => {

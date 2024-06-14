@@ -17,7 +17,7 @@ import {
   onUpdateClientCount,
   onDeleteClient,
   onAddClient,
-} from "../../src/event-handlers/services-handlers";
+} from "../../src/services/ws/services-handlers";
 import {
   send,
   sendToAll,
