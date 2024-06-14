@@ -1,9 +1,4 @@
-import {
-  sendToAll,
-  sendToAllExceptSender,
-  send,
-  clientStore,
-} from "../services/ws/ws";
+import { sendToAll, sendToAllExceptSender, send, clientStore } from "./ws";
 import {
   DeletedWSClient,
   SanitizedWSChatClient,
@@ -16,7 +11,25 @@ import {
   ChatMsgId,
   ChatMsgLike,
   ChatMsgUnlike,
-} from "../types";
+} from "../../types";
+import * as streamService from "../stream/stream";
+import { logger } from "../../config/logger";
+
+//
+// WS Server (socket) events
+//
+
+export async function onConnection(client: WSClient): Promise<void> {
+  client.socket.on("close", () => clientStore.deleteClient(client.uuid));
+  sendBroadcastState(client, await streamService.readBroadcastState());
+  clientStore.addClient(client);
+  sendClientsList(client, clientStore.sanitizedClients);
+  sendClientCount(client, clientStore.clientCount);
+}
+
+export function onClose(): void {
+  logger.info(`${__filename}: WebSocket Server closed, bye.`);
+}
 
 //
 // WS Service events (WS Client Store)

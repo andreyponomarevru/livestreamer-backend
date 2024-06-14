@@ -1,10 +1,10 @@
 import * as env from "./config/env";
 import { httpServer } from "./http-server";
 import {
-  onUnhandledRejection,
   onUncaughtException,
+  onUnhandledRejection,
   onWarning,
-} from "./event-handlers/node-process-handlers";
+} from "./node-process-handlers";
 
 process.once("uncaughtException", onUncaughtException);
 process.on("unhandledRejection", onUnhandledRejection);
