@@ -23,7 +23,7 @@ export async function readMsgsPaginated(
     const nextCursor = req.query.next_cursor;
 
     const msgs = await chatService.readMsgsPaginated(limit, nextCursor);
-
+  
     res.status(200).json({ results: msgs });
   } catch (err) {
     next(err);
