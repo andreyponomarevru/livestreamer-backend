@@ -45,6 +45,8 @@ describe("GET /user", () => {
         });
       })
       .catch(console.error);
+      
+    // TODO check Redis on Postgres to verify that the info about the logged in user is stored
   });
 
   it("returns 401 if user is not authenticated", async () => {

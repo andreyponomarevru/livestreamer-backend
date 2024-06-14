@@ -31,7 +31,7 @@ describe("Schedule Broadcast", () => {
     });
   });
 
-  describe("POST /schedule", () => {
+  describe("POST /schedule", () => { 
     it("creates a new scheduled broadcast", async () => {
       await request(httpServer)
         .post("/schedule")
@@ -48,6 +48,9 @@ describe("Schedule Broadcast", () => {
           newBroadcastId = res.body.results.id;
           return res;
         });
+    
+    // TODO Add - right here - sending request to database to retrieve the inserted data and compare it with the one that was send in request body by client 
+    
     });
   });
 
@@ -71,6 +74,8 @@ describe("Schedule Broadcast", () => {
         .set("Cookie", [adminCookie as string])
         .set("accept", "application/json")
         .expect(204);
+        
+      // TODO check database to make sure the record was deleted
     });
   });
 });

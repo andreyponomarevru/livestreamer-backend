@@ -31,6 +31,8 @@ describe("Sign In and Sign Out", () => {
           adminCookie = res.headers["set-cookie"][0];
           expect(adminCookie).toEqual(expect.stringMatching(/sess.sid=/));
         });
+        
+    // TODO Add - right here - sending request to database to retrieve the inserted data and compare it with the one that was send in request body by client 
     });
 
     it("return 401 when credentials are invalid", async () => {
@@ -54,6 +56,7 @@ describe("Sign In and Sign Out", () => {
         });
     });
 
+    // TODO Split this test into two separate
     it("return 401 when the user has been already authenticated and sends the seconds request with valid credentials but without session cookie attached", async () => {
       await request(httpServer)
         .post("/sessions")
@@ -82,6 +85,8 @@ describe("Sign In and Sign Out", () => {
         .delete("/sessions")
         .set("Cookie", [adminCookie as string])
         .expect(204);
+    
+      // TODO check database to make sure the record was deleted
     });
 
     it("returns 200 when the user is not signed in", async () => {
