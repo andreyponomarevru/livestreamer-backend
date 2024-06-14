@@ -51,7 +51,9 @@ ON
 	role_resource_permission (role_id ASC);
 
 CREATE INDEX 
-	role_resource_permission__resource_idx ON role_resource_permission (resource_id ASC);
+	role_resource_permission__resource_idx 
+ON
+  role_resource_permission (resource_id ASC);
 
 CREATE INDEX 
 	role_resource_permission__permission_idx 
