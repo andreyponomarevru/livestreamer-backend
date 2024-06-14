@@ -1,7 +1,7 @@
 import { createNodeRedisClient, WrappedNodeRedisClient } from "handy-redis";
 
 import { logger } from "./logger";
-import { REDIS_PORT, REDIST_HOST } from "./env";
+import { REDIS_PORT, REDIS_HOST } from "./env";
 
 let client: WrappedNodeRedisClient | undefined;
 
@@ -11,7 +11,7 @@ function connectDB(): WrappedNodeRedisClient {
 
     return client;
   } else {
-    client = createNodeRedisClient(REDIS_PORT, REDIST_HOST);
+    client = createNodeRedisClient(REDIS_PORT, REDIS_HOST);
     client.nodeRedis.on("error", (err: Error) => {
       logger.error(`${__filename} [error] ${err}`);
     });

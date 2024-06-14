@@ -32,7 +32,7 @@ export const POSTGRES_PORT = Number(process.env.POSTGRES_PORT);
 //
 
 export const REDIS_PORT = Number(process.env.REDIS_PORT);
-export const REDIST_HOST = process.env.REDIS_HOST!;
+export const REDIS_HOST = process.env.REDIS_HOST!;
 
 //
 // Logger
