@@ -2,6 +2,7 @@ version: "3.7"
 
 services:
   api:
+    container_name: api
     build:
       context: ./api
       dockerfile: ./docker/Dockerfile.dev
@@ -13,6 +14,9 @@ services:
       - ./api/_unit-tests_:/api/_unit-tests_
       - ./api/tsconfig.json:/api/tsconfig.json
       - /api/node_modules
+      # set the container timezone to the time zone of host machine
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
     ports:
       # Port for the app
       - 5000:8080

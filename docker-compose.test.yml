@@ -2,6 +2,7 @@ version: "3.7"
 
 services:
   api:
+    container_name: api
     build:
       context: ./api
       dockerfile: ./docker/Dockerfile.test
@@ -12,11 +13,14 @@ services:
       - ./api/src:/api/src
       - ./api/tsconfig.json:/api/tsconfig.json
       - ./api/_integration-tests_:/api/_integration-tests_
+      # set the container timezone to the time zone of host machine
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
     ports:
       # Port for the app
       - 5001:8080
       # node.js process is listening for a debugging client on
-      - 9230:9229      
+      - 9230:9229
     expose:
       # Port for the app
       - 5001
@@ -33,7 +37,7 @@ services:
 
   testdb:
     container_name: testdb
-    build: 
+    build:
       context: ./postgres
       dockerfile: ./docker/Dockerfile.test
     restart: "no"
@@ -54,7 +58,7 @@ services:
       - 6379:6379
     networks:
       - livestreamer_backend
-      
+
 networks:
   livestreamer_backend:
     name: livestreamer_backend

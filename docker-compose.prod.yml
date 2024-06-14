@@ -4,13 +4,17 @@ services:
   api:
     container_name: api
     image: ponomarevandrey/livestreamer-backend_api:latest
-    # Uncomment to build the image for the first-time deployment (i.e. to 
-    # upload to Docker Hub) or if you want to run prod env on local machine 
+    # Uncomment to build the image for the first-time deployment (i.e. to
+    # upload to Docker Hub) or if you want to run prod env on local machine
     # instead of VPS
     build:
       context: ./api
       dockerfile: ./docker/Dockerfile.prod
     tty: true
+    volumes:
+      # set the container timezone to the time zone of host machine
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
     restart: always
     ports:
       # Adding '127.0.0.1:' hides opened ports from Internet, 5000 is available
@@ -28,8 +32,8 @@ services:
   db:
     image: ponomarevandrey/livestreamer-backend_db:latest
     container_name: db
-    # Uncomment to build the image for the first-time deployment (i.e. to 
-    # upload to Docker Hub) or if you want to run prod env on local machine 
+    # Uncomment to build the image for the first-time deployment (i.e. to
+    # upload to Docker Hub) or if you want to run prod env on local machine
     # instead of VPS
     #build:
     #  context: ./postgres
@@ -42,12 +46,12 @@ services:
       - /var/backups/:/var/backups/
     ports:
       - 127.0.0.1:5432:5432
-      
+
   redis:
     image: ponomarevandrey/livestreamer-backend_redis:latest
     container_name: redis
-    # Uncomment to build the image for the first-time deployment (i.e. to 
-    # upload to Docker Hub) or if you want to run prod env on local machine 
+    # Uncomment to build the image for the first-time deployment (i.e. to
+    # upload to Docker Hub) or if you want to run prod env on local machine
     # instead of VPS
     #build:
     #  context: ./redis
