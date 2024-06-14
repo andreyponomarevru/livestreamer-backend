@@ -10,7 +10,7 @@
     "test:unit": "jest --detectOpenHandles _unit-tests_",
     "test:integration": "jest --detectOpenHandles _integration-tests_",
     "test:e2e-api": "jest --detectOpenHandles _e2e-api-tests_",
-    "migrate": "node-pg-migrate"
+    "migratesql": "node-pg-migrate --migrations-dir ./src/migrations --migration-filename-format utc --tsconfig ./tsconfig.json --migration-file-language sql"
   },
   "keywords": [
     "rest",
