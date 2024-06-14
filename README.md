@@ -18,6 +18,10 @@
 
 # About
 
+Многопользовательское веб-приложение для аудио-стриминга и общения в чате. Концептуально, это клон <a href="http://mixlr.com">Mixlr</a>, но в меньшем масштабе. Архитектурно, состоит из трёх компонентов: фронт, API и CLI-приложение для стриминга. Аудио-стриминг реализован по HTTP, а чат, интерактивные функции и уведомления — через WebSocket. Желающий постримить, запускает на своей машине HTTP клиент, который захватывает музыку из ОС и отправляет её на сервер приложения, с которого уже каждый слушатель, открывший приложение, может слушать стрим, общаться в чате, ставить лайки и пользоваться другими интерактивными функциями. Более подробное описание см. на ГитХабе.
+
+---
+
 Web application for broadcasting live audio and chatting. Conceptually, it is similar to [Mixlr](http://mixlr.com) but on a smaller scale.
 
 Suppose you're a dj and you want to broadcast your mix live. All you need to do is to start up [this command-line app](https://github.com/ponomarevandrey/live-streamer-source-client) on your local machine — it captures the live audio output and streams it to the application server, which in turn broadcasts the audio to all connected listeners.
