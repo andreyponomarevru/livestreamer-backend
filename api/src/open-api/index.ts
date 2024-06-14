@@ -50,7 +50,9 @@ export const swaggerDocument = {
       url: "https://andreyponomarev.ru",
     },
   },
-  servers: [{ url: "localhost:8000/api/v1", description: "Local server" }],
+  servers: [
+  { url: "localhost:8000/api/v1", description: "Local server" }],
+  
   paths: {
     "/sessions": { post: postSession, delete: deleteSession },
     "/verification": { post: postEmailConfirmation },
