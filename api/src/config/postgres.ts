@@ -16,17 +16,17 @@ import {
 let pool: Pool | undefined;
 
 async function connectDB(): Promise<Pool> {
+  const config: PoolConfig = {
+    user: POSTGRES_USER,
+    host: POSTGRES_HOST,
+    database: POSTGRES_DB,
+    password: POSTGRES_PASSWORD,
+    port: POSTGRES_PORT,
+  };
+
   if (pool) {
     return pool;
   } else {
-    const config = {
-      user: POSTGRES_USER,
-      host: POSTGRES_HOST,
-      database: POSTGRES_DB,
-      password: POSTGRES_PASSWORD,
-      port: POSTGRES_PORT,
-    };
-
     pool = new Pool(config);
     logger.debug("New Postgres connection established");
     return pool;
