@@ -1,7 +1,7 @@
 import EventEmitter from "events";
 import { BroadcastDraft, SavedBroadcastLike } from "../../types";
 
-export interface StreanEmitter {
+export interface StreamEmitter {
   on(event: "start", listener: (broadcast: BroadcastDraft) => void): this;
   on(event: "end", listener: () => void): this;
   on(

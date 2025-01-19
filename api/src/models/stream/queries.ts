@@ -1,68 +1,66 @@
 import { BroadcastDraft } from "../../types";
-import * as redis from "../../config/redis";
-import * as postgres from "../../config/postgres";
+import { redisConnection } from "../../config/redis";
+import { dbConnection } from "../../config/postgres";
 
-export async function create(broadcast: BroadcastDraft): Promise<void> {
-  const client = redis.connectDB();
-  await client.hmset(
-    "live:broadcast",
-    ...Object.entries({
+export const streamRepo = {
+  create: async function (broadcast: BroadcastDraft): Promise<void> {
+    const client = await redisConnection.open();
+    await client.HSET("live:broadcast", {
       id: `${broadcast.id}`,
       title: `${broadcast.title}`,
       startAt: `${broadcast.startAt}`,
       listenerPeakCount: `${broadcast.listenerPeakCount}`,
-    }),
-  );
-}
+    });
+  },
 
-export async function destroy(): Promise<void> {
-  const client = redis.connectDB();
-  await client.del("live:broadcast");
-}
+  destroy: async function (): Promise<void> {
+    const client = await redisConnection.open();
+    await client.del("live:broadcast");
+  },
 
-export async function read(): Promise<BroadcastDraft> {
-  const client = redis.connectDB();
-  const broadcast = await client.hgetall("live:broadcast");
-  const parsed: BroadcastDraft = {
-    id: Number(broadcast.id),
-    title: broadcast.title,
-    startAt: broadcast.startAt,
-    listenerPeakCount: Number(broadcast.listenerPeakCount),
-    likeCount: Number(broadcast.likeCount),
-  };
-  return parsed;
-}
+  read: async function (): Promise<BroadcastDraft> {
+    const client = await redisConnection.open();
+    const broadcast = await client.HGETALL("live:broadcast");
+    const parsed: BroadcastDraft = {
+      id: Number(broadcast.id),
+      title: broadcast.title,
+      startAt: broadcast.startAt,
+      listenerPeakCount: Number(broadcast.listenerPeakCount),
+      likeCount: Number(broadcast.likeCount),
+    };
+    return parsed;
+  },
 
-export async function readBroadcastId(): Promise<number> {
-  const client = redis.connectDB();
-  const id = await client.hget("live:broadcast", "id");
-  return Number(id);
-}
+  readBroadcastId: async function (): Promise<number> {
+    const client = await redisConnection.open();
+    const id = await client.HGET("live:broadcast", "id");
+    return Number(id);
+  },
 
-export async function updateListenerPeakCount(count: number): Promise<void> {
-  const client = redis.connectDB();
-  await client.hmset("live:broadcast", ["listenerPeakCount", `${count}`]);
-}
+  updateListenerPeakCount: async function (count: number): Promise<void> {
+    const client = await redisConnection.open();
+    await client.HSET("live:broadcast", { listenerPeakCount: `${count}` });
+  },
 
-export async function readListenerPeakCount(): Promise<number> {
-  const client = redis.connectDB();
-  return Number(await client.hget("live:broadcast", "listenerPeakCount"));
-}
+  readListenerPeakCount: async function (): Promise<number> {
+    const client = await redisConnection.open();
+    return Number(await client.HGET("live:broadcast", "listenerPeakCount"));
+  },
 
-export async function createLike(
-  userId: number,
-  broadcastId: number,
-): Promise<{
-  broadcastId: number;
-  likedByUserId: number;
-  likedByUsername: string;
-  likeCount: number;
-}> {
-  // FIX" looks like you retrieve only particular user's likes, but you need to retrieve ALL user likes
+  createLike: async function (
+    userId: number,
+    broadcastId: number,
+  ): Promise<{
+    broadcastId: number;
+    likedByUserId: number;
+    likedByUsername: string;
+    likeCount: number;
+  }> {
+    // FIX" looks like you retrieve only particular user's likes, but you need to retrieve ALL user likes
 
-  // If the user already has liked the broadcast, 'ON CONFLICT' clause allows us to just increment the counter of an existing row
-  const insertSql =
-    "WITH like_counter AS (\
+    // If the user already has liked the broadcast, 'ON CONFLICT' clause allows us to just increment the counter of an existing row
+    const insertSql =
+      "WITH like_counter AS (\
       /* Insert like */ \
       INSERT INTO \
         broadcast_like (broadcast_id, appuser_id, count) \
@@ -83,19 +81,20 @@ export async function createLike(
         like_counter AS lc \
       ON \
         au.appuser_id = lc.appuser_id";
-  const insertValues = [broadcastId, userId];
-  const pool = await postgres.connectDB();
-  const res = await pool.query<{
-    appuser_id: number;
-    username: string;
-    broadcast_id: number;
-    count: number;
-  }>(insertSql, insertValues);
+    const insertValues = [broadcastId, userId];
+    const pool = await dbConnection.open();
+    const res = await pool.query<{
+      appuser_id: number;
+      username: string;
+      broadcast_id: number;
+      count: number;
+    }>(insertSql, insertValues);
 
-  return {
-    likedByUserId: res.rows[0].appuser_id,
-    likedByUsername: res.rows[0].username,
-    broadcastId: res.rows[0].broadcast_id,
-    likeCount: res.rows[0].count,
-  };
-}
+    return {
+      likedByUserId: res.rows[0].appuser_id,
+      likedByUsername: res.rows[0].username,
+      broadcastId: res.rows[0].broadcast_id,
+      likeCount: res.rows[0].count,
+    };
+  },
+};

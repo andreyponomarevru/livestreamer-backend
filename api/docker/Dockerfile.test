@@ -8,4 +8,4 @@ RUN npm install
 # with test files won't be included
 COPY . .
 
-CMD npm run serve:test
+CMD yarn run migratesql up && yarn run serve:dev

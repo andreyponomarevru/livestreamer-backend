@@ -1,16 +1,17 @@
 {
   "ts-node": {
+    "compilerOptions": {
+      "module": "CommonJS"
+    },
     "files": true
   },
   "compilerOptions": {
-    "types": ["node"],
-
+    "types": ["node", "jest", "jest-extended"],
     "rootDir": "./src",
-    "target": "es6",
-    "module": "commonjs",
+    "target": "ES6",
+    "module": "ES2022",
     "sourceMap": true,
     "outDir": "./build",
-
     "strict": true,
     "moduleResolution": "node",
     "noUnusedLocals": false,
@@ -25,6 +26,6 @@
     "useUnknownInCatchVariables": false
   },
   "compileOnSave": true,
-  "include": ["src/**/*", "_unit-tests_/**/*", "_integration-tests_/**/*"],
-  "exclude": ["node_modules"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "**/*.test.ts"]
 }

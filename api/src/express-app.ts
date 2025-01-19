@@ -1,26 +1,15 @@
 import path from "path";
-
 import express from "express";
 import cors from "cors";
 import morganLogger from "morgan";
 import session from "express-session";
-
 import { HTTP_PORT } from "./config/env";
 import { morganSettings, logger } from "./config/logger";
 import { handleErrors } from "./middlewares/handle-errors";
 import { handle404Error } from "./middlewares/handle-404-error";
-import { chatRouter } from "./controllers/chat/routes";
-import { moderationRouter } from "./controllers/moderation/routes";
-import { sessionsRouter } from "./controllers/sessions/routes";
-import { verificationRouter } from "./controllers/verification/routes";
-import { userRouter } from "./controllers/user/routes";
-import { docRouter } from "./controllers/doc/routes";
-import { usersRouter } from "./controllers/users/routes";
-import { scheduleRouter } from "./controllers/schedule/routes";
-import { broadcastsRouter } from "./controllers/broadcasts/routes";
-import { streamRouter } from "./controllers/stream/routes";
 import * as env from "./config/env";
-import { sess } from "./config/session-storage";
+import { sessionConfig } from "./config/session-storage";
+import { apiRouter } from "./controllers/router";
 
 const expressApp = express();
 expressApp.set("port", HTTP_PORT);
@@ -30,7 +19,7 @@ if (env.NODE_ENV === "production") {
   expressApp.set("trust proxy", 1);
 }
 // Save in var in order to use it for WebSocket Upgrade request authentication:
-const sessionParser = session(sess);
+const sessionParser = session(sessionConfig);
 
 expressApp.use(cors());
 expressApp.use(sessionParser);
@@ -42,16 +31,7 @@ expressApp.use(morganLogger("combined", morganSettings));
 expressApp.use(express.json());
 expressApp.use(express.urlencoded({ extended: true }));
 expressApp.use(express.static(path.join(__dirname, "public")));
-expressApp.use("/", chatRouter);
-expressApp.use("/", moderationRouter);
-expressApp.use("/", sessionsRouter);
-expressApp.use("/", verificationRouter);
-expressApp.use("/", docRouter);
-expressApp.use("/", userRouter);
-expressApp.use("/", usersRouter);
-expressApp.use("/", broadcastsRouter);
-expressApp.use("/", scheduleRouter);
-expressApp.use("/", streamRouter);
+expressApp.use("/", apiRouter);
 // If request doesn't match the routes above, it is past to 404 error handler
 expressApp.use(handle404Error);
 expressApp.use(handleErrors);

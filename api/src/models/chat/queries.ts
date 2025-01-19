@@ -1,4 +1,4 @@
-import { connectDB } from "../../config/postgres";
+import { dbConnection } from "../../config/postgres";
 import {
   ChatMsg,
   ChatMsgId,
@@ -14,18 +14,19 @@ import {
   encodeNextPageCursor,
 } from "../../utils/handle-db-cursors";
 
-export async function createMsg(msg: NewChatMsg): Promise<ChatMsg> {
-  const insertSql =
-    "INSERT INTO chat_message (appuser_id, message) VALUES ($1, $2) RETURNING chat_message_id";
-  const insertValues = [msg.userId, msg.message];
-  const pool = await connectDB();
-  const insertedMsgId = await pool.query<{ chat_message_id: number }>(
-    insertSql,
-    insertValues,
-  );
+export const chatRepo = {
+  createMsg: async function (msg: NewChatMsg): Promise<ChatMsg> {
+    const insertSql =
+      "INSERT INTO chat_message (appuser_id, message) VALUES ($1, $2) RETURNING chat_message_id";
+    const insertValues = [msg.userId, msg.message];
+    const pool = await dbConnection.open();
+    const insertedMsgId = await pool.query<{ chat_message_id: number }>(
+      insertSql,
+      insertValues,
+    );
 
-  const selectSql =
-    "SELECT \
+    const selectSql =
+      "SELECT \
       au.username,\
       v_c_h.* \
     FROM \
@@ -36,26 +37,26 @@ export async function createMsg(msg: NewChatMsg): Promise<ChatMsg> {
       au.appuser_id = v_c_h.appuser_id \
     WHERE \
       v_c_h.chat_message_id = $1";
-  const newMsg = await pool.query<ReadMsgDBResponse>(selectSql, [
-    insertedMsgId.rows[0].chat_message_id,
-  ]);
+    const newMsg = await pool.query<ReadMsgDBResponse>(selectSql, [
+      insertedMsgId.rows[0].chat_message_id,
+    ]);
 
-  return {
-    id: newMsg.rows[0].chat_message_id,
-    userId: newMsg.rows[0].appuser_id,
-    username: newMsg.rows[0].username,
-    message: newMsg.rows[0].message,
-    createdAt: newMsg.rows[0].created_at,
-    likedByUserId: newMsg.rows[0].liked_by_user_id,
-  };
-}
+    return {
+      id: newMsg.rows[0].chat_message_id,
+      userId: newMsg.rows[0].appuser_id,
+      username: newMsg.rows[0].username,
+      message: newMsg.rows[0].message,
+      createdAt: newMsg.rows[0].created_at,
+      likedByUserId: newMsg.rows[0].liked_by_user_id,
+    };
+  },
 
-export async function destroyMsg(msg: ChatMsgId): Promise<{
-  id: number;
-  userId: number;
-} | void> {
-  const sql =
-    "DELETE FROM \
+  destroyMsg: async function (msg: ChatMsgId): Promise<{
+    id: number;
+    userId: number;
+  } | void> {
+    const sql =
+      "DELETE FROM \
 			chat_message \
 		WHERE \
       appuser_id = $1 \
@@ -63,31 +64,31 @@ export async function destroyMsg(msg: ChatMsgId): Promise<{
       chat_message_id = $2\
     RETURNING \
       chat_message_id";
-  const values = [msg.userId, msg.id];
-  const pool = await connectDB();
-  const res = await pool.query<{ chat_message_id: number }>(sql, values);
+    const values = [msg.userId, msg.id];
+    const pool = await dbConnection.open();
+    const res = await pool.query<{ chat_message_id: number }>(sql, values);
 
-  // If user tries to delete nonexistent message, don't return anything
-  if (res.rowCount > 0) {
-    return { userId: msg.userId, id: msg.id };
-  }
-}
+    // If user tries to delete nonexistent message, don't return anything
+    if (res.rowCount !== null && res.rowCount > 0) {
+      return { userId: msg.userId, id: msg.id };
+    }
+  },
 
-export async function readMsgsPaginated(
-  limit: number,
-  nextCursor?: string,
-): Promise<
-  PaginatedItems<{
-    id: number;
-    userId: number;
-    username: string;
-    createdAt: string;
-    message: string;
-    likedByUserId: number[];
-  }>
-> {
-  const sql =
-    "SELECT \
+  readMsgsPaginated: async function (
+    limit: number,
+    nextCursor?: string,
+  ): Promise<
+    PaginatedItems<{
+      id: number;
+      userId: number;
+      username: string;
+      createdAt: string;
+      message: string;
+      likedByUserId: number[];
+    }>
+  > {
+    const sql =
+      "SELECT \
         username, v_c_h.*\
       FROM \
         appuser AS usr \
@@ -109,104 +110,105 @@ export async function readMsgsPaginated(
         chat_message_id DESC\
       LIMIT $3 + 1";
 
-  const { timestampCursor, idCursor } = decodeNextPageCursor(nextCursor);
-  const values = [timestampCursor, idCursor, limit];
-  const pool = await connectDB();
-  const res = await pool.query<ReadMsgDBResponse>(sql, values);
+    const { timestampCursor, idCursor } = decodeNextPageCursor(nextCursor);
+    const values = [timestampCursor, idCursor, limit];
+    const pool = await dbConnection.open();
+    const res = await pool.query<ReadMsgDBResponse>(sql, values);
 
-  const items: {
+    const items: {
+      id: number;
+      userId: number;
+      username: string;
+      createdAt: string;
+      message: string;
+      likedByUserId: number[];
+    }[] = res.rows.map((row) => {
+      return {
+        id: row.chat_message_id,
+        createdAt: row.created_at,
+        likedByUserId: row.liked_by_user_id,
+        userId: row.appuser_id,
+        username: row.username,
+        message: row.message,
+      };
+    });
+
+    // If there IS a new next page, set next cursor. Otherwise nextCursor is set to "null" (in other words, if db response (retrieving limit+1) contains more rows than 'limit' query, set next cursor).
+    if (items.length === 0) {
+      return { nextCursor: null, items: [] };
+    } else if (items.length <= limit) {
+      return { nextCursor: null, items: items };
+    } else {
+      // To handle cases when multiple records have the same timestamp, we create composite cursor (for the last raw) combining record's timestamp and id
+      const newNextCursor = encodeNextPageCursor(
+        items[items.length - 1].createdAt,
+        items[items.length - 1].id,
+      );
+      const newPage = items.splice(0, items.length - 1);
+
+      return { nextCursor: newNextCursor, items: newPage };
+    }
+  },
+
+  createMsgLike: async function (msg: {
     id: number;
     userId: number;
-    username: string;
-    createdAt: string;
-    message: string;
-    likedByUserId: number[];
-  }[] = res.rows.map((row) => {
-    return {
-      id: row.chat_message_id,
-      createdAt: row.created_at,
-      likedByUserId: row.liked_by_user_id,
-      userId: row.appuser_id,
-      username: row.username,
-      message: row.message,
-    };
-  });
-
-  // If there IS a new next page, set next cursor. Otherwise nextCursor is set to "null" (in other words, if db response (retrieving limit+1) contains more rows than 'limit' query, set next cursor).
-  if (items.length === 0) {
-    return { nextCursor: null, items: [] };
-  } else if (items.length <= limit) {
-    return { nextCursor: null, items: items };
-  } else {
-    // To handle cases when multiple records have the same timestamp, we create composite cursor (for the last raw) combining record's timestamp and id
-    const newNextCursor = encodeNextPageCursor(
-      items[items.length - 1].createdAt,
-      items[items.length - 1].id,
-    );
-    const newPage = items.splice(0, items.length - 1);
-
-    return { nextCursor: newNextCursor, items: newPage };
-  }
-}
-
-export async function createMsgLike(msg: {
-  id: number;
-  userId: number;
-}): Promise<ChatMsgLike> {
-  const insertSql =
-    "INSERT INTO \
+  }): Promise<ChatMsgLike> {
+    const insertSql =
+      "INSERT INTO \
       chat_message_like (appuser_id, chat_message_id) \
     VALUES \
       ($1, $2) \
     ON CONFLICT \
       DO NOTHING";
-  const insertValues = [msg.userId, msg.id];
-  const pool = await connectDB();
-  await pool.query(insertSql, insertValues);
+    const insertValues = [msg.userId, msg.id];
+    const pool = await dbConnection.open();
+    await pool.query(insertSql, insertValues);
 
-  const selectSql =
-    "SELECT * FROM view_chat_message_likes WHERE chat_message_id = $1";
-  const selectValues = [msg.id];
-  const res = await pool.query<CreateMsgLikeDBResponse>(
-    selectSql,
-    selectValues,
-  );
+    const selectSql =
+      "SELECT * FROM view_chat_message_likes WHERE chat_message_id = $1";
+    const selectValues = [msg.id];
+    const res = await pool.query<CreateMsgLikeDBResponse>(
+      selectSql,
+      selectValues,
+    );
 
-  return {
-    messageId: msg.id,
-    likedByUserId: msg.userId,
-    likedByUserIds: res.rows[0].liked_by_user_id,
-  };
-}
+    return {
+      messageId: msg.id,
+      likedByUserId: msg.userId,
+      likedByUserIds: res.rows[0].liked_by_user_id,
+    };
+  },
 
-export async function destroyMsgLike(
-  msg: ChatMsgId,
-): Promise<ChatMsgUnlike | void> {
-  const deleteSql =
-    "DELETE FROM \
+  destroyMsgLike: async function (
+    msg: ChatMsgId,
+  ): Promise<ChatMsgUnlike | void> {
+    const deleteSql =
+      "DELETE FROM \
       chat_message_like \
     WHERE \
       appuser_id = $1 \
     AND \
       chat_message_id = $2";
-  const deleteValues = [msg.userId, msg.id];
-  const pool = await connectDB();
-  await pool.query(deleteSql, deleteValues);
+    const deleteValues = [msg.userId, msg.id];
+    const pool = await dbConnection.open();
+    await pool.query(deleteSql, deleteValues);
 
-  const selectSql =
-    "SELECT * FROM view_chat_message_likes WHERE chat_message_id = $1";
-  const selectValues = [msg.id];
-  const res = await pool.query<CreateMsgLikeDBResponse>(
-    selectSql,
-    selectValues,
-  );
+    const selectSql =
+      "SELECT * FROM view_chat_message_likes WHERE chat_message_id = $1";
+    const selectValues = [msg.id];
+    const res = await pool.query<CreateMsgLikeDBResponse>(
+      selectSql,
+      selectValues,
+    );
 
-  // If user tries to delete the like of nonexistent message, don't return anything
-  if (res.rowCount > 0) {
-    return {
-      messageId: msg.id,
-      unlikedByUserId: msg.userId,
-      likedByUserIds: res.rows[0].liked_by_user_id,
-    };
-  }
-}
+    // If user tries to delete the like of nonexistent message, don't return anything
+    if (res.rowCount !== null && res.rowCount > 0) {
+      return {
+        messageId: msg.id,
+        unlikedByUserId: msg.userId,
+        likedByUserIds: res.rows[0].liked_by_user_id,
+      };
+    }
+  },
+};

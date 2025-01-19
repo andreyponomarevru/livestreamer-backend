@@ -8,7 +8,7 @@ npm-debug.log
 Dockerfile*
 doc/
 .vscode/
-_source
+_source/
 .prettierrc.js
 .eslintrc.js
 .eslintignore

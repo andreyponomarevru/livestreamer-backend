@@ -7,7 +7,7 @@ import {
   MAIL_FROM_PORT,
 } from "../config/env";
 
-export const config = {
+export const mailConfig = {
   service: MAIL_FROM_SERVICE,
   host: MAIL_FROM_HOST,
   port: MAIL_FROM_PORT,

@@ -1,0 +1,58 @@
+#!/bin/bash
+
+# DESCRIPTION
+#     Backup files from VPS to local machine
+#
+#     This script will copy/sync files and dirs listed in .txt files
+#     from VPS to local machine.
+#
+# SYNOPSIS
+#     ./script <docker db container ID>  <dir to dump to>
+
+set -eu -o pipefail
+
+# printenv
+# printf '\n\n'
+# set -x
+
+printf '\n------------ Back up LiveStreamer on %s ------------\n\n' "$(date)"
+
+readonly VPS="$VPS_USER_SIMPLECLOUD@$VPS_IP_SIMPLECLOUD"
+
+printf '\n1. Backup Postgres in Docker.\n'
+
+readonly REMOTE_APP_DIR="/home/$VPS_USER_SIMPLECLOUD/livestreamer-backend"
+readonly LOCAL_BACKUP_DIR="$HOME/vps-backup/livestreamer"
+readonly POSTGRES_BACKUP_SCRIPT_NAME="helper_backup-postgres-db-inside-docker"
+readonly POSTGRES_BACKUP_SCRIPT_PATH="/mnt/9904b8b1-2f58-4bc1-a5de-aa1584088b5e/projects-personal/livestreamer-backend/deployment-scripts/backup-livestreamer/$POSTGRES_BACKUP_SCRIPT_NAME"
+
+printf '\n1.1. Copy db backup script to VPS.\n'
+rsync \
+  --archive \
+  --verbose \
+  --progress \
+  --rsh=ssh \
+  "$POSTGRES_BACKUP_SCRIPT_PATH" \
+  "$VPS:$REMOTE_APP_DIR"
+
+printf '\n1.2. Execute db backup scripts on VPS.\n'
+ssh "$VPS" "\
+  $REMOTE_APP_DIR/$POSTGRES_BACKUP_SCRIPT_NAME \
+    livestreamer \
+    db \
+    streamer \
+    $REMOTE_APP_DIR \
+  && exit"
+
+printf '\n1.3. Copy db dump to local machine.\n'
+rsync \
+  --archive \
+  --verbose \
+  --compress \
+  --progress \
+  --remove-source-files \
+  --rsh=ssh \
+  "$VPS:$REMOTE_APP_DIR/*.sql" \
+  "$LOCAL_BACKUP_DIR/"
+
+printf '\n^^^^^^^^^^^^ Backed up successfully on %s ^^^^^^^^^^^^\n\n' "$(date)"

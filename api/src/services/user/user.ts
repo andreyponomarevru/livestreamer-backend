@@ -1,127 +1,129 @@
 import { SignUpData } from "../../types";
 import { User } from "../../models/user/user";
-import * as authService from "../authn/authn";
-import * as mailService from "./../mail/send-email";
-import { createConfirmationEmail } from "./../mail/email-templates";
+import { authnService } from "../authn";
+import { mailService } from "../mail";
 import { NODE_ENV } from "../../config/env";
-import * as usersDB from "../../models/user/queries";
+import { userRepo } from "../../models/user/queries";
 import { logger } from "../../config/logger";
 
-export async function createUser(signupData: SignUpData): Promise<void> {
-  const userToken = authService.generateToken();
+export const userService = {
+  createUser: async function (signupData: SignUpData): Promise<void> {
+    const userToken = authnService.generateToken();
 
-  const { userId } = await usersDB.createUser({
-    username: signupData.username,
-    email: signupData.email,
-    password: await authService.hashPassword(signupData.password),
-    roleId: signupData.roleId,
-    emailConfirmationToken: userToken,
-    isEmailConfirmed: signupData.isEmailConfirmed,
-  });
+    const { userId } = await userRepo.createUser({
+      username: signupData.username,
+      email: signupData.email,
+      password: await authnService.hashPassword(signupData.password),
+      roleId: signupData.roleId,
+      emailConfirmationToken: userToken,
+      isEmailConfirmed: signupData.isEmailConfirmed,
+    });
 
-  const singUpConfirmationEmail = createConfirmationEmail({
-    username: signupData.username,
-    email: signupData.email,
-    userId: userId,
-    userToken: userToken,
-  });
+    const singUpConfirmationEmail =
+      mailService.emailTemplates.createConfirmationEmail({
+        username: signupData.username,
+        email: signupData.email,
+        userId: userId,
+        userToken: userToken,
+      });
 
-  if (NODE_ENV === "production") {
-    await mailService.sendEmail(singUpConfirmationEmail);
-  } else {
-    logger.debug(singUpConfirmationEmail);
-  }
-}
+    if (NODE_ENV === "production") {
+      await mailService.sendEmail(singUpConfirmationEmail);
+    } else {
+      logger.debug(singUpConfirmationEmail);
+    }
+  },
 
-export async function readUser(userId: number): Promise<User> {
-  return await usersDB.readUser(userId);
-}
+  readUser: async function (userId: number): Promise<User> {
+    return await userRepo.readUser(userId);
+  },
 
-export async function readAllUsers(): Promise<User[]> {
-  return await usersDB.readAllUsers();
-}
+  readAllUsers: async function (): Promise<User[]> {
+    return await userRepo.readAllUsers();
+  },
 
-export async function updateUser({
-  userId,
-  username,
-}: {
-  userId: number;
-  username: string;
-}): Promise<User | null> {
-  return await usersDB.updateUser({ userId, username });
-}
+  updateUser: async function ({
+    userId,
+    username,
+  }: {
+    userId: number;
+    username: string;
+  }): Promise<User | null> {
+    return await userRepo.updateUser({ userId, username });
+  },
 
-export async function destroyUser(userId: number): Promise<void> {
-  await usersDB.destroyUser(userId);
-}
+  destroyUser: async function (userId: number): Promise<void> {
+    await userRepo.destroyUser(userId);
+  },
 
-export async function isUserExists({
-  userId,
-  username,
-  email,
-}: {
-  userId?: number;
-  username?: string;
-  email?: string;
-}): Promise<boolean> {
-  return await usersDB.isUserExists({ userId, username, email });
-}
+  isUserExists: async function ({
+    userId,
+    username,
+    email,
+  }: {
+    userId?: number;
+    username?: string;
+    email?: string;
+  }): Promise<boolean> {
+    return await userRepo.isUserExists({ userId, username, email });
+  },
 
-export async function isUserDeleted({
-  userId,
-  email,
-}: {
-  userId?: number;
-  email?: string;
-}): Promise<boolean> {
-  return await usersDB.isUserDeleted({ userId, email });
-}
+  isUserDeleted: async function ({
+    userId,
+    email,
+  }: {
+    userId?: number;
+    email?: string;
+  }): Promise<boolean> {
+    return await userRepo.isUserDeleted({ userId, email });
+  },
 
-export async function updatePassword({
-  userId,
-  newPassword,
-}: {
-  userId: number;
-  newPassword: string;
-}): Promise<void> {
-  const hash = await authService.hashPassword(newPassword);
-  await usersDB.updatePassword({ userId, newPassword: hash });
-}
+  updatePassword: async function ({
+    userId,
+    newPassword,
+  }: {
+    userId: number;
+    newPassword: string;
+  }): Promise<void> {
+    const hash = await authnService.hashPassword(newPassword);
+    await userRepo.updatePassword({ userId, newPassword: hash });
+  },
 
-export async function updateLastLoginTime(userId: number): Promise<{
-  lastLoginAt: string;
-}> {
-  return await usersDB.updateLastLoginTime(userId);
-}
+  updateLastLoginTime: async function (userId: number): Promise<{
+    lastLoginAt: string;
+  }> {
+    return await userRepo.updateLastLoginTime(userId);
+  },
 
-export async function isEmailConfirmed({
-  userId,
-  email,
-}: {
-  userId?: number;
-  email?: string;
-}): Promise<boolean> {
-  return await usersDB.isEmailConfirmed({ userId, email });
-}
+  isEmailConfirmed: async function ({
+    userId,
+    email,
+  }: {
+    userId?: number;
+    email?: string;
+  }): Promise<boolean> {
+    return await userRepo.isEmailConfirmed({ userId, email });
+  },
 
-export async function findByUsernameOrEmail({
-  username,
-  email,
-}: {
-  username?: string;
-  email?: string;
-}): Promise<User | null> {
-  return await usersDB.findByUsernameOrEmail({ username, email });
-}
+  findByUsernameOrEmail: async function ({
+    username,
+    email,
+  }: {
+    username?: string;
+    email?: string;
+  }): Promise<User | null> {
+    return await userRepo.findByUsernameOrEmail({ username, email });
+  },
 
-export async function findByEmailConfirmationToken(token: string): Promise<{
-  userId: number | null;
-}> {
-  return await usersDB.findByEmailConfirmationToken(token);
-}
+  findByEmailConfirmationToken: async function (token: string): Promise<{
+    userId: number | null;
+  }> {
+    return await userRepo.findByEmailConfirmationToken(token);
+  },
 
-export async function findByPasswordResetToken(token: string): Promise<{
-  userId: number | null;
-}> {
-  return await usersDB.findByPasswordResetToken(token);
-}
+  findByPasswordResetToken: async function (token: string): Promise<{
+    userId: number | null;
+  }> {
+    return await userRepo.findByPasswordResetToken(token);
+  },
+};

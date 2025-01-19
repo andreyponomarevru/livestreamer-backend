@@ -1,27 +1,29 @@
 import { Server } from "ws";
-
 import { serverOptions } from "./config/ws-server";
+import { onClose, onConnection } from "./services/ws/index";
 import {
+  chatService,
   onCreateChatMsg,
   onDestroyChatMsg,
   onLikeChatMsg,
   onUnlikeChatMsg,
-  onStreamEnd,
-  onStreamLike,
-  onStreamStart,
   onAddClient,
   onDeleteClient,
   onUpdateClientCount,
-  onClose,
-  onConnection,
-} from "./services/ws";
-import * as chatService from "./services/chat";
-import * as streamService from "./services/stream";
-import * as wsService from "./services/ws";
+  onChatStart,
+} from "./services/chat";
+import {
+  streamService,
+  onStreamEnd,
+  onStreamLike,
+  onStreamStart,
+} from "./services/stream";
+import { wsService } from "./services/ws";
 
-const wsServer = new Server(serverOptions);
+export const wsServer = new Server(serverOptions);
 
 wsServer.on("connection", onConnection);
+wsServer.on("connection", onChatStart);
 wsServer.on("close", onClose);
 
 wsService.clientStore.on("add_client", onAddClient);
@@ -34,5 +36,3 @@ chatService.events.on("create_message", onCreateChatMsg);
 chatService.events.on("delete_message", onDestroyChatMsg);
 chatService.events.on("like_message", onLikeChatMsg);
 chatService.events.on("unlike_message", onUnlikeChatMsg);
-
-export { wsServer };

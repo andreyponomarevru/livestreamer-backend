@@ -1,0 +1,5 @@
+{
+  "watch": ["src", "tests-e2e", "tests-integration", "test-helpers"],
+  "ext": "ts,json",
+  "exec": "TS_NODE_PROJECT=tsconfig.json node --inspect=0.0.0.0:9229 -r ts-node/register ./src/index.ts"
+}

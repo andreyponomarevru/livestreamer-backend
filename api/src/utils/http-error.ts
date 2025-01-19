@@ -8,7 +8,7 @@ import {
 export class HttpError {
   status: HttpErrorCodes;
   statusText: HttpErrorNames;
-  message?: HttpErrorMessages;
+  message?: string;
   moreInfo?: string;
 
   constructor({
@@ -17,7 +17,7 @@ export class HttpError {
     moreInfo = "https://github.com/ponomarevandrey/",
   }: {
     code: HttpErrorCodes;
-    message?: HttpErrorMessages;
+    message?: string;
     moreInfo?: string;
   }) {
     this.status = code;

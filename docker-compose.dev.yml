@@ -10,10 +10,7 @@ services:
     tty: true
     volumes:
       # Recompile code on changes
-      - ./api/src:/api/src
-      - ./api/_unit-tests_:/api/_unit-tests_
-      - ./api/tsconfig.json:/api/tsconfig.json
-      - /api/node_modules
+      - ./api:/api
       # set the container timezone to the time zone of host machine
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
@@ -54,7 +51,7 @@ services:
       - livestreamer_backend
 
   devredis:
-    container_name: redis
+    container_name: devredis
     build:
       context: ./redis
       dockerfile: ./docker/Dockerfile

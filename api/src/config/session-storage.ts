@@ -1,5 +1,6 @@
 import session from "express-session";
-import redisSession from "connect-redis";
+import RedisStore from "connect-redis";
+import { redisConnection } from "./redis";
 
 import {
   AUTH_COOKIE_SECRET,
@@ -10,11 +11,8 @@ import {
 } from "./env";
 import * as redis from "./redis";
 
-const RedisStore = redisSession(session);
-
-export const sess = {
+export const sessionConfig = {
   store: new RedisStore({
-    host: "localhost",
     // Doc: https://github.com/tj/connect-redis
     // From doc:
     //
@@ -27,7 +25,7 @@ export const sess = {
     // can disable this behavior in *some* instances by using `disableTouch`.
     //
     // Note: `express-session` does not update `expires` until the end of the request life cycle. Calling `session.save()` manually beforehand will have the previous value.
-    client: redis.connectDB().nodeRedis,
+    client: (async () => await redisConnection.open())(),
     // The ttl is used to create an expiration date. If you do not want to expire your cookie, check out https://stackoverflow.com/a/35127487/13156302
     // ttl: REDIS_COOKIE_EXPIRATION_TTL,
   }),
