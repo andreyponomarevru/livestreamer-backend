@@ -6,6 +6,9 @@ on:
       - main
   workflow_dispatch:
 
+#env:
+ # super_secret: ${{ secrets.my_secret }}
+
 jobs:
 
   test:
@@ -18,6 +21,23 @@ jobs:
       - name: Checkout the repo
         uses: actions/checkout@v2
       
+      - name: Create env file
+        run: |
+          mkdir -p ./api/docker
+          
+          echo "${{ secrets.API_COMMON_ENV }}" >> ./api/docker/.api.common.env
+          cat secrets.API_COMMON_ENV
+          echo "${{ secrets.API_DEV_ENV }}"    >> ./api/docker/.api.dev.env
+          echo "${{ secrets.API_PROD_ENV }}"   >> ./api/docker/.api.prod.env
+          echo "${{ secrets.API_TEST_ENV }}"   >> ./api/docker/.api.test.env
+
+          mkdir -p postgres/docker
+
+          echo "${{ secrets.POSTGRES_COMMON_ENV }}" >> ./postgres/docker/.postgres.common.env
+          echo "${{ secrets.POSTGRES_DEV_ENV }}"    >> ./postgres/docker/.postgres.dev.env
+          echo "${{ secrets.POSTGRES_PROD_ENV }}"   >> ./postgres/docker/.postgres.prod.env
+          echo "${{ secrets.POSTGRES_TEST_ENV }}"   >> ./postgres/docker/.postgres.test.env           
+
       - name: Build images and start all containers
         run: |
           docker compose --file ./docker-compose.test.yml up --detach --build

@@ -19,10 +19,10 @@ services:
       # Port for the app (i.e. webpack dev server port)
       - 5000
     env_file:
-      - ./api/docker/.common.env
-      - ./api/docker/.dev.env
-      - ./postgres/docker/.common.env
-      - ./postgres/docker/.dev.env
+      - ./api/docker/.api.common.env
+      - ./api/docker/.api.dev.env
+      - ./postgres/docker/.postgres.common.env
+      - ./postgres/docker/.postgres.dev.env
     volumes:
       # Recompile code on changes
       - ./api:/home/node
@@ -45,8 +45,8 @@ services:
     init: true
     restart: "no"
     env_file:
-      - ./postgres/docker/.common.env
-      - ./postgres/docker/.dev.env
+      - ./postgres/docker/.postgres.common.env
+      - ./postgres/docker/.postgres.dev.env
     ports:
       - 54324:5432
     networks:

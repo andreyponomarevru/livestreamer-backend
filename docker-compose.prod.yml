@@ -18,10 +18,10 @@ services:
       # only in internal network on host machine
       - 127.0.0.1:5000:5000
     env_file:
-      - ./api/docker/.common.env
-      - ./api/docker/.prod.env
-      - ./postgres/docker/.common.env
-      - ./postgres/docker/.prod.env
+      - ./api/docker/.api.common.env
+      - ./api/docker/.api.prod.env
+      - ./postgres/docker/.postgres.common.env
+      - ./postgres/docker/.postgres.prod.env
     volumes:
       # set the container timezone to the time zone of host machine
       - /etc/timezone:/etc/timezone:ro
@@ -43,8 +43,8 @@ services:
     restart: always
     init: true
     env_file:
-      - ./postgres/docker/.common.env
-      - ./postgres/docker/.prod.env
+      - ./postgres/docker/.postgres.common.env
+      - ./postgres/docker/.postgres.prod.env
     volumes:
       - /var/backups/:/var/backups/
     ports:

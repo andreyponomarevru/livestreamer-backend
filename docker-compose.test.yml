@@ -20,10 +20,10 @@ services:
       # Port for the app
       - 5001
     env_file:
-      - ./api/docker/.common.env
-      - ./api/docker/.test.env
-      - ./postgres/docker/.common.env
-      - ./postgres/docker/.test.env
+      - ./api/docker/.api.common.env
+      - ./api/docker/.api.test.env
+      - ./postgres/docker/.postgres.common.env
+      - ./postgres/docker/.postgres.test.env
     volumes:
       # set the container timezone to the time zone of host machine
       - /etc/timezone:/etc/timezone:ro
@@ -44,8 +44,8 @@ services:
     init: true
     restart: "no"
     env_file:
-      - ./postgres/docker/.common.env
-      - ./postgres/docker/.test.env
+      - ./postgres/docker/.postgres.common.env
+      - ./postgres/docker/.postgres.test.env
     ports:
       - 54323:5432
     networks:
