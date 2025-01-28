@@ -3,7 +3,7 @@ import { faker } from "@faker-js/faker";
 import { v4 as uuidv4 } from "uuid";
 import WebSocket from "ws";
 
-import { sanitizeWSClient } from "../../../src/services/ws/sanitize-ws-client";
+import { sanitizeWSClient } from "./sanitize-ws-client";
 
 describe("sanitizeWSClient", () => {
   const wsClient = {

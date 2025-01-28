@@ -4,7 +4,6 @@ import util from "util";
 import { userRepo } from "../../models/user/queries";
 import { logger } from "../../config/logger";
 import { mailService } from "../mail";
-import { NODE_ENV } from "../../config/env";
 
 export const authnService = {
   confirmEmail: async function (userId: number): Promise<void> {
@@ -14,11 +13,8 @@ export const authnService = {
       email,
     });
     logger.debug(welcomeEmail);
-    if (NODE_ENV === "production") {
-      await mailService.sendEmail(welcomeEmail);
-    } else {
-      logger.debug(welcomeEmail);
-    }
+
+    await mailService.sendEmail(welcomeEmail);
   },
 
   handlePasswordReset: async function (email: string): Promise<void> {
@@ -27,11 +23,8 @@ export const authnService = {
     const passwordResetEmail =
       mailService.emailTemplates.createPasswordResetEmail({ email, token });
     logger.debug(`${__filename}: ${util.inspect(passwordResetEmail)}`);
-    if (NODE_ENV === "production") {
-      await mailService.sendEmail(passwordResetEmail);
-    } else {
-      logger.debug(passwordResetEmail);
-    }
+
+    await mailService.sendEmail(passwordResetEmail);
   },
 
   hashPassword: async function (

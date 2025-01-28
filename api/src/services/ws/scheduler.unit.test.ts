@@ -1,8 +1,6 @@
-process.env.NODE_ENV = "test";
-
 import { afterEach, jest, describe, it, expect } from "@jest/globals";
 
-import { IntervalScheduler } from "../../../src/services/ws/scheduler";
+import { IntervalScheduler } from "./scheduler";
 
 const scheduler = new IntervalScheduler();
 

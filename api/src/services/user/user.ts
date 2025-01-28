@@ -2,7 +2,6 @@ import { SignUpData } from "../../types";
 import { User } from "../../models/user/user";
 import { authnService } from "../authn";
 import { mailService } from "../mail";
-import { NODE_ENV } from "../../config/env";
 import { userRepo } from "../../models/user/queries";
 import { logger } from "../../config/logger";
 
@@ -27,11 +26,9 @@ export const userService = {
         userToken: userToken,
       });
 
-    if (NODE_ENV === "production") {
-      await mailService.sendEmail(singUpConfirmationEmail);
-    } else {
-      logger.debug(singUpConfirmationEmail);
-    }
+    logger.debug(singUpConfirmationEmail);
+
+    await mailService.sendEmail(singUpConfirmationEmail);
   },
 
   readUser: async function (userId: number): Promise<User> {

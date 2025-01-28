@@ -1,38 +1,25 @@
 name: CI
 
-# Controls when the workflow will run
 on:
   pull_request:
     branches: 
       - main
+  workflow_dispatch:
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+env:
+  API_COMMON_ENV: ${{ vars.API_COMMON_ENV }}
+  API_DEV_ENV: ${{ vars.API_DEV_ENV }}
+  API_PROD_ENV: ${{ vars.API_PROD_ENV }}
+  API_TEST_ENV: '${{ vars.API_TEST_ENV }}' 
+  POSTGRES_COMMON_ENV: '${{ vars.POSTGRES_COMMON_ENV }}' 
+  POSTGRES_DEV_ENV: '${{ vars.POSTGRES_DEV_ENV }}'
+  POSTGRES_PROD_ENV: '${{ vars.POSTGRES_PROD_ENV }}'
+  POSTGRES_TEST_ENV: '${{ vars.POSTGRES_TEST_ENV }}'    
+
 jobs:
 
-  build_test:
+  test:
     runs-on: ubuntu-latest
     steps:
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ vars.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Set up Docker Buildix
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build and test
-        uses: docker/build-push-action@v6
-        with:
-          target: test
-          load: true
-
-      - name: Build and push
-        uses: docker/build-push-action@v6
-        with:
-          push: true
-          target: production
-          tags: ${{ vars.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest
-
-
-
+      - uses: actions/checkout@v2
+      - run: ./ci.sh

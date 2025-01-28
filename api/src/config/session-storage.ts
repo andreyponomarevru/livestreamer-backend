@@ -6,10 +6,10 @@ import {
   AUTH_COOKIE_SECRET,
   COOKIE_NAME,
   REDIS_COOKIE_EXPIRATION_TTL,
-  NODE_ENV,
+  SHOULD_SET_SECURE_SESSION_COOKIE,
   EXPRESS_SESSION_COOKIE_MAXAGE,
+  SHOULD_TRUST_PROXY_SECURE_SESSION_COOKIE,
 } from "./env";
-import * as redis from "./redis";
 
 export const sessionConfig = {
   store: new RedisStore({
@@ -33,18 +33,11 @@ export const sessionConfig = {
   resave: false,
   secret: AUTH_COOKIE_SECRET,
   name: COOKIE_NAME,
-  proxy: NODE_ENV === "production",
+  proxy: SHOULD_TRUST_PROXY_SECURE_SESSION_COOKIE,
   cookie: {
     httpOnly: true,
     sameSite: true,
-    maxAge: EXPRESS_SESSION_COOKIE_MAXAGE, // time in ms
-    // Adds 'Secure' flag to cookie. We switch this flag based on NODE_ENV.
-    // Here we set it to false to ease the development, otherwise you'll need
-    // to have HTTPS enabled on your dev server. When in production this prop
-    // switches to 'true'.
-    // More on this:
-    // https://stackoverflow.com/questions/40324121/express-session-secure-true
-    // http://expressjs.com/en/resources/middleware/session.html
-    secure: NODE_ENV === "production",
+    maxAge: EXPRESS_SESSION_COOKIE_MAXAGE,
+    secure: SHOULD_SET_SECURE_SESSION_COOKIE,
   },
 };

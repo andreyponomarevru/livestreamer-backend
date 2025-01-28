@@ -4,7 +4,8 @@ import {
   DEBUG_LOG_NAME,
   INFO_LOG_NAME,
   ERROR_LOG_NAME,
-  NODE_ENV,
+  SHOULD_LOG_TO_CONSOLE,
+  SHOULD_LOG_TO_FILE,
 } from "./../config/env";
 
 //
@@ -22,7 +23,7 @@ const {
 } = winston;
 
 const logFormat = printf(({ level, message, label, timestamp }) => {
-  return `${level} [${timestamp}] ${label.toUpperCase()}: ${message}`;
+  return `${level} [${timestamp}] ${"" /*label.toUpperCase()*/}: ${message}`;
 });
 
 // Write all logs with level 'debug' and below to file
@@ -35,7 +36,7 @@ const debugConsoleTransport = new transports.Console({
     colorize({ all: true }),
     logFormat,
   ),
-  silent: NODE_ENV === "test",
+  silent: !SHOULD_LOG_TO_CONSOLE,
 });
 
 const debugFileTransport = new transports.File({
@@ -47,7 +48,7 @@ const debugFileTransport = new transports.File({
     colorize({ all: true }),
     logFormat,
   ),
-  silent: NODE_ENV === "development" || NODE_ENV === "test",
+  silent: !SHOULD_LOG_TO_FILE,
 });
 
 // Write all logs with level 'info' and below to INFO_LOG_NAME
@@ -57,7 +58,7 @@ const infoFileTransport = new transports.File({
   maxsize: 5242880, // 5MB
   maxFiles: 2,
   format: combine(label({ label: APP_NAME }), timestamp(), logFormat),
-  silent: NODE_ENV !== "test",
+  silent: SHOULD_LOG_TO_FILE,
 });
 
 // Write all logs with level 'error' and below to file
@@ -69,12 +70,15 @@ const errorFileTransport = new transports.File({
   format: combine(label({ label: APP_NAME }), timestamp(), logFormat),
 });
 
-function createTransports(env = "development") {
-  return env === "development" ? [debugConsoleTransport] : [debugFileTransport];
+function createTransports(shouldLogToConsole = true, shouldLogToFile = true) {
+  const transports = [];
+  if (shouldLogToConsole) transports.push(debugConsoleTransport);
+  if (shouldLogToFile) transports.push(debugFileTransport);
+  return transports;
 }
 
 const logger = createLogger({
-  transports: [...createTransports(NODE_ENV)],
+  transports: createTransports(SHOULD_LOG_TO_CONSOLE, SHOULD_LOG_TO_FILE),
   exitOnError: false, // do not exit on uncaughtException
 });
 
