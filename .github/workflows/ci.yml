@@ -4,6 +4,7 @@ on:
   pull_request:
     branches: 
       - main
+  workflow_dispatch:
 
 jobs:
 
@@ -15,7 +16,7 @@ jobs:
     steps:
 
       - name: Checkout the repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v2
       
       - name: Build images and start all containers
         run: |
