@@ -13,6 +13,7 @@ _source/
 build/
 dist/
 docker-hub-password.txt
+docker-hub-access-token.md
 coverage/
 
 !.gitignore
