@@ -10,13 +10,13 @@ afterEach(() => scheduler.stop());
 
 describe("Scheduler class", () => {
   describe("start method", () => {
-    it("sets the timer", () => {
-      expect(1).toBe(2);
-    } /*, () => {
+    it.todo(
+      "sets the timer" /*, () => {
       scheduler.start(() => {}, 1000);
-      
+
       expect(typeof scheduler.timerId).toBe("object");
-    }*/);
+    }*/,
+    );
 
     it.todo(
       "invokes the provided callback in a given time interval" /* () => {
