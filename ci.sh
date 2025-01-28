@@ -2,44 +2,46 @@
 
 set -eu -p pipefail
 
+printf '\n*************************************\n'
 printf '\nEXECUTE CONTINUOUS INTEGRATION SCRIPT\n'
-#printf "\nCURRENT ENVIRONMENT: %s\n" "${NODE_ENV}"
+printf '\n*************************************\n'
 
-mkdir -p ./api/docker
+API_ROOT_DIR="./api/docker"
+mkdir -p "$API_ROOT_DIR"
+echo "$API_COMMON_ENV" >>"$API_ROOT_DIR/.api.common.env"
+echo "$API_DEV_ENV" >>"$API_ROOT_DIR/.api.dev.env"
+echo "$API_PROD_ENV" >>"$API_ROOT_DIR/.api.prod.env"
+echo "$API_TEST_ENV" >>"$API_ROOT_DIR/.api.test.env"
 
-echo "$API_COMMON_ENV"
+POSTGRES_ROOT_DIR="./postgres/docker"
+mkdir -p "$POSTGRES_ROOT_DIR"
+echo "$POSTGRES_COMMON_ENV" >>"$POSTGRES_ROOT_DIR/.postgres.common.env"
+echo "$POSTGRES_DEV_ENV" >>"$POSTGRES_ROOT_DIR/.postgres.dev.env"
+echo "$POSTGRES_PROD_ENV" >>"$POSTGRES_ROOT_DIR/.postgres.prod.env"
+echo "$POSTGRES_TEST_ENV" >>"$POSTGRES_ROOT_DIR/.postgres.test.env"
 
-echo "$API_COMMON_ENV" >>./api/docker/.api.common.env
+printf '\n*************************************\n'
+printf '\nBuild images and start all containers\n'
+printf '\n*************************************\n'
 
-cat ./api/docker/.api.common.env
+docker compose --file ./docker-compose.test.yml up --detach --build
 
-echo "$API_DEV_ENV" >>./api/docker/.api.dev.env
-echo "$API_PROD_ENV" >>./api/docker/.api.prod.env
-echo "$API_TEST_ENV" >>./api/docker/.api.test.env
+printf '\n**************\n'
+printf '\nRun Unit Tests\n'
+printf '\n**************\n'
 
-mkdir -p postgres/docker
+docker exec api-test bash -c "npm run test:unit"
 
-echo "$POSTGRES_COMMON_ENV" >>./postgres/docker/.postgres.common.env
-echo "$POSTGRES_DEV_ENV" >>./postgres/docker/.postgres.dev.env
-echo "$POSTGRES_PROD_ENV" >>./postgres/docker/.postgres.prod.env
-echo "$POSTGRES_TEST_ENV" >>./postgres/docker/.postgres.test.env
+printf '\n*******************\n'
+printf '\nStop all containers\n'
+printf '\n*******************\n'
 
-#printf "\nBuild images and start all containers\n"
-
-#docker compose --file ./docker-compose.test.yml up --detach --build
-
-#printf "\nRun Unit Tests\n"
-#docker exec api-test bash -c "npm run test:unit"
-
-#printf "\nStop all containers\n"
-#docker compose --file ./docker-compose.test.yml down
+docker compose --file ./docker-compose.test.yml down
 
 #---------------------
 
 # TODO: better options is to run all npm commands shown below directky in GitHub Acttion workflow file, that way you will be able to see each type of test failing separately nd continue executing next type of test
 
-#if [[ "${NODE_ENV}" == "production" ]]; then
-#printf "Run Unit Tests ...\n\n"
 #npm run test:unit
 #printf "\n\nRun Integration Tests ...\n\n"
 #npm run test:int
