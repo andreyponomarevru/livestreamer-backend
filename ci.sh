@@ -24,15 +24,17 @@ echo "$POSTGRES_DEV_ENV" >>./postgres/docker/.postgres.dev.env
 echo "$POSTGRES_PROD_ENV" >>./postgres/docker/.postgres.prod.env
 echo "$POSTGRES_TEST_ENV" >>./postgres/docker/.postgres.test.env
 
-printf "\nBuild images and start all containers\n"
+#printf "\nBuild images and start all containers\n"
 
-docker compose --file ./docker-compose.test.yml up --detach --build
+#docker compose --file ./docker-compose.test.yml up --detach --build
 
-printf "\nRun Unit Tests\n"
-docker exec -it api-test bash -c "npm run test:unit"
+#printf "\nRun Unit Tests\n"
+#docker exec api-test bash -c "npm run test:unit"
 
-printf "\nStop all containers\n"
-docker compose --file ./docker-compose.test.yml down
+#printf "\nStop all containers\n"
+#docker compose --file ./docker-compose.test.yml down
+
+#---------------------
 
 # TODO: better options is to run all npm commands shown below directky in GitHub Acttion workflow file, that way you will be able to see each type of test failing separately nd continue executing next type of test
 
