@@ -29,7 +29,7 @@ RUN npm ci --include=dev
 # files won't be included
 COPY --chown=node:node . .
 # TODO CMD yarn run migratesql up && yarn run serve:dev
-CMD [ "npm" "run" "serve:dev" ]
+CMD [ "npm", "run", "serve:dev" ]
 
 #
 # Production env image

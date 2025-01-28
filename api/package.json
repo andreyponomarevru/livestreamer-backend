@@ -10,7 +10,6 @@
     "test:int": "jest --testMatch='**/*.int.test.ts' --verbose --detectOpenHandles --runInBand ./tests-integration",
     "test:e2e-api": "jest ./tests-e2e-api --verbose --detectOpenHandles --runInBand",
     "test:coverage": "jest --coverage",
-    "test": "npm run test:unit; npm run test:int; npm run test:e2e-api; npm run test:coverage",
     "test:clearjest": "jest --clearCache",
     "migratesql": "node-pg-migrate --migrations-dir ./src/migrations --migration-filename-format utc --tsconfig ./tsconfig.json --migration-file-language sql",
     "migratets": "node-pg-migrate --migrations-dir ./src/migrations --migration-filename-format utc --tsconfig ./tsconfig.json"
