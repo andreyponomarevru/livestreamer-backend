@@ -10,7 +10,7 @@
     "rootDir": "./src",
     "target": "ES6",
     "module": "ES2022",
-    "sourceMap": true,
+    "sourceMap": false,
     "outDir": "./build",
     "strict": true,
     "moduleResolution": "node",

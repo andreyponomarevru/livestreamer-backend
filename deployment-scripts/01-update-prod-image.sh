@@ -6,21 +6,17 @@
 #     Update production image (first locally and then on Docker Hub)
 #
 # NOTES
-#     Before running the script make sure you have file 
-#     "docker-hub-password.txt" containing a string with your Docker Hub 
+#     Before running the script make sure you have file
+#     "docker-hub-password.txt" containing a string with your Docker Hub
 #     password in the same directory as this script
 
-set -eu 
-
-
+set -eu
 
 # cd into root to get the project name from path
 cd ..
 
 PROJECT_NAME="$(basename "$PWD")"
 read -p "Docker Hub username: " DOCKER_HUB_USERNAME
-
-
 
 echo "================================"
 echo "=== Update production images ==="
@@ -34,26 +30,25 @@ echo "1. Manually uncomment "build" instruction of each service in "docker-compo
 echo
 
 echo "2. Update production images"
-docker-compose -f docker-compose.yml -f docker-compose.prod.yml build
+docker-compose -f docker-compose.prod.yml build --no-cache
 cd ./deployment-scripts
-
 
 # TODO: add prompt
 echo "3. Comment out "build" instruction of each service in "docker-compose.prod.yml" again.\nWhen you're ready, press "y"."
 
-echo   
+echo
 
 echo "4. Log in to Docker Hub"
-cat ./docker-hub-password.txt | docker login --username "$DOCKER_HUB_USERNAME" --password-stdin 
-   
+cat ./docker-hub-password.txt | docker login --username "$DOCKER_HUB_USERNAME" --password-stdin
+
 echo
-   
+
 # TODO: Project name should be as follows: ponomarevandrey/livestreamer-backend_redis
-   
+
 echo "5. Push production image to Docker Hub"
 docker push "$DOCKER_HUB_USERNAME/$PROJECT_NAME:latest" #db
-docker push # redis
-docker push # api
+docker push                                             # redis
+docker push                                             # api
 
 echo
 

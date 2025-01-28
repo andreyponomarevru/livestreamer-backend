@@ -3,13 +3,18 @@
 //
 
 export const APP_NAME = process.env.APP_NAME || "";
-export const NODE_ENV = process.env.NODE_ENV || "";
 
 //
 // HTTP Server
 //
 
 export const HTTP_PORT = Number(process.env.HTTP_PORT || 80);
+export const SHOULD_EXPRESS_TRUST_FIRST_PROXY =
+  process.env.SHOULD_EXPRESS_TRUST_FIRST_PROXY === "true";
+export const SHOULD_SET_SECURE_SESSION_COOKIE =
+  process.env.SHOULD_SET_SECURE_SESSION_COOKIE === "true";
+export const SHOULD_TRUST_PROXY_SECURE_SESSION_COOKIE =
+  process.env.SHOULD_TRUST_PROXY_SECURE_SESSION_COOKIE === "true";
 
 //
 // WebSocket Server
@@ -37,6 +42,9 @@ export const REDIS_URI = process.env.REDIS_URI || "";
 // Logger
 //
 
+export const SHOULD_LOG_TO_FILE = process.env.SHOULD_LOG_TO_FILE === "true";
+export const SHOULD_LOG_TO_CONSOLE =
+  process.env.SHOULD_LOG_TO_CONSOLE === "true";
 export const LOG_LOCATION = process.env.LOG_LOCATION || "";
 export const ERROR_LOG_NAME = process.env.ERROR_LOG_NAME || "";
 export const INFO_LOG_NAME = process.env.INFO_LOG_NAME || "";
@@ -53,9 +61,11 @@ export const MAIL_SERVICE_LOGIN = process.env.MAIL_SERVICE_LOGIN || "";
 export const MAIL_SERVICE_PASSWORD = process.env.MAIL_SERVICE_PASSWORD || "";
 export const MAIL_FROM_PORT = Number(process.env.MAIL_FROM_PORT || 587);
 
-export const EMAIL_CONFIRMATION_LINK = process.env.EMAIL_CONFIRMATION_LINK || "";
+export const EMAIL_CONFIRMATION_LINK =
+  process.env.EMAIL_CONFIRMATION_LINK || "";
 export const SIGN_IN_LINK = process.env.SIGN_IN_LINK || "";
-export const SUBMIT_NEW_PASSWORD_LINK = process.env.SUBMIT_NEW_PASSWORD_LINK || "";
+export const SUBMIT_NEW_PASSWORD_LINK =
+  process.env.SUBMIT_NEW_PASSWORD_LINK || "";
 
 //
 // Authentication

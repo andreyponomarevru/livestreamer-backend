@@ -7,15 +7,13 @@ import { HTTP_PORT } from "./config/env";
 import { morganSettings, logger } from "./config/logger";
 import { handleErrors } from "./middlewares/handle-errors";
 import { handle404Error } from "./middlewares/handle-404-error";
-import * as env from "./config/env";
+import { SHOULD_EXPRESS_TRUST_FIRST_PROXY } from "./config/env";
 import { sessionConfig } from "./config/session-storage";
 import { apiRouter } from "./controllers/router";
 
 const expressApp = express();
 expressApp.set("port", HTTP_PORT);
-// If the Node app is behind a proxy (like Nginx), we have to set
-// proxy to true (more precisely to 'trust first proxy')
-if (env.NODE_ENV === "production") {
+if (SHOULD_EXPRESS_TRUST_FIRST_PROXY) {
   expressApp.set("trust proxy", 1);
 }
 // Save in var in order to use it for WebSocket Upgrade request authentication:
