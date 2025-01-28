@@ -17,6 +17,6 @@ jobs:
       
       - name: Build test images for all services
         run: |
-          cd livestreamer-backend/
+          cd api/
           docker-compose --file ./docker-compose.test.yml up --detach
           docker exec -it api-test bash -c "npm run test:unit"
