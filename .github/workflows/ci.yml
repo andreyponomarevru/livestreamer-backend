@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  pull_request:
+    branches: 
+      - main
+  workflow_dispatch:
+
+env:
+  API_COMMON_ENV: ${{ vars.API_COMMON_ENV }}
+  API_DEV_ENV: ${{ vars.API_DEV_ENV }}
+  API_PROD_ENV: ${{ vars.API_PROD_ENV }}
+  API_TEST_ENV: '${{ vars.API_TEST_ENV }}' 
+  POSTGRES_COMMON_ENV: '${{ vars.POSTGRES_COMMON_ENV }}' 
+  POSTGRES_DEV_ENV: '${{ vars.POSTGRES_DEV_ENV }}'
+  POSTGRES_PROD_ENV: '${{ vars.POSTGRES_PROD_ENV }}'
+  POSTGRES_TEST_ENV: '${{ vars.POSTGRES_TEST_ENV }}'    
+
+jobs:
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: ./ci.sh

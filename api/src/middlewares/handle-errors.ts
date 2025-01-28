@@ -1,7 +1,7 @@
 import util from "util";
 
 import { Request, Response, NextFunction } from "express";
-import Joi, { ValidationError as JoiValidationError } from "joi";
+import Joi from "joi";
 
 import { HttpError } from "../utils/http-error";
 import { logger } from "../config/logger";
@@ -22,13 +22,11 @@ export function handleErrors(
     case err instanceof HttpError:
       res.status(err.status).json(err);
       break;
-    case err instanceof JoiValidationError:
+    case err instanceof Joi.ValidationError:
       res.status(400).json(
         new HttpError({
           code: 400,
-          message: err.details
-            .map((err: Joi.ValidationError) => err.message)
-            .join("; "),
+          message: err.details.map((err) => err.message).join("; "),
         }),
       );
       break;

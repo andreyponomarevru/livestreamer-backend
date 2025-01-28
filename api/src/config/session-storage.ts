@@ -1,20 +1,18 @@
 import session from "express-session";
-import redisSession from "connect-redis";
+import RedisStore from "connect-redis";
+import { redisConnection } from "./redis";
 
 import {
   AUTH_COOKIE_SECRET,
   COOKIE_NAME,
   REDIS_COOKIE_EXPIRATION_TTL,
-  NODE_ENV,
+  SHOULD_SET_SECURE_SESSION_COOKIE,
   EXPRESS_SESSION_COOKIE_MAXAGE,
+  SHOULD_TRUST_PROXY_SECURE_SESSION_COOKIE,
 } from "./env";
-import * as redis from "./redis";
 
-const RedisStore = redisSession(session);
-
-export const sess = {
+export const sessionConfig = {
   store: new RedisStore({
-    host: "localhost",
     // Doc: https://github.com/tj/connect-redis
     // From doc:
     //
@@ -27,7 +25,7 @@ export const sess = {
     // can disable this behavior in *some* instances by using `disableTouch`.
     //
     // Note: `express-session` does not update `expires` until the end of the request life cycle. Calling `session.save()` manually beforehand will have the previous value.
-    client: redis.connectDB().nodeRedis,
+    client: (async () => await redisConnection.open())(),
     // The ttl is used to create an expiration date. If you do not want to expire your cookie, check out https://stackoverflow.com/a/35127487/13156302
     // ttl: REDIS_COOKIE_EXPIRATION_TTL,
   }),
@@ -35,18 +33,11 @@ export const sess = {
   resave: false,
   secret: AUTH_COOKIE_SECRET,
   name: COOKIE_NAME,
-  proxy: NODE_ENV === "production",
+  proxy: SHOULD_TRUST_PROXY_SECURE_SESSION_COOKIE,
   cookie: {
     httpOnly: true,
     sameSite: true,
-    maxAge: EXPRESS_SESSION_COOKIE_MAXAGE, // time in ms
-    // Adds 'Secure' flag to cookie. We switch this flag based on NODE_ENV.
-    // Here we set it to false to ease the development, otherwise you'll need
-    // to have HTTPS enabled on your dev server. When in production this prop
-    // switches to 'true'.
-    // More on this:
-    // https://stackoverflow.com/questions/40324121/express-session-secure-true
-    // http://expressjs.com/en/resources/middleware/session.html
-    secure: NODE_ENV === "production",
+    maxAge: EXPRESS_SESSION_COOKIE_MAXAGE,
+    secure: SHOULD_SET_SECURE_SESSION_COOKIE,
   },
 };

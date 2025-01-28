@@ -1,8 +1,7 @@
 import { Request, Response, NextFunction } from "express";
-
 import { logger } from "../../config/logger";
-import * as streamService from "../../services/stream/stream";
-import * as websocketService from "../../services/ws/ws";
+import { streamService, inoutStream } from "../../services/stream/service";
+import { wsService } from "../../services/ws/service";
 import { printReadableStreamMode } from "../../utils/print-readable-stream-mode";
 
 export async function push(
@@ -10,12 +9,12 @@ export async function push(
   res: Response,
   next: NextFunction,
 ): Promise<void> {
-  websocketService.clientStore.on(
+  wsService.clientStore.on(
     "update_client_count",
     streamService.updateListenerPeakCount,
   );
-  streamService.inoutStream.once("pause", () => {
-    websocketService.clientStore.removeListener(
+  inoutStream.once("pause", () => {
+    wsService.clientStore.removeListener(
       "update_client_count",
       streamService.updateListenerPeakCount,
     );
@@ -23,12 +22,12 @@ export async function push(
 
   try {
     await streamService.startBroadcast({
-      listenersNow: websocketService.clientStore.clientCount,
+      listenersNow: wsService.clientStore.clientCount,
     });
 
     logger.debug(`${__filename} Starting push stream from client to server...`);
     // When broadcast-client connects, switch the stream back into the 'flowing' mode, otherwise later we won't be able to push data to listener-clients requests
-    streamService.inoutStream.resume();
+    inoutStream.resume();
 
     req.on("data", onReqData);
     req.on("error", onErr);
@@ -46,7 +45,7 @@ async function onReqData(chunk: Buffer) {
   //);
 
   // Push incoming request data into Readable stream in order to be able to consume it later on listener-client request (it doesn't accumulates in memory, it is just lost)
-  streamService.inoutStream.push(chunk);
+  inoutStream.push(chunk);
 }
 
 async function onClose() {
@@ -56,26 +55,17 @@ async function onClose() {
   await streamService.endBroadcast();
 
   // We shouldn't use 'close' and/or 'end' methods on the read/write streams of our duplex stream, otherwise the broadcast-client won't be able to reconnect and start pushing again until the server restart. 'pause' is the most appropriate alternative to these methods
-  streamService.inoutStream.pause();
-  printReadableStreamMode(
-    streamService.inoutStream,
-    "broadcaster's push stream",
-  );
+  inoutStream.pause();
+  printReadableStreamMode(inoutStream, "broadcaster's push stream");
 }
 
 function onEnd() {
   logger.debug(`${__filename} [end] No more data in request stream.`);
-  printReadableStreamMode(
-    streamService.inoutStream,
-    "broadcaster's push stream",
-  );
+  printReadableStreamMode(inoutStream, "broadcaster's push stream");
 }
 
 async function onErr(err: Error) {
   logger.error(`${__filename} [error] ${err}`);
-  printReadableStreamMode(
-    streamService.inoutStream,
-    "broadcaster's push stream",
-  );
+  printReadableStreamMode(inoutStream, "broadcaster's push stream");
   await streamService.endBroadcast();
 }

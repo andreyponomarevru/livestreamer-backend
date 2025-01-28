@@ -4,7 +4,7 @@ import {
   onUncaughtException,
   onUnhandledRejection,
   onWarning,
-} from "./node-process-handlers";
+} from "./node-process-event-handlers";
 
 process.once("uncaughtException", onUncaughtException);
 process.on("unhandledRejection", onUnhandledRejection);

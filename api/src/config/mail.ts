@@ -3,17 +3,17 @@ import {
   MAIL_FROM_HOST,
   MAIL_SERVICE_LOGIN,
   MAIL_SERVICE_PASSWORD,
-  NODE_ENV,
   MAIL_FROM_PORT,
+  SHOULD_LOG_TO_CONSOLE,
 } from "../config/env";
 
-export const config = {
+export const mailConfig = {
   service: MAIL_FROM_SERVICE,
   host: MAIL_FROM_HOST,
   port: MAIL_FROM_PORT,
   secure: false,
-  logger: NODE_ENV === "development",
-  debug: NODE_ENV === "development",
+  logger: SHOULD_LOG_TO_CONSOLE,
+  debug: SHOULD_LOG_TO_CONSOLE,
 
   auth: { user: MAIL_SERVICE_LOGIN, pass: MAIL_SERVICE_PASSWORD },
 };

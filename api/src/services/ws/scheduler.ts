@@ -3,11 +3,11 @@ import { logger } from "../../../src/config/logger";
 interface Scheduler {
   start: (callback: () => void, interfval: number) => void;
   stop: () => void;
-  timerId?: NodeJS.Timer;
+  timerId?: NodeJS.Timeout;
 }
 
 class IntervalScheduler implements Scheduler {
-  timerId?: NodeJS.Timer;
+  timerId?: NodeJS.Timeout;
 
   start(callback: () => void, interval: number): void {
     this.timerId = setInterval(callback, interval);

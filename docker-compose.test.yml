@@ -1,60 +1,68 @@
-version: "3.7"
-
 services:
-  api:
+  api-test:
+    container_name: api-test
+    image: api-test:latest
     build:
       context: ./api
-      dockerfile: ./docker/Dockerfile.test
-    restart: always
+      dockerfile: ./docker/Dockerfile
+      # Should match the stage name in Dockerfile
+      target: test
+    # Don't attempt to restart if tests failed
+    restart: "no"
+    init: true
     tty: true
-    volumes:
-      # Recompile code on changes
-      - ./api/src:/api/src
-      - ./api/tsconfig.json:/api/tsconfig.json
-      - ./api/_integration-tests_:/api/_integration-tests_
     ports:
       # Port for the app
-      - 5001:8080
+      - 5000:8080
       # node.js process is listening for a debugging client on
-      - 9230:9229      
+      - 9230:9229
     expose:
       # Port for the app
       - 5001
     env_file:
-      - ./api/docker/.common.env
-      - ./api/docker/.test.env
-      - ./postgres/docker/.common.env
-      - ./postgres/docker/.test.env
+      - ./api/docker/.api.common.env
+      - ./api/docker/.api.test.env
+      - ./postgres/docker/.postgres.common.env
+      - ./postgres/docker/.postgres.test.env
+    volumes:
+      # set the container timezone to the time zone of host machine
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
     depends_on:
-      - testdb
-      - testredis
+      - postgres-test
+      - redis-test
     networks:
       - livestreamer_backend
 
-  testdb:
-    container_name: testdb
-    build: 
+  postgres-test:
+    container_name: postgres-test
+    image: postgres-test:latest
+    build:
       context: ./postgres
-      dockerfile: ./docker/Dockerfile.test
+      dockerfile: ./docker/Dockerfile
+      target: test
+    init: true
     restart: "no"
     env_file:
-      - ./postgres/docker/.common.env
-      - ./postgres/docker/.test.env
+      - ./postgres/docker/.postgres.common.env
+      - ./postgres/docker/.postgres.test.env
     ports:
       - 54323:5432
     networks:
       - livestreamer_backend
 
-  testredis:
-    container_name: redis
+  redis-test:
+    container_name: redis-test
+    image: redis-test:latest
     build:
       context: ./redis
       dockerfile: ./docker/Dockerfile
+    init: true
     ports:
       - 6379:6379
     networks:
       - livestreamer_backend
-      
+
 networks:
   livestreamer_backend:
     name: livestreamer_backend
