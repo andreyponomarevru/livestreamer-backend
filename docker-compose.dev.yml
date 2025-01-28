@@ -1,23 +1,19 @@
-version: "3.7"
-
 services:
-  api:
-    container_name: api
+  api-dev:
+    container_name: api-dev
+    image: api-dev:latest
     build:
       context: ./api
-      dockerfile: ./docker/Dockerfile.dev
+      dockerfile: ./docker/Dockerfile
+      # Should match the stage name in Dockerfile
+      target: development
     restart: always
+    init: true
     tty: true
-    volumes:
-      # Recompile code on changes
-      - ./api:/api
-      # set the container timezone to the time zone of host machine
-      - /etc/timezone:/etc/timezone:ro
-      - /etc/localtime:/etc/localtime:ro
     ports:
       # Port for the app
       - 5000:8080
-      # node.js process is listening for a debugging client on
+      # node process is listening for a debugging client on
       - 9230:9229
     expose:
       # Port for the app (i.e. webpack dev server port)
@@ -27,37 +23,42 @@ services:
       - ./api/docker/.dev.env
       - ./postgres/docker/.common.env
       - ./postgres/docker/.dev.env
+    volumes:
+      # Recompile code on changes
+      - ./api:/home/node
+      # Set the container timezone to the time zone of host machine
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
     depends_on:
-      - devdb
-      - devredis
+      - postgres-dev
+      - redis-dev
     networks:
       - livestreamer_backend
 
-  devdb:
-    container_name: devdb
+  postgres-dev:
+    container_name: postgres-dev
+    image: postgres-dev:latest
     build:
       context: ./postgres
-      dockerfile: ./docker/Dockerfile.dev
+      dockerfile: ./docker/Dockerfile
+      target: development
+    init: true
     restart: "no"
     env_file:
       - ./postgres/docker/.common.env
       - ./postgres/docker/.dev.env
     ports:
       - 54324:5432
-    # volumes:
-    # Persist data outside container (useful if you need to edit config files)
-    # - ./postgres/postgres-data:/var/lib/postgresql/data
     networks:
       - livestreamer_backend
 
-  devredis:
-    container_name: devredis
+  redis-dev:
+    container_name: redis-dev
+    image: redis-dev:latest
     build:
       context: ./redis
       dockerfile: ./docker/Dockerfile
-    #volumes:
-    # Persist data outside container (useful if you need to edit config files)
-    #  - ./redis/redis.conf:/redis.conf
+    init: true
     ports:
       - 6379:6379
     networks:
