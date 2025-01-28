@@ -2,15 +2,7 @@
   "preset": "ts-jest",
   "testEnvironment": "node",
 
-<<<<<<< HEAD
-  "roots": [
-    "<rootDir>/src",
-    "<rootDir>/tests-e2e-api",
-    "<rootDir>/tests-integration"
-  ],
-=======
   "roots": ["<rootDir>"],
->>>>>>> 0a2c6cc359a0a830d66855f630f0a7e8bd3b313d
   "testMatch": ["**/?(*.)+(spec|test).+(ts|tsx|js)"],
   "moduleFileExtensions": ["ts", "js", "json"],
   "transform": {
