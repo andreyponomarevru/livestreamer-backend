@@ -7,9 +7,9 @@ on:
   workflow_dispatch:
 
 env:
-  API_COMMON_ENV: '${{ secrets.API_COMMON_ENV }}'
-  API_DEV_ENV: '${{ secrets.API_DEV_ENV }}'
-  API_PROD_ENV: '${{ secrets.API_PROD_ENV }}'
+  API_COMMON_ENV: ${{ secrets.API_COMMON_ENV }}
+  API_DEV_ENV: ${{ secrets.API_DEV_ENV }}
+  API_PROD_ENV: ${{ secrets.API_PROD_ENV }}
   API_TEST_ENV: '${{ secrets.API_TEST_ENV }}' 
   POSTGRES_COMMON_ENV: '${{ secrets.POSTGRES_COMMON_ENV }}' 
   POSTGRES_DEV_ENV: '${{ secrets.POSTGRES_DEV_ENV }}'
@@ -21,8 +21,5 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout the repo
-        uses: actions/checkout@v2
-      
-      - name: Run Test Build
-        run: ./ci.sh
+      - uses: actions/checkout@v2
+      - run: ./ci.sh
