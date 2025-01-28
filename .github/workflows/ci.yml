@@ -13,10 +13,17 @@ jobs:
       matrix:
         node-version: [22.13.1]
     steps:
-      - uses: actions/checkout@v4
+
+      - name: Checkout the repo
+        uses: actions/checkout@v4
       
-      - name: Build test images for all services
+      - name: Build images and start all containers
         run: |
-          cd api/
-          docker-compose --file ./docker-compose.test.yml up --detach
-          docker exec -it api-test bash -c "npm run test:unit"
+          docker-compose --file ./docker-compose.test.yml up --detach --build
+
+      - name: Run Unit Tests
+        run: docker exec -it api-test bash -c "npm run test:unit"
+
+      - name: Stop containers
+        if: always()
+        run: docker-compose --file ./docker-compose.test.yml down
