@@ -8,7 +8,7 @@ on:
 
 env:
   TEST: "hahahha"
-  API_COMMON_ENV: ${{ secrets.API_COMMON_ENV }}
+  API_COMMON_ENV: ${{ vars.API_COMMON_ENV }}
   API_DEV_ENV: ${{ secrets.API_DEV_ENV }}
   API_PROD_ENV: ${{ secrets.API_PROD_ENV }}
   API_TEST_ENV: '${{ secrets.API_TEST_ENV }}' 
