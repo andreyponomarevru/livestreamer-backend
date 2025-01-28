@@ -26,7 +26,7 @@ jobs:
           mkdir -p ./api/docker
           
           echo "${{ secrets.API_COMMON_ENV }}" >> ./api/docker/.api.common.env
-          cat "${{ secrets.API_COMMON_ENV }}"
+          cat ./api/docker/.api.common.env
           echo "${{ secrets.API_DEV_ENV }}"    >> ./api/docker/.api.dev.env
           echo "${{ secrets.API_PROD_ENV }}"   >> ./api/docker/.api.prod.env
           echo "${{ secrets.API_TEST_ENV }}"   >> ./api/docker/.api.test.env
