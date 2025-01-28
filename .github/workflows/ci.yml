@@ -7,6 +7,7 @@ on:
   workflow_dispatch:
 
 env:
+  TEST: "hahahha"
   API_COMMON_ENV: ${{ secrets.API_COMMON_ENV }}
   API_DEV_ENV: ${{ secrets.API_DEV_ENV }}
   API_PROD_ENV: ${{ secrets.API_PROD_ENV }}
@@ -22,4 +23,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: ./ci.sh
+      - run: |
+          echo ${{ secrets.TEST }} ./ci.sh
