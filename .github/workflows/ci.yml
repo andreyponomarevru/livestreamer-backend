@@ -29,6 +29,7 @@ jobs:
        with:
          node-version: 22.13.1
          cache: "npm"
+         cache-dependency-path: ./api/package-lock.json
      - run: cd ./api && npm ci
      - run: cd ./api && npm run ci:lint
      - run: cd ./api && npm run ci:prettify
