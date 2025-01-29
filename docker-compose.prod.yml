@@ -38,7 +38,7 @@ services:
     # instead of VPS
     build:
       context: ./postgres
-      dockerfile: ./docker/Dockerfile.prod
+      dockerfile: ./docker/Dockerfile
       target: production
     restart: always
     init: true
