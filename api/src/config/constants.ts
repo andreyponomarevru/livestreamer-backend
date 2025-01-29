@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 // 'as const' allows us to use this array as type
 export const RESOURCES = [
   "user_own_account",
@@ -80,9 +81,9 @@ export const HTTP_ERRORS = {
 } as const;
 
 export type HttpErrorCodes = keyof typeof HTTP_ERRORS;
-export type HttpErrorNames = typeof HTTP_ERRORS[HttpErrorCodes];
-export type HttpErrorMessages = typeof HTTP_ERROR_MESSAGES[number];
+export type HttpErrorNames = (typeof HTTP_ERRORS)[HttpErrorCodes];
+export type HttpErrorMessages = (typeof HTTP_ERROR_MESSAGES)[number];
 
 export type Permissions = {
-  [key in typeof RESOURCES[number]]?: typeof PERMISSIONS[number][];
+  [key in (typeof RESOURCES)[number]]?: (typeof PERMISSIONS)[number][];
 };

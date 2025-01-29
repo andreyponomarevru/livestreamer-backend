@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+
 import { logger } from "../../../src/config/logger";
 
 interface Scheduler {

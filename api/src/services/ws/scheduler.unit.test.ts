@@ -1,4 +1,4 @@
-import { afterEach, jest, describe, it, expect } from "@jest/globals";
+import { afterEach, /*jest,*/ describe, it /*expect */ } from "@jest/globals";
 
 import { IntervalScheduler } from "./scheduler";
 

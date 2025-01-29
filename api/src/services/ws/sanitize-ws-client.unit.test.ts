@@ -1,4 +1,4 @@
-import { jest, describe, it, expect } from "@jest/globals";
+import { describe, it, expect } from "@jest/globals";
 import { faker } from "@faker-js/faker";
 import { v4 as uuidv4 } from "uuid";
 import WebSocket from "ws";

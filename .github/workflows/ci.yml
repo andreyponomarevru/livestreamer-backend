@@ -27,12 +27,15 @@ jobs:
      - uses: actions/checkout@v2
      - uses: actions/setup-node@v2
        with:
+         # For consistency it should match the one specified in Dockerfile
          node-version: 22.13.1
          cache: "npm"
          cache-dependency-path: ./api/package-lock.json
      - run: cd ./api && npm ci
      - run: cd ./api && npm run ci:lint
      - run: cd ./api && npm run ci:prettify
+    # verify that there are no build errors
+     - run: npm run build
 
 #  test:
 #    runs-on: ubuntu-latest
