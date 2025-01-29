@@ -1,9 +1,10 @@
 name: Release
 
 on:
-  release:
-    types: 
-      - created
+  # To trigget this event you should tag the commit using Git tags.
+  # release:
+  #  types: 
+  #    - created
   workflow_dispatch:
 
 # This block should be the same in all Workflow .yml files
@@ -30,7 +31,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - uses: actions/checkout@v4
-      - run: ./ci/set-up-env-vars.sh
-      - run: ./ci/build-and-push-to-dockerhub.sh
+      - run: ./ci-cd/set-up-env-vars.sh
+      - run: ./ci-cd/build-and-push-to-dockerhub.sh
           
       
