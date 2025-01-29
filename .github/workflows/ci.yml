@@ -31,17 +31,6 @@ jobs:
          node-version: 22.13.1
          cache: "npm"
          cache-dependency-path: ./api/package-lock.json
-     - run: cd ./api && npm ci
-     - run: cd ./api && npm run ci:lint
-     - run: cd ./api && npm run ci:prettify
-    # verify that there are no build errors
-     - run: npm run build
-
-#  test:
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/checkout@v2
-#      - run: ./ci/set-up-env-vars.sh
-#      - run: ./ci/run-test-build.sh
+     - run: ./ci/check-code.sh
     
 
