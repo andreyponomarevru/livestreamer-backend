@@ -1,14 +1,14 @@
 name: CI
 
+# Control when the workflow will run
 on:
   pull_request:
-    branches: 
-      - main
+    branches: [main]
   push:
-    branches:
-      - main
+    branches: [main]
   workflow_dispatch:
 
+# This block should be the same in all Workflow .yml files
 env:
   API_COMMON_ENV: ${{ vars.API_COMMON_ENV }}
   API_DEV_ENV: ${{ vars.API_DEV_ENV }}
@@ -19,18 +19,47 @@ env:
   POSTGRES_PROD_ENV: '${{ vars.POSTGRES_PROD_ENV }}'
   POSTGRES_TEST_ENV: '${{ vars.POSTGRES_TEST_ENV }}'    
 
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
 
-  dev:
-   runs-on: ubuntu-latest
-   steps:
-     - uses: actions/checkout@v2
-     - uses: actions/setup-node@v2
-       with:
-         # For consistency it should match the one specified in Dockerfile
-         node-version: 22.13.1
-         cache: "npm"
-         cache-dependency-path: ./api/package-lock.json
-     - run: ./ci/check-code.sh
-    
+  process_code:
+    # The type of runner that the job will run on. Uses the Ubuntu Docker image 
+    runs-on: ubuntu-latest
+   # Steps represent a sequence of tasks that will be executed as part of the job    
+    steps:
+        # Clones the repo, so your job can access it
+      - uses: actions/checkout@v4
 
+      - uses: actions/setup-node@v2
+        with:
+          # For consistency it should match the one specified in Dockerfile
+          node-version: 22.13.1
+          cache: "npm"
+          cache-dependency-path: ./api/package-lock.json
+      - run: ./ci/process-code.sh
+    
+  run_unit_tests:
+    runs-on: ubuntu-latest
+    needs: [process_code]
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./ci/set-up-env-vars.sh
+      - run: ./ci/run-unit-tests.sh
+
+  # Commented out because currently not set up yet
+  #run_integration_tests:
+  #  runs-on: ubuntu-latest
+  #  needs: [run_unit_tests]
+  #  steps:
+  #    - uses: actions/checkout@v4
+  #    - run: ./ci/set-up-env-vars.sh
+  #    - run: ./ci/run-int-tests.sh
+
+  # Commented out because currently not set up yet
+  #run_e2e_api_tests:
+  #  runs-on: ubuntu-latest
+  #  needs: [run_integration_tests]
+  #  steps:
+  #    - uses: actions/checkout@v4
+  #    - run: ./ci/set-up-env-vars.sh
+  #    - run: ./ci/run-e2e-api-tests.sh

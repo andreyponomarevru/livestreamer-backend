@@ -4,7 +4,7 @@ import Joi from "joi";
 
 export const asciiRegex = new RegExp("^[\x00-\x7F]+$");
 export const alphaNumericRegex = new RegExp("^[a-zA-Z0-9]+$");
-let a;
+
 export const passwordSchema = Joi.string()
   .required()
   .min(6)

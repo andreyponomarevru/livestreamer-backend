@@ -1,0 +1,38 @@
+name: Release
+
+on:
+  release:
+    types: 
+      - created
+  workflow_dispatch:
+
+# This block should be the same in all Workflow .yml files
+env:
+  API_COMMON_ENV: ${{ vars.API_COMMON_ENV }}
+  API_DEV_ENV: ${{ vars.API_DEV_ENV }}
+  API_PROD_ENV: ${{ vars.API_PROD_ENV }}
+  API_TEST_ENV: '${{ vars.API_TEST_ENV }}' 
+  POSTGRES_COMMON_ENV: '${{ vars.POSTGRES_COMMON_ENV }}' 
+  POSTGRES_DEV_ENV: '${{ vars.POSTGRES_DEV_ENV }}'
+  POSTGRES_PROD_ENV: '${{ vars.POSTGRES_PROD_ENV }}'
+  POSTGRES_TEST_ENV: '${{ vars.POSTGRES_TEST_ENV }}'    
+
+jobs:
+
+  build_and_push_to_docker_hub:
+    runs-on: ubuntu-latest
+    needs: 
+      - run_prod_build
+
+    steps:
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - uses: actions/checkout@v4
+      - run: ./ci/set-up-env-vars.sh
+      - run: ./ci/build-and-push-to-dockerhub.sh
+          
+      
