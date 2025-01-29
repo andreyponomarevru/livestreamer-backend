@@ -26,9 +26,9 @@ services:
       # set the container timezone to the time zone of host machine
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
-    #depends_on:
-    # - postgres-prod
-    # - redis-prod
+    depends_on:
+      - postgres-prod
+      - redis-prod
 
   postgres-prod:
     container_name: postgres-prod
