@@ -1,3 +1,6 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import session from "express-session";
 import RedisStore from "connect-redis";
 import { redisConnection } from "./redis";

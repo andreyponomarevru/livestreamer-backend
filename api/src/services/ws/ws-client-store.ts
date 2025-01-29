@@ -1,3 +1,6 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import EventEmitter from "events";
 
 import { STATS_MSG_TIME_INTERVAL } from "../../config/ws-server";

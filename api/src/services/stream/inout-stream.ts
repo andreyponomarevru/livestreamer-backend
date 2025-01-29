@@ -1,3 +1,6 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import { Duplex, DuplexOptions } from "stream";
 
 export class InOutStream extends Duplex {

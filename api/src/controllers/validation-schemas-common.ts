@@ -1,3 +1,5 @@
+/* eslint-disable no-control-regex */
+
 import Joi from "joi";
 
 export const asciiRegex = new RegExp("^[\x00-\x7F]+$");

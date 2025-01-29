@@ -1,3 +1,6 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import { APP_NAME } from "../config/env";
 import { getUsers } from "./get-users";
 import { postUser } from "./post-user";
@@ -50,9 +53,8 @@ export const swaggerDocument = {
       url: "https://andreyponomarev.ru",
     },
   },
-  servers: [
-  { url: "localhost:8000/api/v1", description: "Local server" }],
-  
+  servers: [{ url: "localhost:8000/api/v1", description: "Local server" }],
+
   paths: {
     "/sessions": { post: postSession, delete: deleteSession },
     "/verification": { post: postEmailConfirmation },

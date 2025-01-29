@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+
 import { Request, Response, NextFunction } from "express";
 
 import { HttpError } from "../utils/http-error";
@@ -5,8 +7,8 @@ import { logger } from "../config/logger";
 import { RESOURCES, PERMISSIONS } from "../config/constants";
 
 export function isAuthorized(
-  action: typeof PERMISSIONS[number],
-  resource: typeof RESOURCES[number],
+  action: (typeof PERMISSIONS)[number],
+  resource: (typeof RESOURCES)[number],
   extraAuthZ?: ((req: Request) => boolean)[],
 ) {
   return async function (

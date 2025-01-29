@@ -1,6 +1,6 @@
 import util from "util";
 
-import { Request, Response, NextFunction } from "express";
+import { Response, NextFunction } from "express";
 
 import { logger } from "../config/logger";
 import { CustomRequest } from "../types";

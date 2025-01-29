@@ -1,7 +1,6 @@
 import {
   HttpErrorCodes,
   HttpErrorNames,
-  HttpErrorMessages,
   HTTP_ERRORS,
 } from "./../config/constants";
 
