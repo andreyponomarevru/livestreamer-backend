@@ -6,7 +6,12 @@ on:
     branches: [main]
   push:
     branches: [main]
+  # This allows you to trigger the execution of this Workflow file manually
   workflow_dispatch:
+  # To trigget this event you should tag the commit using Git tags > push it to the repo > manually create a new Release in the repo using this tag via GitHub UI.
+  release:
+    types: 
+     - created
 
 # This block should be the same in all Workflow .yml files
 env:
@@ -63,3 +68,21 @@ jobs:
   #    - uses: actions/checkout@v4
   #    - run: ./ci-cd/set-up-env-vars.sh
   #    - run: ./ci-cd/run-e2e-api-tests.sh
+
+  build_and_push_to_docker_hub:
+    runs-on: ubuntu-latest
+    needs: [process_code, run_unit_tests]
+
+    steps:
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - uses: actions/checkout@v4
+      - run: ./ci-cd/set-up-env-vars.sh
+      - run: ./ci-cd/build-and-push-to-dockerhub.sh
+
+  # TODO        
+  # deploy_to_vps:
