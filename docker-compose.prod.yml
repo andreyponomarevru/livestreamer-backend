@@ -1,7 +1,7 @@
 services:
   api-prod:
     container_name: api-prod
-    image: "ponomarevandrey/livestreamer-backend_api-prod:${GITHUB_REF}"
+    image: "ponomarevandrey/livestreamer-backend_api-prod:latest"
     # Uncomment 'build' to build the image for the first-time deployment (i.e.
     # to upload to Docker Hub) or if you want to run prod env on local machine
     # instead of VPS
@@ -32,7 +32,7 @@ services:
 
   postgres-prod:
     container_name: postgres-prod
-    image: "ponomarevandrey/livestreamer-backend_postgres-prod:${GITHUB_REF}"
+    image: "ponomarevandrey/livestreamer-backend_postgres-prod:latest"
     # Uncomment to build the image for the first-time deployment (i.e. to
     # upload to Docker Hub) or if you want to run prod env on local machine
     # instead of VPS
@@ -51,7 +51,7 @@ services:
       - 127.0.0.1:5432:5432
 
   redis-prod:
-    image: "ponomarevandrey/livestreamer-backend_redis-prod:${GITHUB_REF}"
+    image: "ponomarevandrey/livestreamer-backend_redis-prod:latest"
     container_name: redis-prod
     # Uncomment to build the image for the first-time deployment (i.e. to
     # upload to Docker Hub) or if you want to run prod env on local machine
