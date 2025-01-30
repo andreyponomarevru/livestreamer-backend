@@ -13,17 +13,17 @@ on:
     types: 
      - created
 
-# This block should be the same in all Workflow .yml files
+# Define env vars
 env:
   API_COMMON_ENV: ${{ vars.API_COMMON_ENV }}
   API_DEV_ENV: ${{ vars.API_DEV_ENV }}
   API_PROD_ENV: ${{ vars.API_PROD_ENV }}
-  API_TEST_ENV: '${{ vars.API_TEST_ENV }}' 
-  POSTGRES_COMMON_ENV: '${{ vars.POSTGRES_COMMON_ENV }}' 
-  POSTGRES_DEV_ENV: '${{ vars.POSTGRES_DEV_ENV }}'
-  POSTGRES_PROD_ENV: '${{ vars.POSTGRES_PROD_ENV }}'
-  POSTGRES_TEST_ENV: '${{ vars.POSTGRES_TEST_ENV }}'    
-
+  API_TEST_ENV: ${{ vars.API_TEST_ENV }}
+  POSTGRES_COMMON_ENV: ${{ vars.POSTGRES_COMMON_ENV }}
+  POSTGRES_DEV_ENV: ${{ vars.POSTGRES_DEV_ENV }}
+  POSTGRES_PROD_ENV: ${{ vars.POSTGRES_PROD_ENV }}
+  POSTGRES_TEST_ENV: ${{ vars.POSTGRES_TEST_ENV }}
+ 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
 
@@ -84,5 +84,20 @@ jobs:
       - run: ./ci-cd/set-up-env-vars.sh
       - run: ./ci-cd/build-and-push-to-dockerhub.sh
 
-  # TODO        
-  # deploy_to_vps:
+  deploy_to_vps:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # Clone the repo into runner's container to access Bash script in the next step
+      - uses: actions/checkout@v4
+
+      - name: Deploy to VPS
+        env:
+          VPS_SSH_USERNAME: ${{ secrets.VPS_SSH_USERNAME }}
+          VPS_SSH_HOST: ${{ secrets.VPS_SSH_HOST }}
+        run: ./pull-from-dockerhub-and-run-on-vps.sh
