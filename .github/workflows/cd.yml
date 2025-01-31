@@ -19,7 +19,6 @@ on:
 jobs:
 
   deploy_to_vps:
-    needs: [build_and_push_to_docker_hub]
     runs-on: ubuntu-latest
 
     steps:
