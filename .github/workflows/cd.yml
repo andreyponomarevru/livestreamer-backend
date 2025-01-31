@@ -19,7 +19,6 @@ on:
 jobs:
 
   deploy_to_vps:
-    needs: [build_and_push_to_docker_hub]
     runs-on: ubuntu-latest
 
     steps:
@@ -36,4 +35,4 @@ jobs:
           username: ${{ secrets.VPS_SSH_USERNAME }}
           port: ${{ secrets.VPS_SSH_PORT }}
           key: ${{ secrets.VPS_SSH_SECRET }}
-          script: bash ./test/start-app.sh
+          script: ./test/start-app.sh
