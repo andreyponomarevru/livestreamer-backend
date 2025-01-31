@@ -11,7 +11,7 @@ on:
   # This allows you to trigger the execution of this Workflow file manually
   workflow_dispatch:
 
-# Define env vars
+# Define env vars used by multiple jobs inside Bash scripts that they execute
 env:
   API_COMMON_ENV: ${{ vars.API_COMMON_ENV }}
   API_DEV_ENV: ${{ vars.API_DEV_ENV }}
