@@ -16,7 +16,7 @@ printf "\n2. Restart the container ******************************************\n"
 #  --detach \
 #  --force-recreate
 
-prtinf "\n2. Delete old images **********************************************\n"
+printf "\n2. Delete old images **********************************************\n"
 #docker image prune --force
 
 printf "\nThe app has been successfully (re)started! ************************\n"
