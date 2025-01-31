@@ -35,4 +35,4 @@ jobs:
           username: ${{ secrets.VPS_SSH_USERNAME }}
           port: ${{ secrets.VPS_SSH_PORT }}
           key: ${{ secrets.VPS_SSH_SECRET }}
-          script: bash ./test/start-app.sh
+          script: ./test/start-app.sh
