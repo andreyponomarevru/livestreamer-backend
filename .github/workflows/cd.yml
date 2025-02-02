@@ -5,15 +5,6 @@ name: CD
 on:
   # This allows you to trigger the execution of this Workflow file manually
   workflow_dispatch:
-  # TODO: If you want this event to be triggered automatically, you need to add some changes to your project config: each time you want to deploy a new app version, you should:
-  # 1. Tag the commit you want to use as the production-ready code using Git tags 
-  # 2. Push the tag to the repo
-  # 3. Manually create a new Release in the repo using this tag on GitHub website.
-  # 4, Update the "image:" property of all services in docker-compose.prod.yml, to make it look like "ponomarevandrey/livestreamer-backend_api-prod:$GITHUB_REF". GITHUB_REF will be replaces with the value of your tag.
-  # For more details refer to https://stackoverflow.com/questions/58177786/get-the-current-pushed-tag-in-github-actions
-  release:
-    types: 
-     - created
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
