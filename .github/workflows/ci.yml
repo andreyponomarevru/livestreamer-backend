@@ -68,7 +68,7 @@ jobs:
   #    - run: ./ci-cd/run-e2e-api-tests.sh
 
   build_and_push_to_docker_hub:
-    needs: [process_code, run_unit_tests]
+    needs: [run_unit_tests]
     runs-on: ubuntu-latest
 
     steps:
