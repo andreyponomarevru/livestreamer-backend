@@ -14,7 +14,7 @@
     "migratesql": "node-pg-migrate --migrations-dir ./src/migrations --migration-filename-format utc --tsconfig ./tsconfig.json --migration-file-language sql",
     "migratets": "node-pg-migrate --migrations-dir ./src/migrations --migration-filename-format utc --tsconfig ./tsconfig.json",
     "ci:lint": "eslint       ./src ./test-helpers ./tests-e2e-api",
-    "ci:prettify": "prettier ./src ./test-helpers ./tests-e2e-api --write"
+    "ci:prettier": "prettier ./src ./test-helpers ./tests-e2e-api --check \"**/*.{ts,tsx,js,md,mdx,css,yaml}\""
   },
   "keywords": [
     "rest",
