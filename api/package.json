@@ -6,8 +6,8 @@
   "scripts": {
     "build": "tsc -p ./tsconfig.json",
     "serve:dev": "nodemon --watch ./src -e ts,json --exec 'TS_NODE_PROJECT=tsconfig.json node --inspect=0.0.0.0:9229 --require ts-node/register ./src/index.ts'",
-    "test:unit": "jest --testMatch='**/*.unit.test.ts' --verbose --detectOpenHandles --colors",
-    "test:int": "jest --testMatch='**/*.int.test.ts' --verbose --detectOpenHandles --runInBand --colors ./tests-integration",
+    "test:unit": "jest --verbose --detectOpenHandles --colors ./src",
+    "test:int": "jest --verbose --detectOpenHandles --runInBand --colors ./tests-integration",
     "test:e2e-api": "jest ./tests-e2e-api --verbose --detectOpenHandles --runInBand --colors",
     "test:coverage": "jest --coverage",
     "test:clearjest": "jest --clearCache",
