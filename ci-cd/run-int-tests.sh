@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eu -o pipefail
+set -eu -p pipefail
 
 DOCKER_COMPOSE_FILE_PATH="./docker-compose.test.yml"
 
