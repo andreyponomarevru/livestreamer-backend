@@ -13,9 +13,9 @@ services:
     tty: true
     ports:
       # Port for the app
-      - 5000:8080
+      - 5001:8080
       # node.js process is listening for a debugging client on
-      - 9230:9229
+      - 9231:9229
     expose:
       # Port for the app
       - 5001
@@ -43,6 +43,11 @@ services:
       target: test
     init: true
     restart: "no"
+    healthcheck:
+      test: ["CMD", "pg_isready"]
+      interval: 4s
+      timeout: 5s
+      retries: 3
     env_file:
       - ./postgres/docker/.postgres.common.env
       - ./postgres/docker/.postgres.test.env
@@ -58,10 +63,20 @@ services:
       context: ./redis
       dockerfile: ./docker/Dockerfile
     init: true
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 4s
+      timeout: 5s
+      retries: 3
     ports:
       - 6379:6379
     networks:
       - livestreamer_backend
+
+  # rabbitmq-test:
+  #   container_name: rabbitmq-test
+  #   healthcheck:
+  #     test: [rabbitmq-diagnostics -q ping]
 
 networks:
   livestreamer_backend:

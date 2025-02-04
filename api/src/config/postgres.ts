@@ -1,5 +1,5 @@
-import { logger } from "../config/logger";
 import { Pool, PoolConfig } from "pg";
+import { logger } from "../config/logger";
 import {
   POSTGRES_DB,
   POSTGRES_HOST,
@@ -12,7 +12,7 @@ import {
 // Pg connection
 //
 
-const CONFIG: PoolConfig = {
+export const POOL_CONFIG: PoolConfig = {
   user: POSTGRES_USER,
   host: POSTGRES_HOST,
   database: POSTGRES_DB,
@@ -20,11 +20,21 @@ const CONFIG: PoolConfig = {
   port: POSTGRES_PORT,
 };
 
+//
+// Migrations config (node-pg-migrate)
+//
+
+export const PG_MIGRATION_CONFIG = {
+  databaseUrl: `postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}`,
+  migrationsTable: "pgmigrations",
+  dir: "./src/migrations",
+};
+
 // Store the connection pool
 let pool: Pool | undefined;
 
 export const dbConnection = {
-  open: async function (config: PoolConfig = CONFIG): Promise<Pool> {
+  open: async function (config: PoolConfig = POOL_CONFIG): Promise<Pool> {
     if (pool) {
       return pool;
     } else {

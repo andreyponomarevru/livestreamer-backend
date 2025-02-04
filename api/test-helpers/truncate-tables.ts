@@ -7,9 +7,9 @@ let pool: Pool;
 beforeAll(async () => (pool = await dbConnection.open()));
 
 beforeEach(async () => {
-  await pool.query(
-    "TRUNCATE process, track_artist, track_genre, artist, genre, track;",
+  console.log(
+    "[Jest setupFilesAfterEnv Hook] [beforeEach Hook] Truncate *all* tables before each test case",
   );
-  await pool.query("ALTER SEQUENCE track_track_id_seq RESTART");
-  await pool.query("ALTER SEQUENCE artist_artist_id_seq RESTART");
+
+  await pool.query("TRUNCATE scheduled_broadcast;");
 });

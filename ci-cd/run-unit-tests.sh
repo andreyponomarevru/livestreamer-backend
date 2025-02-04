@@ -6,7 +6,6 @@ DOCKER_COMPOSE_FILE_PATH="./docker-compose.test.yml"
 
 printf '\nRun unit tests ****************************************************\n'
 
-# Build only api-test service and start up a container
 docker compose --file "$DOCKER_COMPOSE_FILE_PATH" up \
   --build \
   --detach \
