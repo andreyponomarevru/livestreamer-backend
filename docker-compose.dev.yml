@@ -60,7 +60,7 @@ services:
       dockerfile: ./docker/Dockerfile
     init: true
     ports:
-      - 6379:6379
+      - 6380:6379
     networks:
       - livestreamer_backend
 

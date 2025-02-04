@@ -1,8 +1,12 @@
 {
   "preset": "ts-jest",
+  "verbose": true,
+
   "testEnvironment": "node",
 
-  "roots": ["./src"],
+  "setupFilesAfterEnv": ["jest-extended/all"],
+
+  "roots": ["./"],
   "testMatch": ["**/?(*.)+(spec|test).+(ts|tsx|js)"],
   "moduleFileExtensions": ["ts", "js", "json"],
   "transform": {
@@ -12,10 +16,12 @@
   "resetMocks": true,
   "restoreMocks": true,
   "extensionsToTreatAsEsm": [".ts"],
-  "setupFilesAfterEnv": ["jest-extended/all"],
 
-  "collectCoverage": true,
-  "collectCoverageFrom": ["src/**/*.ts", "src/**/*.tsx", "!**/src/open-api/**"],
+  "collectCoverageFrom": [
+    "./src/**/*.ts",
+    "./src/**/*.tsx",
+    "!**/src/open-api/**"
+  ],
   "coverageThreshold": {
     "global": {
       "branches": 7,

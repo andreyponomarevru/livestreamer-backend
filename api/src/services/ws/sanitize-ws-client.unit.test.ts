@@ -8,7 +8,7 @@ import { sanitizeWSClient } from "./sanitize-ws-client";
 describe("sanitizeWSClient", () => {
   const wsClient = {
     uuid: uuidv4(),
-    username: faker.internet.userName(),
+    username: faker.internet.username(),
     socket: {} as WebSocket,
   };
 

@@ -79,5 +79,3 @@ WORKDIR /home/node
 RUN npm ci --include=dev
 COPY --chown=node:node . .
 # CMD ["tail", "-f", "/dev/null"] # for debugging
-# Instead of CMD below we will run container multiple times each time executing different NPM scripts (unit, int, e2e, coverage): after build, run 'docker-compose ... run npm test:unit', 'docker-compose ... run npm test:coverage', etc.
-#CMD [ "bash", "/home/node/docker/start-app" ]

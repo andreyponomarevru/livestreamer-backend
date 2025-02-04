@@ -1,22 +1,30 @@
-process.env.NODE_ENV = "test"; // supress logging
+import { jest, describe, it, afterAll, expect, beforeAll } from "@jest/globals";
 
-import {
-  jest,
-  describe,
-  it,
-  beforeEach,
-  afterAll,
-  expect,
-  beforeAll,
-} from "@jest/globals";
-import faker from "faker";
+import { faker } from "@faker-js/faker";
 import { Pool } from "pg";
-
-import * as schedule from "../../../src/models/schedule/queries";
-import * as db from "../../../src/config/postgres";
+import { scheduleRepo } from "../../../src/models/schedule/queries";
+import { dbConnection } from "../../../src/config/postgres";
 import { ScheduledBroadcastDBResponse } from "../../../src/types";
 
+jest.mock("../../../src/config/logger", () => {
+  const module = jest.requireActual<
+    typeof import("../../../src/config/logger")
+  >("../../../src/config/logger");
+
+  return {
+    ...module,
+    logger: {
+      debug: jest.fn(),
+      error: jest.fn(),
+      info: jest.fn(),
+      warn: jest.fn(),
+    },
+  };
+});
+
 let pool: Pool;
+
+//
 
 // now + 1sec
 const futureTimestamp1 = new Date().getTime() + 1000;
@@ -24,22 +32,19 @@ const futureTimestamp1 = new Date().getTime() + 1000;
 const futureTimestamp2 = futureTimestamp1 + 1 * 60 * 60 * 1000;
 
 const broadcast = {
-  title: faker.datatype.string(),
+  title: faker.string.alpha(),
   startAt: new Date(futureTimestamp1).toISOString(),
   endAt: new Date(futureTimestamp2).toISOString(),
 };
 
-beforeAll(async () => (pool = await db.connectDB()));
-beforeEach(async () => {
-  await pool.query("TRUNCATE scheduled_broadcast;");
-});
-afterAll(async () => db.close());
+beforeAll(async () => (pool = await dbConnection.open()));
+afterAll(async () => dbConnection.close());
 
-//
+// Go through each part of book concerned with int test setup!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
 
 describe("create", () => {
   it("inserts a new scheduled broadcast in db", async () => {
-    await schedule.create(broadcast);
+    await scheduleRepo.create(broadcast);
 
     const res = await pool.query<ScheduledBroadcastDBResponse>(
       "SELECT * FROM scheduled_broadcast",
@@ -54,7 +59,7 @@ describe("create", () => {
   });
 
   it("returns a new scheduled broadcast", async () => {
-    const scheduledBroadcast = await schedule.create(broadcast);
+    const scheduledBroadcast = await scheduleRepo.create(broadcast);
 
     expect(scheduledBroadcast).toStrictEqual({
       id: expect.any(Number),
@@ -75,9 +80,9 @@ describe("destroy", () => {
 
     //
 
-    const scheduledBroadcast = await schedule.create(broadcast);
+    const scheduledBroadcast = await scheduleRepo.create(broadcast);
 
-    await schedule.destroy(scheduledBroadcast.id);
+    await scheduleRepo.destroy(scheduledBroadcast.id);
 
     const res = await pool.query("SELECT * FROM scheduled_broadcast");
     expect(res.rowCount).toBe(0);
@@ -86,17 +91,17 @@ describe("destroy", () => {
 
 describe("readAll", () => {
   it("returns all scheduled broadcasts", async () => {
-    for (let i = 0; i < 3; i++) await schedule.create(broadcast);
+    for (let i = 0; i < 3; i++) await scheduleRepo.create(broadcast);
 
-    const scheduledBroadcasts = await schedule.readAll();
+    const scheduledBroadcasts = await scheduleRepo.readAll();
 
     expect(scheduledBroadcasts.length).toBe(3);
   });
 
   it("returns broadcasts with appropriate values", async () => {
-    for (let i = 0; i < 3; i++) await schedule.create(broadcast);
+    for (let i = 0; i < 3; i++) await scheduleRepo.create(broadcast);
 
-    const scheduledBroadcasts = await schedule.readAll();
+    const scheduledBroadcasts = await scheduleRepo.readAll();
 
     expect(scheduledBroadcasts[0]).toStrictEqual({
       id: expect.any(Number),
