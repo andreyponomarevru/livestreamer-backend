@@ -32,7 +32,7 @@ services:
       - postgres-test
       - redis-test
     networks:
-      - livestreamer_backend
+      - livestreamer_backend_test
 
   postgres-test:
     container_name: postgres-test
@@ -54,7 +54,7 @@ services:
     ports:
       - 54323:5432
     networks:
-      - livestreamer_backend
+      - livestreamer_backend_test
 
   redis-test:
     container_name: redis-test
@@ -71,7 +71,7 @@ services:
     ports:
       - 6379:6379
     networks:
-      - livestreamer_backend
+      - livestreamer_backend_test
 
   # rabbitmq-test:
   #   container_name: rabbitmq-test
@@ -79,6 +79,6 @@ services:
   #     test: [rabbitmq-diagnostics -q ping]
 
 networks:
-  livestreamer_backend:
-    name: livestreamer_backend
+  livestreamer_backend_test:
+    name: livestreamer_backend_test
     driver: bridge
