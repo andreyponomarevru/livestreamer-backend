@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import { logger } from "../../config/logger";
 import { User } from "./user";
 import { dbConnection } from "../../config/postgres";
-import { Permissions, RESOURCES, PERMISSIONS } from "../../config/constants";
+import { Permissions } from "../../types";
 
 type IsEmailConfirmedDBResponse = { is_email_confirmed: boolean };
 type FindByEmailConfirmationTokenDBResponse = { appuser_id: number };
@@ -17,8 +17,8 @@ type ConfirmSignUpDBResponse = {
 type IsUserExistsDBResponse = { exists: boolean };
 type UserPermissionsDBResponse = {
   appuser_id?: number;
-  resource: (typeof RESOURCES)[number];
-  permissions: (typeof PERMISSIONS)[number][];
+  resource: string;
+  permissions: string[];
 };
 interface CreateUserDBResponse {
   appuser_id: number;
@@ -47,13 +47,6 @@ type CreateSettingDBResponse = {
   max_value: string;
 };
 
-type DefaultUser = {
-  username: string;
-  password: string;
-  email: string;
-  isEmailConfirmed: boolean;
-  isDeleted: boolean;
-};
 type UserSetting = {
   userId: number;
   settingId: number;
@@ -71,7 +64,6 @@ type ConfirmedEmail = {
   username: string;
   email: string;
 };
-
 export type SignUpData = {
   email: string;
   username: string;
@@ -106,7 +98,7 @@ export const userRepo = {
     const pool = await dbConnection.open();
     const res = await pool.query<UserPermissionsDBResponse>(sql, values);
 
-    const permissions = {} as Permissions;
+    const permissions: Permissions = {};
     res.rows.forEach((row) => {
       permissions[row.resource] = row.permissions;
     });
@@ -547,29 +539,5 @@ export const userRepo = {
     for (const valueName of setting.allowedSettingValues) {
       await this.createAllowedSettingValue(settingId, valueName);
     }
-  },
-
-  createDefaultUser: async function (defaultUser: DefaultUser) {
-    const sql =
-      "INSERT INTO appuser (\
-      username, \
-      password_hash, \
-      email, \
-      is_email_confirmed, \
-      is_deleted\
-    ) \
-    VALUES (\
-      $1, $2, $3, $4, $5, $6\
-    )";
-    const values = [
-      defaultUser.username,
-      defaultUser.password,
-      defaultUser.email,
-      defaultUser.isEmailConfirmed,
-      defaultUser.isDeleted,
-    ];
-    const pool = await dbConnection.open();
-    const res = await pool.query(sql, values);
-    return res.rows;
   },
 };

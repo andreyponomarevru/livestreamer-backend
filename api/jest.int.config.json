@@ -3,15 +3,15 @@
   "verbose": true,
 
   "testEnvironment": "node",
-  "globalSetup": "./test-helpers/migrate-db.ts",
-  "globalTeardown": "./test-helpers/global-teardown.ts",
+  "globalSetup": "./test-helpers/global-setup.ts",
 
   "setupFilesAfterEnv": [
     "jest-extended/all",
-    "<rootDir>/test-helpers/truncate-tables.ts"
+    "<rootDir>/test-helpers/truncate-tables.ts",
+    "<rootDir>/test-helpers/seed-users.ts",
+    "<rootDir>/test-helpers/disconnect-from-db.ts"
   ],
 
-  "roots": ["./"],
   "testMatch": ["**/?(*.)+(spec|test).+(ts|tsx|js)"],
   "moduleFileExtensions": ["ts", "js", "json"],
   "transform": {
@@ -20,19 +20,5 @@
   "clearMocks": true,
   "resetMocks": true,
   "restoreMocks": true,
-  "extensionsToTreatAsEsm": [".ts"],
-
-  "collectCoverageFrom": [
-    "./src/**/*.ts",
-    "./src/**/*.tsx",
-    "!**/src/open-api/**"
-  ],
-  "coverageThreshold": {
-    "global": {
-      "branches": 7,
-      "functions": 1,
-      "lines": 7,
-      "statements": 6
-    }
-  }
+  "extensionsToTreatAsEsm": [".ts"]
 }

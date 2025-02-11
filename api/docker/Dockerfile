@@ -8,10 +8,10 @@ ARG NODE_VERSION=22.13.1
 # you create/set another WORKDIR, it will ALWAYS be owned by the 'root', hence
 # the build will always be failing with permissions error.
 
-FROM node:${NODE_VERSION}-alpine AS base
-# Download Bash package > install Bash (to be able to execute scripts) >
+FROM node:${NODE_VERSION} AS base
+# If you use the alpine image, download Bash package > install Bash (to be able to execute scripts) >
 # > remove the downloaded package to free up space (Bash remains installed)
-RUN apk add --upgrade --no-cache bash
+# RUN apk add --upgrade --no-cache bash
 USER node
 WORKDIR /home/node
 COPY --chown=node:node package*.json ./
@@ -28,7 +28,6 @@ RUN npm ci --include=dev
 # Copy the whole dir instead of only "./src", otherwise directories with test
 # files won't be included
 COPY --chown=node:node . .
-# TODO CMD yarn run migratesql up && yarn run serve:dev
 CMD [ "npm", "run", "serve:dev" ]
 
 #
@@ -58,7 +57,7 @@ RUN npm ci --omit=dev
 # Stage 3: create final production image ready to be deployed - copy only the
 # required files from stages above.
 
-FROM node:${NODE_VERSION}-alpine AS production
+FROM node:${NODE_VERSION} AS production
 USER node
 WORKDIR /home/node
 COPY --from=production_base /home/node ./
@@ -71,11 +70,11 @@ CMD ["node", "index.js"]
 #
 
 # In general, this image should be more like production, but here it's more like dev because I use typescript and it's impossible to run tests if I compile the code
-# TODO exclude irrelevant to testing dirs, to reduce image size
 
 FROM base AS test
 USER node
 WORKDIR /home/node
 RUN npm ci --include=dev
 COPY --chown=node:node . .
+CMD [ "npm", "run", "serve:dev" ]
 # CMD ["tail", "-f", "/dev/null"] # for debugging

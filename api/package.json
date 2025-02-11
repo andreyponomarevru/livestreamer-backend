@@ -5,16 +5,17 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc -p ./tsconfig.json",
-    "serve:dev": "nodemon --watch ./src -e ts,json --exec 'TS_NODE_PROJECT=tsconfig.json node --inspect=0.0.0.0:9229 --require ts-node/register ./src/index.ts'",
-    "test:unit": "jest --config=./jest.unit.config.json --verbose --detectOpenHandles --colors ./src",
-    "test:int": "jest --config=jest.int.config.json --verbose --detectOpenHandles --runInBand --colors ./tests-integration",
-    "test:e2e-api": "jest ./tests-e2e-api --verbose --detectOpenHandles --runInBand --colors",
+    "serve:dev": "nodemon --watch ./src",
+    "test:unit": "jest --config=./jest.unit.config.json --detectOpenHandles --watchAll --colors ./src",
+    "test:int": "jest --config=jest.int.config.json --roots ./tests-integration --detectOpenHandles --runInBand --colors",
+    "test:e2e-api": "jest --config=jest.int.config.json --roots ./tests-e2e-api --detectOpenHandles --runInBand --colors",
     "test:coverage": "jest --config=./jest.unit.config.json ./src --coverage",
     "test:clearjest": "jest --clearCache",
-    "migratesql": "DATABASE_URL=\"postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_HOST:$POSTGRES_PORT/$POSTGRES_DB\" node-pg-migrate --migrations-dir ./src/migrations --migration-filename-format utc --tsconfig ./tsconfig.json --migration-file-language sql",
-    "migratets": "DATABASE_URL=\"postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_HOST:$POSTGRES_PORT/$POSTGRES_DB\" node-pg-migrate --migrations-dir ./src/migrations --migration-filename-format utc --tsconfig ./tsconfig.json",
-    "ci:lint": "eslint       ./src ./test-helpers ./tests-e2e-api",
-    "ci:prettier": "prettier ./src ./test-helpers ./tests-e2e-api --check \"**/*.{ts,tsx,js,md,mdx,css,yaml}\""
+    "migrate": "DATABASE_URL=\"postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_HOST:$POSTGRES_PORT/$POSTGRES_DB\" node-pg-migrate --check-order --migrations-dir ./src/migrations --migration-filename-format utc --tsconfig ./tsconfig.json",
+    "//": "CI ****************************************************************",
+    "": "",
+    "ci:lint": "eslint ./src ./test-helpers ./tests-integration ./tests-e2e-api",
+    "ci:prettier": "prettier ./src ./test-helpers ./tests-integration ./tests-e2e-api --check \"**/*.{ts,tsx,js,md,mdx,css,yaml}\""
   },
   "keywords": [
     "rest",

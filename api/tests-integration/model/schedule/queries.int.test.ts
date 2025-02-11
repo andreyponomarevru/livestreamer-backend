@@ -1,10 +1,10 @@
-import { jest, describe, it, afterAll, expect, beforeAll } from "@jest/globals";
+import { jest, describe, it, expect, beforeAll } from "@jest/globals";
 
 import { faker } from "@faker-js/faker";
-import { Pool } from "pg";
 import { scheduleRepo } from "../../../src/models/schedule/queries";
 import { dbConnection } from "../../../src/config/postgres";
 import { ScheduledBroadcastDBResponse } from "../../../src/types";
+import { Pool } from "pg";
 
 jest.mock("../../../src/config/logger", () => {
   const module = jest.requireActual<
@@ -24,8 +24,6 @@ jest.mock("../../../src/config/logger", () => {
 
 let pool: Pool;
 
-//
-
 // now + 1sec
 const futureTimestamp1 = new Date().getTime() + 1000;
 // (now + 1sec) + 1hr
@@ -38,76 +36,75 @@ const broadcast = {
 };
 
 beforeAll(async () => (pool = await dbConnection.open()));
-afterAll(async () => dbConnection.close());
 
-// Go through each part of book concerned with int test setup!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
+describe("Schedule", () => {
+  describe("create", () => {
+    it("inserts a new scheduled broadcast in db", async () => {
+      await scheduleRepo.create(broadcast);
 
-describe("create", () => {
-  it("inserts a new scheduled broadcast in db", async () => {
-    await scheduleRepo.create(broadcast);
+      const res = await pool.query<ScheduledBroadcastDBResponse>(
+        "SELECT * FROM scheduled_broadcast",
+      );
+      expect(res.rowCount).toBe(1);
+      expect(res.rows[0]).toStrictEqual({
+        scheduled_broadcast_id: expect.any(Number),
+        title: broadcast.title,
+        start_at: new Date(broadcast.startAt),
+        end_at: new Date(broadcast.endAt),
+      });
+    });
 
-    const res = await pool.query<ScheduledBroadcastDBResponse>(
-      "SELECT * FROM scheduled_broadcast",
-    );
-    expect(res.rowCount).toBe(1);
-    expect(res.rows[0]).toStrictEqual({
-      scheduled_broadcast_id: expect.any(Number),
-      title: broadcast.title,
-      start_at: new Date(broadcast.startAt),
-      end_at: new Date(broadcast.endAt),
+    it("returns a new scheduled broadcast", async () => {
+      const scheduledBroadcast = await scheduleRepo.create(broadcast);
+
+      expect(scheduledBroadcast).toStrictEqual({
+        id: expect.any(Number),
+        title: broadcast.title,
+        startAt: broadcast.startAt,
+        endAt: broadcast.endAt,
+      });
     });
   });
 
-  it("returns a new scheduled broadcast", async () => {
-    const scheduledBroadcast = await scheduleRepo.create(broadcast);
+  describe("destroy", () => {
+    it("deletes scheduled broadcast", async () => {
+      const initialScheduledBroadcasts = await pool.query(
+        "SELECT * FROM scheduled_broadcast",
+      );
 
-    expect(scheduledBroadcast).toStrictEqual({
-      id: expect.any(Number),
-      title: broadcast.title,
-      startAt: broadcast.startAt,
-      endAt: broadcast.endAt,
+      expect(initialScheduledBroadcasts.rowCount).toBe(0);
+
+      //
+
+      const scheduledBroadcast = await scheduleRepo.create(broadcast);
+
+      await scheduleRepo.destroy(scheduledBroadcast.id);
+
+      const res = await pool.query("SELECT * FROM scheduled_broadcast");
+      expect(res.rowCount).toBe(0);
     });
   });
-});
 
-describe("destroy", () => {
-  it("deletes scheduled broadcast", async () => {
-    const initialScheduledBroadcasts = await pool.query(
-      "SELECT * FROM scheduled_broadcast",
-    );
+  describe("readAll", () => {
+    it("returns all scheduled broadcasts", async () => {
+      for (let i = 0; i < 3; i++) await scheduleRepo.create(broadcast);
 
-    expect(initialScheduledBroadcasts.rowCount).toBe(0);
+      const scheduledBroadcasts = await scheduleRepo.readAll();
 
-    //
+      expect(scheduledBroadcasts.length).toBe(3);
+    });
 
-    const scheduledBroadcast = await scheduleRepo.create(broadcast);
+    it("returns broadcasts with appropriate values", async () => {
+      for (let i = 0; i < 3; i++) await scheduleRepo.create(broadcast);
 
-    await scheduleRepo.destroy(scheduledBroadcast.id);
+      const scheduledBroadcasts = await scheduleRepo.readAll();
 
-    const res = await pool.query("SELECT * FROM scheduled_broadcast");
-    expect(res.rowCount).toBe(0);
-  });
-});
-
-describe("readAll", () => {
-  it("returns all scheduled broadcasts", async () => {
-    for (let i = 0; i < 3; i++) await scheduleRepo.create(broadcast);
-
-    const scheduledBroadcasts = await scheduleRepo.readAll();
-
-    expect(scheduledBroadcasts.length).toBe(3);
-  });
-
-  it("returns broadcasts with appropriate values", async () => {
-    for (let i = 0; i < 3; i++) await scheduleRepo.create(broadcast);
-
-    const scheduledBroadcasts = await scheduleRepo.readAll();
-
-    expect(scheduledBroadcasts[0]).toStrictEqual({
-      id: expect.any(Number),
-      title: broadcast.title,
-      startAt: broadcast.startAt,
-      endAt: broadcast.endAt,
+      expect(scheduledBroadcasts[0]).toStrictEqual({
+        id: expect.any(Number),
+        title: broadcast.title,
+        startAt: broadcast.startAt,
+        endAt: broadcast.endAt,
+      });
     });
   });
 });

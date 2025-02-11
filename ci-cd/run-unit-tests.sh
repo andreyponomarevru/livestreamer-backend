@@ -12,7 +12,7 @@ docker compose --file "$DOCKER_COMPOSE_FILE_PATH" up \
   --no-deps \
   api-test
 
-docker exec api-test bash -c "npm run test:unit"
+docker exec api-test bash -c "npm run test:unit -- --no-watchAll"
 docker exec api-test bash -c "npm run test:coverage"
 
 docker compose --file "$DOCKER_COMPOSE_FILE_PATH" down

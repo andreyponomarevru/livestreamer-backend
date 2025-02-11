@@ -1,15 +1,15 @@
 {
   "ts-node": {
     "compilerOptions": {
-      "module": "CommonJS"
+      "module": "commonjs"
     },
     "files": true
   },
   "compilerOptions": {
     "types": ["node", "jest", "jest-extended"],
     "rootDir": "./src",
-    "target": "ES6",
-    "module": "ES2022",
+    "target": "ES2020",
+    "module": "esnext",
     "sourceMap": false,
     "outDir": "./build",
     "strict": true,
@@ -23,7 +23,8 @@
     "allowJs": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "useUnknownInCatchVariables": false
+    "useUnknownInCatchVariables": false,
+    "resolveJsonModule": true
   },
   "compileOnSave": true,
   "include": ["src/**/*"],
