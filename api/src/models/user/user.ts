@@ -1,4 +1,4 @@
-import { Permissions } from "../../config/constants";
+import { type Permissions } from "../../types";
 
 interface UserProfile {
   uuid: string;

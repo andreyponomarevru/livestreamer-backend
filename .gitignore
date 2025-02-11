@@ -10,6 +10,10 @@ _source/
 *.wav
 *.mp3
 *.env
+.node_repl_history
+.bash_history
+.npm
+\\\\.\\NUL
 build/
 dist/
 docker-hub-password.txt

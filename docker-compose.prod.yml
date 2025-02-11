@@ -11,6 +11,11 @@ services:
       # Should match the stage name in Dockerfile
       target: production
     restart: always
+    healthcheck:
+      test: "curl --fail http://localhost:5000"
+      interval: 5s
+      timeout: 5s
+      retries: 5
     init: true
     tty: true
     ports:
@@ -41,6 +46,14 @@ services:
       dockerfile: ./docker/Dockerfile
       target: production
     restart: always
+    environment:
+      # This var is required to run the healthcheck 'test' command
+      PGUSER: "postgres"
+    healthcheck:
+      test: "pg_isready --user $$POSTGRES_USER --databse $$POSTGRES_DB"
+      interval: 5s
+      timeout: 5s
+      retries: 5
     init: true
     env_file:
       - ./postgres/docker/.postgres.common.env
@@ -59,6 +72,11 @@ services:
     build:
       context: ./redis
       dockerfile: ./docker/Dockerfile
+    healthcheck:
+      test: "redis-cli --raw incr ping"
+      interval: 5s
+      timeout: 5s
+      retries: 5
     init: true
     ports:
       - 127.0.0.1:6379:6379

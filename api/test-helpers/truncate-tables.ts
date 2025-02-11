@@ -1,15 +1,19 @@
-import { beforeAll, beforeEach } from "@jest/globals";
-import { Pool } from "pg";
+import { beforeEach } from "@jest/globals";
 import { dbConnection } from "../src/config/postgres";
 
-let pool: Pool;
+const tablesToTruncate = [
+  "scheduled_broadcast",
+  "broadcast_like",
+  "appuser_bookmark",
+  "broadcast",
+  "chat_message_like",
+  "chat_message",
+  "appuser_setting",
+  "appuser",
+].join(", ");
 
-beforeAll(async () => (pool = await dbConnection.open()));
-
+// Truncates tables before each test case
 beforeEach(async () => {
-  console.log(
-    "[Jest setupFilesAfterEnv Hook] [beforeEach Hook] Truncate *all* tables before each test case",
-  );
-
-  await pool.query("TRUNCATE scheduled_broadcast;");
+  const pool = await dbConnection.open();
+  await pool.query(`TRUNCATE ${tablesToTruncate} RESTART IDENTITY CASCADE`);
 });

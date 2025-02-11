@@ -4,12 +4,9 @@
 *.gitignore
 npm-debug.log
 Dockerfile*
-<<<<<<< HEAD
 doc/
 .vscode/
 _source/
-=======
->>>>>>> 0a2c6cc359a0a830d66855f630f0a7e8bd3b313d
 .prettierrc.js
 .eslintrc.js
 .eslintignore

@@ -2,8 +2,6 @@ import { Request } from "express";
 import WebSocket from "ws";
 import { IncomingHttpHeaders } from "http";
 
-import { Permissions } from "./config/constants";
-
 //
 // Web Socket
 //
@@ -191,6 +189,7 @@ export type SignUpData = {
   password: string;
   isEmailConfirmed: boolean;
 };
+export type Permissions = { [key: string]: string[] };
 
 //
 // Database responses

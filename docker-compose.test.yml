@@ -9,6 +9,11 @@ services:
       target: test
     # Don't attempt to restart if tests failed
     restart: "no"
+    healthcheck:
+      test: "curl --fail http://localhost:5000"
+      interval: 5s
+      timeout: 5s
+      retries: 5
     init: true
     tty: true
     ports:
@@ -40,14 +45,17 @@ services:
     build:
       context: ./postgres
       dockerfile: ./docker/Dockerfile
-      target: test
+      target: production
     init: true
     restart: "no"
+    environment:
+      # This var is required to run the healthcheck 'test' command
+      PGUSER: "postgres"
     healthcheck:
-      test: ["CMD", "pg_isready"]
-      interval: 4s
+      test: "pg_isready --user $$POSTGRES_USER --databse $$POSTGRES_DB"
+      interval: 5s
       timeout: 5s
-      retries: 3
+      retries: 5
     env_file:
       - ./postgres/docker/.postgres.common.env
       - ./postgres/docker/.postgres.test.env
@@ -64,10 +72,10 @@ services:
       dockerfile: ./docker/Dockerfile
     init: true
     healthcheck:
-      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
-      interval: 4s
+      test: "redis-cli --raw incr ping"
+      interval: 5s
       timeout: 5s
-      retries: 3
+      retries: 5
     ports:
       - 6379:6379
     networks:
