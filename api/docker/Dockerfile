@@ -8,7 +8,7 @@ ARG NODE_VERSION=22.13.1
 # you create/set another WORKDIR, it will ALWAYS be owned by the 'root', hence
 # the build will always be failing with permissions error.
 
-FROM node:${NODE_VERSION} AS base
+FROM node:${NODE_VERSION}-slim AS base
 # If you use the alpine image, download Bash package > install Bash (to be able to execute scripts) >
 # > remove the downloaded package to free up space (Bash remains installed)
 # RUN apk add --upgrade --no-cache bash
@@ -57,7 +57,7 @@ RUN npm ci --omit=dev
 # Stage 3: create final production image ready to be deployed - copy only the
 # required files from stages above.
 
-FROM node:${NODE_VERSION} AS production
+FROM node:${NODE_VERSION}-slim AS production
 USER node
 WORKDIR /home/node
 COPY --from=production_base /home/node ./
