@@ -1,5 +1,6 @@
 import { beforeEach } from "@jest/globals";
 import { dbConnection } from "../src/config/postgres";
+import { redisConnection } from "../src/config/redis";
 
 const tablesToTruncate = [
   "scheduled_broadcast",
@@ -16,4 +17,7 @@ const tablesToTruncate = [
 beforeEach(async () => {
   const pool = await dbConnection.open();
   await pool.query(`TRUNCATE ${tablesToTruncate} RESTART IDENTITY CASCADE`);
+
+  const client = await redisConnection.open();
+  await client.flushAll();
 });

@@ -11,6 +11,6 @@ docker compose --file "$DOCKER_COMPOSE_FILE_PATH" up \
   --build \
   --detach
 
-npm run test:e2e-api
+docker exec api-test bash -c "npm run test:e2e-api"
 
 docker compose --file "$DOCKER_COMPOSE_FILE_PATH" down

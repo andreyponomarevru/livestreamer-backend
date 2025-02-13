@@ -14,10 +14,12 @@ export const cacheService = {
 
   get: async function <Value>(key: string): Promise<Value | void> {
     const client = await redisConnection.open();
-    const jsonString = (await client.get(key)) as unknown as string;
+    const jsonString = await client.get(key);
 
     if (jsonString) {
       return JSON.parse(jsonString);
+    } else {
+      throw new Error("Empty response");
     }
   },
 };
