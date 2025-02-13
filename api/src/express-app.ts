@@ -8,15 +8,14 @@ import { morganSettings, logger } from "./config/logger";
 import { handleErrors } from "./middlewares/handle-errors";
 import { handle404Error } from "./middlewares/handle-404-error";
 import { SHOULD_EXPRESS_TRUST_FIRST_PROXY } from "./config/env";
-import { sessionConfig } from "./config/session-storage";
+import { sessionConfig } from "./config/redis";
 import { apiRouter } from "./controllers/router";
 
 const expressApp = express();
 expressApp.set("port", HTTP_PORT);
-if (SHOULD_EXPRESS_TRUST_FIRST_PROXY) {
-  expressApp.set("trust proxy", 1);
-}
-// Save in var in order to use it for WebSocket Upgrade request authentication:
+if (SHOULD_EXPRESS_TRUST_FIRST_PROXY) expressApp.set("trust proxy", 1);
+// Save in var in order to reuse it for WebSocket Upgrade request
+// authentication:
 const sessionParser = session(sessionConfig);
 
 expressApp.use(cors());

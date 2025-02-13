@@ -1,14 +1,18 @@
 import { describe, it, beforeAll, afterAll, expect } from "@jest/globals";
 import request from "supertest";
-import { testuser } from "../test-helpers/seeds/users.seed";
+import { superadminUser } from "../test-helpers/utils/user";
 import { httpServer } from "../src/http-server";
+import { RedisClient, redisConnection } from "../src/config/redis";
+import { moreInfo } from "../test-helpers/constants";
+import { signIn } from "../test-helpers/sign-in";
 
-// TODO add test cases for invalid cerdentials
+const sessionKeyPattern = "sess:*";
 
-describe("Sign In and Sign Out", () => {
-  let adminCookie: string | undefined;
+let redisClient: RedisClient;
 
-  beforeAll(() => {
+describe(`Sign In and Sign Out the user ${superadminUser.username}`, () => {
+  beforeAll(async () => {
+    redisClient = await redisConnection.open();
     httpServer.listen();
   });
 
@@ -18,79 +22,121 @@ describe("Sign In and Sign Out", () => {
     });
   });
 
-  describe("POST /sessions", () => {
-    it("signs in when credentials are valid", async () => {
-      await request(httpServer)
-        .post("/sessions")
-        .set("accept", "application/json")
-        .set("content-type", "application/json")
-        .send({ username: testuser.username, password: testuser.password })
-        .expect("content-type", /application\/json/)
-        .expect(200)
-        .then((res) => {
-          adminCookie = res.headers["set-cookie"][0];
-          expect(adminCookie).toEqual(expect.stringMatching(/sess.sid=/));
-        });
+  describe("POST", () => {
+    it("signs in with credentials of the pre-seeded user", async () => {
+      const sessionsBeforeSignIn = await redisClient.keys(sessionKeyPattern);
+      expect(sessionsBeforeSignIn.length).toBe(0);
 
-      // TODO Add - right here - sending request to database to retrieve the inserted data and compare it with the one that was send in request body by client
+      const response = await request(httpServer)
+        .post("/sessions")
+        .send({
+          username: superadminUser.username,
+          password: superadminUser.password,
+        })
+        .expect("content-type", /json/)
+        .expect(200);
+
+      const cookie = response.headers["set-cookie"][0];
+      expect(cookie).toEqual(expect.stringMatching(/sess.sid=/));
+
+      const sessionsAfterSignIn = await redisClient.keys(sessionKeyPattern);
+      expect(sessionsAfterSignIn.length).toBe(1);
     });
 
-    it("return 401 when credentials are invalid", async () => {
-      await request(httpServer)
+    it("doesn't sign in if credentials are invalid", async () => {
+      const response = await request(httpServer)
         .post("/sessions")
-        .set("accept", "application/json")
-        .set("content-type", "application/json")
-        .send({
-          username: testuser.username,
-          password: testuser.password + ".",
-        })
-        .expect("content-type", /application\/json/)
-        .expect(401)
-        .then((res) => {
-          expect(res.body).toStrictEqual({
-            message: expect.any(String),
-            moreInfo: expect.any(String),
-            status: 401,
-            statusText: expect.any(String),
-          });
-        });
+        .send({ username: "invalid", password: "invalid" })
+        .expect("content-type", /json/)
+        .expect(401);
+
+      expect(response.body).toStrictEqual({
+        ...moreInfo,
+        status: 401,
+        statusText: "Unauthorized",
+        message: "Invalid email, username or password",
+      });
     });
 
-    // TODO Split this test into two separate
-    it("return 401 when the user has been already authenticated and sends the seconds request with valid credentials but without session cookie attached", async () => {
+    it("doesn't sign in if the user is already signed in but attempts to sign in again", async () => {
+      const response = await signIn(superadminUser);
+      const cookie = response.headers["set-cookie"][0];
+
       await request(httpServer)
         .post("/sessions")
-        .set("accept", "application/json")
-        .set("content-type", "application/json")
+        .set("Cookie", [cookie as string])
         .send({
-          username: testuser.username,
-          password: testuser.password + ".",
+          username: superadminUser.username,
+          password: superadminUser.password,
         })
-        .expect("content-type", /application\/json/)
-        .expect(401)
-        .then((res) => {
-          expect(res.body).toStrictEqual({
-            message: expect.any(String),
-            moreInfo: expect.any(String),
-            status: 401,
-            statusText: expect.any(String),
-          });
-        });
+        .expect("content-type", /json/)
+        .expect(401);
+    });
+
+    it("doesn't sign in if credentials are malformed", async () => {
+      const response = await request(httpServer)
+        .post("/sessions")
+        .send({ user: superadminUser.username, pass: superadminUser.password })
+        .expect("content-type", /json/)
+        .expect(400);
+
+      expect(response.body).toStrictEqual({
+        ...moreInfo,
+        status: 400,
+        statusText: "BadRequest",
+        message: "Invalid email, username or password",
+      });
     });
   });
 
-  describe("DELETE /sessions", () => {
-    it("signs out when the user is currently signed in", async () => {
+  describe("DELETE", () => {
+    it("signs out if the user is currently signed in", async () => {
+      const response = await signIn(superadminUser);
+      const cookie = response.headers["set-cookie"][0];
+
+      const sessionKeyPattern = "sess:*";
+      const sessionsAfterSignIn = await redisClient.keys(sessionKeyPattern);
+      expect(sessionsAfterSignIn.length).toBe(1);
+
       await request(httpServer)
         .delete("/sessions")
-        .set("Cookie", [adminCookie as string])
+        .set("Cookie", [cookie as string])
         .expect(204);
-
-      // TODO check database to make sure the record was deleted
+      const sessionsAfterSignOut = await redisClient.keys(sessionKeyPattern);
+      expect(sessionsAfterSignOut.length).toBe(0);
     });
 
-    it("returns 200 when the user is not signed in", async () => {
-      await request(httpServer).delete("/sessions").expect(401);
+    it("doesn't sign out if the user is not signed in", async () => {
+      const response = await request(httpServer)
+        .delete("/sessions")
+        .send({
+          username: superadminUser.username,
+          password: superadminUser.password,
+        })
+        .expect("content-type", /json/)
+        .expect(401);
+
+      expect(response.body).toStrictEqual({
+        ...moreInfo,
+        status: 401,
+        statusText: "Unauthorized",
+        message: "You must authenticate to access this resource",
+      });
+    });
+
+    it("doesn't sign out if credentials are invalid", async () => {
+      const response = await request(httpServer)
+        .delete("/sessions")
+        .send({ username: "invalid", password: "invalid" })
+        .expect("content-type", /json/)
+        .expect(401);
+
+      expect(response.body).toStrictEqual({
+        ...moreInfo,
+        status: 401,
+        statusText: "Unauthorized",
+        message: "You must authenticate to access this resource",
+      });
     });
   });
 });

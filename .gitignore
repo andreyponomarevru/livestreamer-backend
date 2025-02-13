@@ -19,6 +19,7 @@ dist/
 docker-hub-password.txt
 docker-hub-access-token.md
 coverage/
+volume_postgresql-data/
 
 !.gitignore
 !.gitattributes
