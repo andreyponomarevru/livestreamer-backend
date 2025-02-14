@@ -26,11 +26,10 @@ export const sessionController = {
     next: NextFunction,
   ): Promise<void> {
     try {
-      if (req.session.authenticatedUser && !req.cookies) {
+      if (!req.cookies && req.session.authenticatedUser) {
         throw new HttpError({
           code: 401,
-          message:
-            "Can't authenticate the request, no cookie found in request  headers",
+          message: "Can't authenticate the request, no cookie found",
         });
       }
 

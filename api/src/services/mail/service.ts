@@ -34,6 +34,11 @@ export const mailService = {
     logger.debug(mailOptions);
 
     const transporter = nodemailer.createTransport(mailConfig);
+
+    await transporter.verify((err) => {
+      if (err) throw err;
+    });
+
     const info = await transporter.sendMail(mailOptions);
 
     logger.debug("Message sent: ", info.messageId);
