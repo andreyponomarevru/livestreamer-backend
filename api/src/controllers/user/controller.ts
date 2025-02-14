@@ -42,7 +42,6 @@ export const userController = {
         });
       }
 
-      // TODO: don't hard code role id, pass it as a string like 'listener', trwite SQL to insert based on this string instead of id
       await userService.createUser({
         username: req.headers.basicauth?.username,
         password: req.headers.basicauth?.password,
