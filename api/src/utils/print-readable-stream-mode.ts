@@ -1,4 +1,5 @@
 import { Readable, Duplex } from "stream";
+import { logger } from "../config/logger";
 
 export function printReadableStreamMode(
   stream: Readable | Duplex,
@@ -8,5 +9,5 @@ export function printReadableStreamMode(
     ? `${streamName} PAUSED`
     : `${streamName} FLOWING`;
 
-  console.log(`${mode} [${new Date().toISOString()}]`);
+  logger.debug(`${mode} [${new Date().toISOString()}]`);
 }

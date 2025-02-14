@@ -14,7 +14,7 @@ import {
 export type RedisClient = Awaited<ReturnType<typeof redisConnection.open>>;
 
 const client = createClient({ url: REDIS_URI });
-client.connect().catch(console.error);
+client.connect().catch(logger.error);
 
 export const sessionConfig = {
   store: new RedisStore({

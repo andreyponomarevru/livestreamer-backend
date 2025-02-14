@@ -42,7 +42,7 @@ export const authnService = {
     try {
       return await bcrypt.compare(password, hash);
     } catch (err) {
-      console.error(`${__filename}: ${err}`);
+      logger.error(`${__filename}: ${err}`);
       return false;
     }
   },

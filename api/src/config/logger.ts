@@ -2,7 +2,7 @@ import {
   APP_NAME,
   LOG_LOCATION,
   DEBUG_LOG_NAME,
-  //INFO_LOG_NAME,
+  // INFO_LOG_NAME,
   // ERROR_LOG_NAME,
   SHOULD_LOG_TO_CONSOLE,
   SHOULD_LOG_TO_FILE,
@@ -12,9 +12,6 @@ import {
 // Winston logger
 //
 
-// TIP: Winston Logging Levels:
-// 0: error, 1: warn, 2: info, 3: verbose, 4: debug, 5: silly
-
 import winston from "winston";
 const {
   createLogger,
@@ -22,13 +19,12 @@ const {
   transports,
 } = winston;
 
-const logFormat = printf(({ level, message, /*label,*/ timestamp }) => {
-  return `${level} [${timestamp}] ${"" /*label.toUpperCase()*/}: ${message}`;
+const logFormat = printf(({ level, message, label, timestamp }) => {
+  return `${level} [${timestamp}] ${String(label).toUpperCase()}: ${message}`;
 });
 
-// Write all logs with level 'debug' and below to file
-// TIP: to write logs to console isntead of file, remove "filename" key below and replace `transport.File` with `transport.Console`
 const debugConsoleTransport = new transports.Console({
+  // Affect all logs with level 'debug' and below
   level: "debug",
   format: combine(
     label({ label: APP_NAME }),
@@ -50,25 +46,6 @@ const debugFileTransport = new transports.File({
   ),
   silent: !SHOULD_LOG_TO_FILE,
 });
-/*
-// Write all logs with level 'info' and below to INFO_LOG_NAME
-const infoFileTransport = new transports.File({
-  level: "info",
-  filename: `${LOG_LOCATION}/${INFO_LOG_NAME}`,
-  maxsize: 5242880, // 5MB
-  maxFiles: 2,
-  format: combine(label({ label: APP_NAME }), timestamp(), logFormat),
-  silent: SHOULD_LOG_TO_FILE,
-});
-
-// Write all logs with level 'error' and below to file
-const errorFileTransport = new transports.File({
-  level: "error",
-  filename: `${LOG_LOCATION}/${ERROR_LOG_NAME}`,
-  maxsize: 5242880, // 5MB
-  maxFiles: 2,
-  format: combine(label({ label: APP_NAME }), timestamp(), logFormat),
-});*/
 
 function createTransports(shouldLogToConsole = true, shouldLogToFile = true) {
   const transports = [];
@@ -79,7 +56,7 @@ function createTransports(shouldLogToConsole = true, shouldLogToFile = true) {
 
 const logger = createLogger({
   transports: createTransports(SHOULD_LOG_TO_CONSOLE, SHOULD_LOG_TO_FILE),
-  exitOnError: false, // do not exit on uncaughtException
+  exitOnError: false,
 });
 
 // Put Morgan logs inside Winston logs,
