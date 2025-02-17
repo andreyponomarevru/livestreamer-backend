@@ -1,39 +1,78 @@
-import { afterEach, /*jest,*/ describe, it /*expect */ } from "@jest/globals";
-
+import {
+  afterEach,
+  jest,
+  describe,
+  it,
+  expect,
+  beforeEach,
+} from "@jest/globals";
+import fakeTimers from "@sinonjs/fake-timers";
 import { IntervalScheduler } from "./scheduler";
 
 const scheduler = new IntervalScheduler();
 
-afterEach(() => scheduler.stop());
+jest.mock("../../../src/config/logger");
 
-// TODO: finish when you will read how to test timers
+describe("Scheduler", () => {
+  const waitMs = 50000;
+  let clock: fakeTimers.InstalledClock;
 
-describe("Scheduler class", () => {
-  describe("start method", () => {
-    it.todo(
-      "sets the timer" /*, () => {
-      scheduler.start(() => {}, 1000);
-
-      expect(typeof scheduler.timerId).toBe("object");
-    }*/,
-    );
-
-    it.todo(
-      "invokes the provided callback in a given time interval" /* () => {
-      scheduler.start(() =>{}, 1000);
-
-      expect(scheduler.)
-    }*/,
-    );
+  beforeEach(() => {
+    clock = fakeTimers.install();
+  });
+  afterEach(() => {
+    clock = clock.uninstall() as unknown as fakeTimers.InstalledClock;
+    scheduler.stop();
   });
 
-  describe("stop method", () => {
-    it.todo("stops invoking the provided callback" /*, () => {}*/);
+  describe("start", () => {
+    it("schedules the timer, invoking the provided callback with a set interval", () => {
+      expect(scheduler.timerId).toBe(undefined);
 
-    it.todo("clears the timer" /*, () => {}*/);
+      const callbackSpy = jest.fn();
+      const setIntervalSpy = jest.spyOn(global, "setInterval");
 
-    it.todo(
-      "doesn't throw error if the scheduler has been stopped before starting" /*, () => {}*/,
-    );
+      const timerId = scheduler.start(callbackSpy, waitMs);
+      expect(scheduler.timerId).toBe(timerId);
+      expect(setIntervalSpy).toHaveBeenCalledTimes(1);
+
+      const calledWithArg1 = setIntervalSpy.mock.calls[0][0];
+      const calledWithArg2 = setIntervalSpy.mock.calls[0][1];
+      expect(calledWithArg1).toEqual(callbackSpy);
+      expect(calledWithArg2).toEqual(waitMs);
+
+      for (let t = 0; t < 50; t++) clock.tick(waitMs);
+      expect(callbackSpy).toBeCalledTimes(50);
+    });
+  });
+
+  describe("stop", () => {
+    it("stops invoking the provided callback and clears the timer", () => {
+      expect(scheduler.timerId).toBe(undefined);
+
+      const callbackSpy = jest.fn();
+      const clearIntervalSpy = jest.spyOn(global, "clearInterval");
+
+      const timerId = scheduler.start(callbackSpy, waitMs);
+      for (let t = 0; t < 50; t++) clock.tick(waitMs);
+      scheduler.stop();
+
+      expect(clearIntervalSpy).toBeCalledTimes(1);
+      expect(clearIntervalSpy).toBeCalledWith(timerId);
+      expect(scheduler.timerId).toBe(undefined);
+
+      for (let t = 0; t < 50; t++) clock.tick(waitMs);
+      expect(callbackSpy).toBeCalledTimes(50);
+    });
+
+    it("doesn't clear the timer if the timer id is absent", () => {
+      const clearIntervalSpy = jest.spyOn(global, "clearInterval");
+
+      expect(scheduler.timerId).toBe(undefined);
+
+      scheduler.stop();
+
+      expect(clearIntervalSpy).not.toBeCalled();
+    });
   });
 });

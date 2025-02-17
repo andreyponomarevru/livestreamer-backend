@@ -1,4 +1,3 @@
-import util from "util";
 import WebSocket from "ws";
 import { beforeEach, jest, describe, it, expect } from "@jest/globals";
 import { faker } from "@faker-js/faker";
@@ -6,17 +5,14 @@ import { v4 as uuidv4 } from "uuid";
 import { logger } from "../../config/logger";
 import { WSClientStore } from "./ws-client-store";
 
-// Supress logging
 jest.mock("../../../src/config/logger");
-
-console.log();
 
 describe("WSClientStore class", () => {
   function createClient() {
     return {
       id: faker.number.int(),
       uuid: uuidv4(),
-      username: faker.internet.userName(),
+      username: faker.internet.username(),
       socket: {} as WebSocket,
     };
   }
@@ -31,10 +27,10 @@ describe("WSClientStore class", () => {
     clientStore = new WSClientStore(schedulerMock);
     schedulerMock.start.mockClear();
     schedulerMock.stop.mockClear();
-    (logger.debug as any).mockClear();
+    jest.mocked(logger.debug).mockClear();
   });
-  /*
-  describe("addClient method", () => {
+
+  describe("addClient", () => {
     it("adds a new client to the store", () => {
       const addClientSpy = jest.spyOn(clientStore, "addClient");
 
@@ -77,7 +73,7 @@ describe("WSClientStore class", () => {
     });
   });
 
-  describe("deleteClient method", () => {
+  describe("deleteClient", () => {
     it("deletes a client from the store by client's uuid", () => {
       const deleteClientSpy = jest.spyOn(clientStore, "deleteClient");
       clientStore.addClient(client1);
@@ -113,7 +109,7 @@ describe("WSClientStore class", () => {
     });
   });
 
-  describe("getClient method", () => {
+  describe("getClient", () => {
     it("retrieves a client from the store by uuid", () => {
       const getClientSpy = jest.spyOn(clientStore, "getClient");
       clientStore.addClient(client1);
@@ -129,14 +125,14 @@ describe("WSClientStore class", () => {
 
     it("does not throw an error on attempt to retrieve non-existent client", () => {
       expect(() =>
-        clientStore.getClient(faker.internet.userName()),
+        clientStore.getClient(faker.internet.username()),
       ).not.toThrowError();
 
-      expect(clientStore.getClient(faker.internet.userName())).toBeUndefined();
+      expect(clientStore.getClient(faker.internet.username())).toBeUndefined();
     });
   });
 
-  describe("clients getter", () => {
+  describe("get clients", () => {
     it("returns all clients as an array", () => {
       const clientsSpy = jest.spyOn(clientStore, "clients", "get");
 
@@ -153,7 +149,7 @@ describe("WSClientStore class", () => {
     });
   });
 
-  describe("clientCount getter", () => {
+  describe("get clientCount", () => {
     it("returns current client count", () => {
       expect(clientStore.clientCount).toBe(0);
 
@@ -171,7 +167,7 @@ describe("WSClientStore class", () => {
     });
   });
 
-  describe("sanitizedClients getter", () => {
+  describe("get sanitizedClients", () => {
     it("returns an array of sanitized clients", () => {
       const sanitizedClientsSpy = jest.spyOn(
         clientStore,
@@ -192,5 +188,5 @@ describe("WSClientStore class", () => {
 
       sanitizedClientsSpy.mockRestore();
     });
-  });*/
+  });
 });
