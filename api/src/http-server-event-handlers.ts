@@ -1,7 +1,7 @@
-import { Socket } from "net";
+import { type Socket } from "net";
 import util from "util";
 import { v4 as uuidv4 } from "uuid";
-import { Request, Response } from "express";
+import { type Request, type Response } from "express";
 import { wsServer } from "./ws-server";
 import { WSChatClient } from "./services/ws";
 import { HTTP_PORT } from "./config/env";
@@ -20,7 +20,6 @@ export function onServerError(err: NodeJS.ErrnoException): void | never {
   const bind =
     typeof HTTP_PORT === "string" ? `Pipe ${HTTP_PORT}` : `Port ${HTTP_PORT}`;
 
-  // Messages for 'listen' event errors
   switch (err.code) {
     case "EACCES":
       logger.error(`${bind} requires elevated privileges`);
@@ -79,7 +78,7 @@ export function handleNewWSConnection(
   }
 }
 
-// For example of WebSocket authentication using express-session, refer to
+// For an example of WebSocket authentication using express-session, refer to
 // https://github.com/websockets/ws#client-authentication (just a basic idea)
 // https://github.com/websockets/ws/blob/master/examples/express-session-parse/index.js — this is what i've based my code on
 export async function onServerUpgrade(

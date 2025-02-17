@@ -1,8 +1,7 @@
 import { wsService } from "./service";
 import { WSClient } from "../../types";
-import { streamService } from "../stream/service";
 import { logger } from "../../config/logger";
-import { sendBroadcastState } from "../stream";
+import { sendBroadcastState, streamService } from "../stream";
 
 export async function onConnection(client: WSClient): Promise<void> {
   client.socket.on("close", () =>

@@ -1,8 +1,7 @@
-/* eslint-disable no-unused-vars */
-
 import { logger } from "../../../src/config/logger";
 
 interface Scheduler {
+  // eslint-disable-next-line no-unused-vars
   start: (callback: () => void, interfval: number) => void;
   stop: () => void;
   timerId?: NodeJS.Timeout;
@@ -11,8 +10,10 @@ interface Scheduler {
 class IntervalScheduler implements Scheduler {
   timerId?: NodeJS.Timeout;
 
-  start(callback: () => void, interval: number): void {
+  start(callback: () => void, interval: number): NodeJS.Timeout {
     this.timerId = setInterval(callback, interval);
+
+    return this.timerId;
   }
 
   stop(): void {

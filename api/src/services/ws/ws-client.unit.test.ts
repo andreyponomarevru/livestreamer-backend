@@ -1,4 +1,4 @@
-import { describe, it, beforeEach, expect } from "@jest/globals";
+import { describe, it, expect } from "@jest/globals";
 import { faker } from "@faker-js/faker";
 import { v4 as uuidv4 } from "uuid";
 import WebSocket from "ws";
@@ -9,7 +9,7 @@ describe("WSChatClient class", () => {
     it("returns a new client", () => {
       const clientDetails = {
         uuid: uuidv4(),
-        username: faker.internet.userName(),
+        username: faker.internet.username(),
         socket: {} as WebSocket,
       };
       const client = new WSChatClient(clientDetails);

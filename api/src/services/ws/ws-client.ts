@@ -21,7 +21,7 @@ class WSChatClient implements WSClient {
   }
 
   private buildUsername(str: string): string {
-    return str.substr(0, 8);
+    return str.substring(0, 8);
   }
 }
 
