@@ -1,27 +1,5 @@
-/* eslint-disable no-unused-vars */
-/* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
-
 import EventEmitter from "events";
 import { ChatMsg, ChatMsgId, ChatMsgLike, ChatMsgUnlike } from "../../types";
-
-export interface ChatEmitter {
-  on(
-    event: "create_message",
-    listener: (msg: ChatMsg & { userUUID: string }) => void,
-  ): this;
-  on(
-    event: "delete_message",
-    listener: (msg: ChatMsgId & { userUUID: string }) => void,
-  ): this;
-  on(
-    event: "like_message",
-    listener: (msg: ChatMsgLike & { likedByUserUUID: string }) => void,
-  ): this;
-  on(
-    event: "unlike_message",
-    listener: (msg: ChatMsgUnlike & { unlikedByUserUUID: string }) => void,
-  ): this;
-}
 
 export class ChatEmitter extends EventEmitter {
   createChatMsg(msg: ChatMsg & { userUUID: string }): void {
