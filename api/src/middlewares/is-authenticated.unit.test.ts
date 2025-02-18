@@ -1,15 +1,16 @@
 import { Request, Response } from "express";
 import { jest, describe, it, expect } from "@jest/globals";
-
 import { isAuthenticated } from "./is-authenticated";
-import type { HttpError } from "../utils/http-error";
+import { HttpError } from "../utils/http-error";
+import { HTTP_ERRORS } from "../config/constants";
+import { moreInfo } from "../../test-helpers/constants";
 
-describe("isAuthenticated middleware", () => {
+describe("isAuthenticated", () => {
   const httpError = {
-    message: expect.any(String),
-    moreInfo: expect.any(String),
+    message: "You must authenticate to access this resource",
     status: 401,
-    statusText: expect.any(String),
+    statusText: HTTP_ERRORS[401],
+    ...moreInfo,
   } as unknown as HttpError;
 
   it("calls the next function with an error, if session doesn't exist", async () => {
