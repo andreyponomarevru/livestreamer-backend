@@ -1,15 +1,3 @@
-export const HTTP_ERROR_MESSAGES = [
-  "Specify either email OR username",
-  "Invalid email, username or password",
-  "Pending Account. Look for the verification email in your inbox and click the link in that email",
-  "The requested page does not exist",
-  "You must authenticate to access this resource",
-  "You don't have permission to access this resource",
-  "Username or email already exists",
-  "Confirmation token is invalid",
-  "Sorry, this username is already taken",
-] as const;
-
 export const HTTP_ERRORS = {
   400: "BadRequest",
   401: "Unauthorized",
@@ -56,4 +44,3 @@ export const HTTP_ERRORS = {
 
 export type HttpErrorCodes = keyof typeof HTTP_ERRORS;
 export type HttpErrorNames = (typeof HTTP_ERRORS)[HttpErrorCodes];
-export type HttpErrorMessages = (typeof HTTP_ERROR_MESSAGES)[number];
