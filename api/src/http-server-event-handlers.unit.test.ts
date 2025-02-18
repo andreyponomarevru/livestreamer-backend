@@ -12,20 +12,9 @@ import { sessionParser } from "./express-app";
 import { wsServer } from "./ws-server";
 import { EventEmitter } from "stream";
 
-jest.mock("./config/logger", () => {
-  return { logger: { error: jest.fn(), debug: jest.fn(), info: jest.fn() } };
-});
-jest.mock("./express-app", () => ({ sessionParser: jest.fn() }));
-
-jest.mock("./ws-server", () => {
-  const originalModule =
-    jest.requireActual<typeof import("./ws-server")>("./ws-server");
-
-  return {
-    ...originalModule,
-    wsServer: { ...originalModule.wsServer, handleUpgrade: jest.fn() },
-  };
-});
+jest.mock("./config/logger");
+jest.mock("./express-app");
+jest.mock("./ws-server");
 
 describe("onServerListening", () => {
   it("logs a message when the server starts listening", () => {
@@ -137,7 +126,7 @@ describe("handleNewWSConnection", () => {
     expect(jest.mocked(wsServer.handleUpgrade)).toHaveBeenCalledTimes(1);
   });
 
-  it.only("handles protocol upgrade from HTTP to WS if the user is not authenticated", async () => {
+  it("handles protocol upgrade from HTTP to WS if the user is not authenticated", async () => {
     const req1 = { session: { authenticatedUser: {} } } as Request;
     const req2 = {} as Request;
     const socket = new EventEmitter() as Socket;

@@ -1,20 +1,17 @@
-import { jest, describe, it, expect } from "@jest/globals";
+import { describe, it, expect } from "@jest/globals";
 
-import { HTTP_ERRORS } from "./../../src/config/constants";
-import { HttpError } from "../../src/utils/http-error";
+import { HTTP_ERRORS } from "../config/constants";
+import { HttpError } from "./http-error";
 
 describe("HttpError class", () => {
   describe("constructor", () => {
-    const urlRegex =
-      /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/;
-
     it("returns new HTTP error instance", () => {
       const code = 404;
       const err = new HttpError({ code });
 
       expect(err.status).toBe(code);
       expect(err.statusText).toBe(HTTP_ERRORS[code]);
-      expect(err.moreInfo).toMatch(urlRegex);
+      expect(err.moreInfo).toMatch("https://github.com/ponomarevandrey/");
     });
 
     it("includes error message, if it is passed", () => {

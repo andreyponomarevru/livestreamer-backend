@@ -32,16 +32,19 @@ describe("onChatStart", () => {
 
     const firstCallArg1 = sendSpy.mock.calls[0][0];
     const firstcallArg2 = sendSpy.mock.calls[0][1];
-    expect(firstCallArg1).toEqual({ event: "chat:client_list", data: [] });
-    expect(firstcallArg2).toEqual(wsClient);
+    expect(firstCallArg1).toStrictEqual({
+      event: "chat:client_list",
+      data: [],
+    });
+    expect(firstcallArg2).toStrictEqual(wsClient);
 
     const secondCallArg1 = sendSpy.mock.calls[1][0];
     const secondCallArg2 = sendSpy.mock.calls[1][1];
-    expect(secondCallArg1).toEqual({
+    expect(secondCallArg1).toStrictEqual({
       event: "chat:client_count",
       data: { count: 0 },
     });
-    expect(secondCallArg2).toEqual(wsClient);
+    expect(secondCallArg2).toStrictEqual(wsClient);
   });
 });
 

@@ -3,12 +3,12 @@ import { faker } from "@faker-js/faker";
 import {
   encodeNextPageCursor,
   decodeNextPageCursor,
-} from "../../src/utils/handle-db-cursors";
+} from "./handle-db-cursors";
 
 const dbRecordTimestamp = faker.date.past().toISOString();
 const dbRecordId = faker.number.int();
 
-describe("decodeNextPageCursor function", function () {
+describe("decodeNextPageCurso", function () {
   it("returns decoded cursor if valid cursor has been passed", () => {
     const decodedCursor = {
       timestampCursor: dbRecordTimestamp,
@@ -37,15 +37,18 @@ describe("decodeNextPageCursor function", function () {
   });
 });
 
-describe("encodeNextPageCursor function", function () {
+describe("encodeNextPageCursor", function () {
   let encodedCursor: string;
 
   beforeEach(() => {
     encodedCursor = encodeNextPageCursor(dbRecordTimestamp, dbRecordId);
   });
 
-  it("returns encoded cursor as valid base64 string", () => {
+  it("returns encoded cursor as a valid base64 string", () => {
+    const base64Chars = /[A-Za-z0-9+/=]/;
+
     expect(typeof encodedCursor).toBe("string");
+    expect(encodedCursor).toMatch(base64Chars);
   });
 
   it("encodes to valid base64", () => {

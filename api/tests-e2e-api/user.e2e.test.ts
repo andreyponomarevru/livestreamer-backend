@@ -31,7 +31,7 @@ describe("/user", () => {
         `SELECT * FROM appuser WHERE username = '${username}'`,
       );
 
-      expect(dbResponse.rows).toEqual([
+      expect(dbResponse.rows).toStrictEqual([
         {
           appuser_id: expect.any(Number),
           role_id: 2,

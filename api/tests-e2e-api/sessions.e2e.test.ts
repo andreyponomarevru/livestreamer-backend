@@ -68,7 +68,7 @@ describe(`/sessions (for the user with role Superadmin)`, () => {
           })
           .expect("content-type", /json/)
           .expect(200);
-        expect(setCookie.parse(response.headers["set-cookie"])).toEqual(
+        expect(setCookie.parse(response.headers["set-cookie"])).toStrictEqual(
           sessionCookieResponse,
         );
 
@@ -88,10 +88,10 @@ describe(`/sessions (for the user with role Superadmin)`, () => {
           })
           .expect("content-type", /json/)
           .expect(200);
-        expect(setCookie.parse(response.headers["set-cookie"])).toEqual(
+        expect(setCookie.parse(response.headers["set-cookie"])).toStrictEqual(
           sessionCookieResponse,
         );
-        expect(response.body).toEqual(superadminUserResponse);
+        expect(response.body).toStrictEqual(superadminUserResponse);
 
         const sessionsAfterSignIn = await redisClient.keys(sessionKeyPattern);
         expect(sessionsAfterSignIn.length).toBe(1);
@@ -104,7 +104,7 @@ describe(`/sessions (for the user with role Superadmin)`, () => {
         .send({ username: "invalid", password: "invalid" })
         .expect("content-type", /json/)
         .expect(401);
-      expect(response.body).toEqual({
+      expect(response.body).toStrictEqual({
         ...moreInfo,
         status: 401,
         statusText: "Unauthorized",
@@ -127,7 +127,7 @@ describe(`/sessions (for the user with role Superadmin)`, () => {
         })
         .expect("content-type", /json/)
         .expect(401);
-      expect(secondSignInResponse.body).toEqual({
+      expect(secondSignInResponse.body).toStrictEqual({
         ...moreInfo,
         status: 401,
         statusText: "Unauthorized",
@@ -141,7 +141,7 @@ describe(`/sessions (for the user with role Superadmin)`, () => {
         .send({ user: superadminUser.username, pass: superadminUser.password })
         .expect("content-type", /json/)
         .expect(400);
-      expect(response.body).toEqual({
+      expect(response.body).toStrictEqual({
         ...moreInfo,
         status: 400,
         statusText: "BadRequest",
@@ -179,7 +179,7 @@ describe(`/sessions (for the user with role Superadmin)`, () => {
         })
         .expect("content-type", /json/)
         .expect(401);
-      expect(response.body).toEqual({
+      expect(response.body).toStrictEqual({
         ...moreInfo,
         status: 401,
         statusText: "Unauthorized",
@@ -193,7 +193,7 @@ describe(`/sessions (for the user with role Superadmin)`, () => {
         .send({ username: "invalid", password: "invalid" })
         .expect("content-type", /json/)
         .expect(401);
-      expect(response.body).toEqual({
+      expect(response.body).toStrictEqual({
         ...moreInfo,
         status: 401,
         statusText: "Unauthorized",
@@ -238,10 +238,10 @@ describe(`/sessions (for the user with role Listener)`, () => {
         })
         .expect("content-type", /json/)
         .expect(200);
-      expect(setCookie.parse(response.headers["set-cookie"])).toEqual(
+      expect(setCookie.parse(response.headers["set-cookie"])).toStrictEqual(
         sessionCookieResponse,
       );
-      expect(response.body).toEqual(listenerUserResponse);
+      expect(response.body).toStrictEqual(listenerUserResponse);
 
       const sessionsAfterSignIn = await redisClient.keys(sessionKeyPattern);
       expect(sessionsAfterSignIn.length).toBe(1);
@@ -273,11 +273,11 @@ describe(`/sessions (for the user with role Broadcaster)`, () => {
         })
         .expect("content-type", /json/)
         .expect(200);
-      expect(setCookie.parse(response.headers["set-cookie"])).toEqual(
+      expect(setCookie.parse(response.headers["set-cookie"])).toStrictEqual(
         sessionCookieResponse,
       );
 
-      expect(response.body).toEqual(broadcasterUserResponse);
+      expect(response.body).toStrictEqual(broadcasterUserResponse);
 
       const sessionsAfterSignIn = await redisClient.keys(sessionKeyPattern);
       expect(sessionsAfterSignIn.length).toBe(1);
