@@ -1,6 +1,6 @@
 import { Server } from "ws";
 import { serverOptions } from "./config/ws-server";
-import { onClose, onConnection } from "./services/ws/index";
+import { onClose, onConnection, wsService } from "./services/ws";
 import {
   chatService,
   onCreateChatMsg,
@@ -18,7 +18,6 @@ import {
   onStreamLike,
   onStreamStart,
 } from "./services/stream";
-import { wsService } from "./services/ws";
 
 export const wsServer = new Server(serverOptions);
 

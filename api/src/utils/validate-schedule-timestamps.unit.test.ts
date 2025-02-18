@@ -1,6 +1,5 @@
 import { describe, it, expect } from "@jest/globals";
-import { faker } from "@faker-js/faker";
-import { validateScheduleTimestamps } from "../../src/utils/validate-schedule-timestamps";
+import { validateScheduleTimestamps } from "./validate-schedule-timestamps";
 
 describe("validateScheduleTimestamps", () => {
   // now + 1sec
@@ -8,18 +7,19 @@ describe("validateScheduleTimestamps", () => {
   const future2 = future1 + 1 * 60 * 60 * 1000;
 
   it("passes validation if both timestamps are set in the future and if an end timestamp is later than a start timestamp", () => {
-    expect(() =>
+    expect(() => {
       validateScheduleTimestamps(
         new Date(future1).toISOString(),
         new Date(future2).toISOString(),
-      ),
-    ).not.toThrow;
+      );
+    }).not.toThrow();
+
     expect(
       validateScheduleTimestamps(
         new Date(future1).toISOString(),
         new Date(future2).toISOString(),
       ),
-    ).toEqual(true);
+    ).toBe(true);
   });
 
   it("throws an error if any of timestamps is set to the current time", () => {

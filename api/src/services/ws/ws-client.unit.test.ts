@@ -8,23 +8,21 @@ describe("WSChatClient class", () => {
   describe("constructor", () => {
     it("returns a new client", () => {
       const clientDetails = {
+        id: undefined,
         uuid: uuidv4(),
         username: faker.internet.username(),
         socket: {} as WebSocket,
       };
       const client = new WSChatClient(clientDetails);
 
-      expect(client.id).toBe(undefined);
-      expect(client.uuid).toBe(clientDetails.uuid);
-      expect(client.username).toBe(clientDetails.username);
-      expect(client.socket).toStrictEqual(clientDetails.socket);
+      expect(client).toEqual(clientDetails);
     });
 
     it("creates username from uuid if no username has been provided", () => {
       const clientDetails = { uuid: uuidv4(), socket: {} as WebSocket };
       const client = new WSChatClient(clientDetails);
 
-      expect(client.username).toBe(clientDetails.uuid.substr(0, 8));
+      expect(client.username).toBe(clientDetails.uuid.substring(0, 8));
     });
   });
 });

@@ -4,20 +4,11 @@ import WebSocket from "ws";
 import { v4 as uuidv4 } from "uuid";
 import { faker } from "@faker-js/faker";
 import { onConnection } from "./event-handlers";
-import { sendBroadcastState } from "../stream";
+import { sendBroadcastState, streamService } from "../stream";
 import { WSClient } from "../../types";
 import { wsService } from ".";
 
-jest.mock("../stream", () => {
-  return {
-    sendBroadcastState: jest.fn(),
-    streamService: {
-      async readBroadcastState() {
-        return { isOnline: false };
-      },
-    },
-  };
-});
+jest.mock("../stream");
 
 describe("onConnection", () => {
   class WebSocketEmitter extends EventEmitter {
@@ -55,14 +46,17 @@ describe("onConnection", () => {
 
   it("sends the broadcast state to the client", async () => {
     const broadcastState = { isOnline: false };
+    jest
+      .spyOn(streamService, "readBroadcastState")
+      .mockResolvedValue(broadcastState);
 
     await onConnection(client);
 
     expect(jest.mocked(sendBroadcastState)).toHaveBeenCalledTimes(1);
     const calledWithArg1 = jest.mocked(sendBroadcastState).mock.calls[0][0];
     const calledWithArg2 = jest.mocked(sendBroadcastState).mock.calls[0][1];
-    expect(calledWithArg1).toEqual(client);
-    expect(calledWithArg2).toEqual(broadcastState);
+    expect(calledWithArg1).toStrictEqual(client);
+    expect(calledWithArg2).toStrictEqual(broadcastState);
   });
 
   it("adds the client to the store", async () => {

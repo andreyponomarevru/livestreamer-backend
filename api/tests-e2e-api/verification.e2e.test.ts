@@ -50,7 +50,7 @@ describe("/verification", () => {
         `SELECT * FROM appuser WHERE username = '${unconfirmedUser.username}'`,
       );
 
-      expect(confirmedUser.rows).toEqual([
+      expect(confirmedUser.rows).toStrictEqual([
         {
           appuser_id: expect.any(Number),
           role_id: 2,

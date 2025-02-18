@@ -58,7 +58,7 @@ describe("sendToAll", () => {
 });
 
 describe("sendToAllExceptSender", () => {
-  it.only("sends a message to all clients except the sender", () => {
+  it("sends a message to all clients except the sender", () => {
     const message = JSON.stringify(wsMessage);
     const clients = Array.from(Array(10).keys()).map(createWSClient);
 

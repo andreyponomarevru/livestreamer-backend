@@ -25,7 +25,6 @@ export const wsService = {
     }
   },
 
-  // TODO: too complex function signature, simplify it. Maybe move some functionality to separate function to decrease the number of arguments and the voerall complexity.
   sendToAllExceptSender: function <Data>(
     msg: Message<Data>,
     { senderUUID }: { senderUUID: string },

@@ -38,8 +38,8 @@ describe("Scheduler", () => {
 
       const calledWithArg1 = setIntervalSpy.mock.calls[0][0];
       const calledWithArg2 = setIntervalSpy.mock.calls[0][1];
-      expect(calledWithArg1).toEqual(callbackSpy);
-      expect(calledWithArg2).toEqual(waitMs);
+      expect(calledWithArg1).toStrictEqual(callbackSpy);
+      expect(calledWithArg2).toStrictEqual(waitMs);
 
       for (let t = 0; t < 50; t++) clock.tick(waitMs);
       expect(callbackSpy).toBeCalledTimes(50);
