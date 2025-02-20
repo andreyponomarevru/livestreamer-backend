@@ -5,6 +5,8 @@ import { Request, Response, NextFunction } from "express";
 import { HttpError } from "../utils/http-error";
 import { logger } from "../config/logger";
 
+// TODO looks like extraAuthZ is never used anywhere so you  can safely remove it but first write e2e tests for all routes
+
 export function isAuthorized(
   action: string,
   resource: string,

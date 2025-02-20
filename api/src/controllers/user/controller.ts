@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { userService } from "../../services/user/user";
+import { userService } from "../../services/user/service";
 import { HttpError } from "../../utils/http-error";
 import { CustomRequest } from "../../types";
 import { logger } from "../../config/logger";
@@ -67,7 +67,7 @@ export const userController = {
 
       if (!(await userService.isUserExists({ userId }))) {
         res.status(204).end();
-        logger.debug("User does'nt exist");
+        logger.debug("Attempt to delete the user which doesn't exist");
       } else if (!(await userService.isEmailConfirmed({ userId }))) {
         throw new HttpError({
           code: 404,
@@ -83,7 +83,7 @@ export const userController = {
       const wsClient = wsService.clientStore.getClient(userUUID);
 
       req.session.destroy((err) => {
-        // You cannot access session here, it has been already destroyed
+        // You cannot access session here, it has already been destroyed
         if (err) logger.error(`${__filename}: ${err}`);
 
         if (wsClient) wsClient.socket.close();

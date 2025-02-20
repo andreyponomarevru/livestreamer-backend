@@ -1,6 +1,4 @@
 import express from "express";
-import swaggerUI from "swagger-ui-express";
-import { swaggerDocument } from "./../open-api/index";
 import { broadcastsRouter } from "./broadcasts/router";
 import { chatRouter } from "./chat/router";
 import { moderationRouter } from "./moderation/router";
@@ -21,5 +19,4 @@ export const apiRouter = express
   .use("/stream", streamRouter)
   .use("/user", userRouter)
   .use("/users", usersRouter)
-  .use("/verification", verificationRouter)
-  .use("/doc", swaggerUI.serve, swaggerUI.setup(swaggerDocument));
+  .use("/verification", verificationRouter);

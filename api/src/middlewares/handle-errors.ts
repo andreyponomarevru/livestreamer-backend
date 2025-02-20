@@ -26,6 +26,7 @@ export function handleErrors(
     case err instanceof HttpError:
       res.status(err.status).json(err);
       break;
+
     case err instanceof Joi.ValidationError:
       res.status(400).json(
         new HttpError({
@@ -34,9 +35,11 @@ export function handleErrors(
         }),
       );
       break;
+
     case ["23505"].includes(err.code):
       res.status(409).json(new HttpError({ code: 409 }));
       break;
+
     default:
       if (err.status) {
         res.status(err.status).json(new HttpError(err.status));

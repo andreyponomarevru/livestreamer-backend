@@ -28,7 +28,12 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
         )
         INSERT INTO role_resource_permission 
           (role_id, resource_id, permission_id)
-        SELECT role_id, resource_id, permission_id FROM rrp_ids;
+        SELECT 
+          role_id, 
+          resource_id, 
+          permission_id 
+        FROM 
+          rrp_ids;
       `);
       }
     }

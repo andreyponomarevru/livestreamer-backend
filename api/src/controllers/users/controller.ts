@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { userService } from "../../services/user/user";
+import { userService } from "../../services/user/service";
 import { logger } from "../../config/logger";
 import { cacheService } from "../../services/cache/service";
 import { User } from "../../models/user/user";

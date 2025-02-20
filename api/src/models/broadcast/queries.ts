@@ -23,13 +23,13 @@ export const broadcastRepo = {
   }: NewBroadcast): Promise<BroadcastDraft> {
     const sql =
       "INSERT INTO \
-			broadcast (title, is_visible, start_at) \
-		VALUES \
-			($1, $2, $3) \
-		RETURNING \
-			broadcast_id, \
-      start_at,\
-      listener_peak_count";
+        broadcast (title, is_visible, start_at) \
+      VALUES \
+        ($1, $2, $3) \
+      RETURNING \
+        broadcast_id, \
+        start_at,\
+        listener_peak_count";
     const values = [title, isVisible, startAt];
     const pool = await dbConnection.open();
     const res = await pool.query<CreateBroadcastDBResponse>(sql, values);
@@ -156,21 +156,21 @@ export const broadcastRepo = {
   bookmark: async function (bookmark: Bookmark): Promise<void> {
     const isBroadcastNotExistSql =
       "SELECT \
-      * \
-    FROM \
-      broadcast \
-    WHERE \
-      broadcast_id = $1 \
-    AND \
-      is_visible = false \
-    OR NOT EXISTS (\
-      SELECT \
         * \
       FROM \
         broadcast \
       WHERE \
-        broadcast_id = $1\
-      )";
+        broadcast_id = $1 \
+      AND \
+        is_visible = false \
+      OR NOT EXISTS (\
+        SELECT \
+          * \
+        FROM \
+          broadcast \
+        WHERE \
+          broadcast_id = $1\
+        )";
     const isBroadcastNotExistValues = [bookmark.broadcastId];
     const pool = await dbConnection.open();
     const broadcasts = await pool.query(

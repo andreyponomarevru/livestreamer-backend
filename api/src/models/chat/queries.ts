@@ -27,16 +27,16 @@ export const chatRepo = {
 
     const selectSql =
       "SELECT \
-      au.username,\
-      v_c_h.* \
-    FROM \
-      view_chat_history AS v_c_h\
-    INNER JOIN \
-      appuser AS au \
-    ON \
-      au.appuser_id = v_c_h.appuser_id \
-    WHERE \
-      v_c_h.chat_message_id = $1";
+        au.username,\
+        v_c_h.* \
+      FROM \
+        view_chat_history AS v_c_h\
+      INNER JOIN \
+        appuser AS au \
+      ON \
+        au.appuser_id = v_c_h.appuser_id \
+      WHERE \
+        v_c_h.chat_message_id = $1";
     const newMsg = await pool.query<ReadMsgDBResponse>(selectSql, [
       insertedMsgId.rows[0].chat_message_id,
     ]);
@@ -57,13 +57,13 @@ export const chatRepo = {
   } | void> {
     const sql =
       "DELETE FROM \
-			chat_message \
-		WHERE \
-      appuser_id = $1 \
-    AND \
-      chat_message_id = $2\
-    RETURNING \
-      chat_message_id";
+        chat_message \
+      WHERE \
+        appuser_id = $1 \
+      AND \
+        chat_message_id = $2\
+      RETURNING \
+        chat_message_id";
     const values = [msg.userId, msg.id];
     const pool = await dbConnection.open();
     const res = await pool.query<{ chat_message_id: number }>(sql, values);
@@ -156,11 +156,11 @@ export const chatRepo = {
   }): Promise<ChatMsgLike> {
     const insertSql =
       "INSERT INTO \
-      chat_message_like (appuser_id, chat_message_id) \
-    VALUES \
-      ($1, $2) \
-    ON CONFLICT \
-      DO NOTHING";
+        chat_message_like (appuser_id, chat_message_id) \
+      VALUES \
+        ($1, $2) \
+      ON CONFLICT \
+        DO NOTHING";
     const insertValues = [msg.userId, msg.id];
     const pool = await dbConnection.open();
     await pool.query(insertSql, insertValues);
@@ -185,11 +185,11 @@ export const chatRepo = {
   ): Promise<ChatMsgUnlike | void> {
     const deleteSql =
       "DELETE FROM \
-      chat_message_like \
-    WHERE \
-      appuser_id = $1 \
-    AND \
-      chat_message_id = $2";
+        chat_message_like \
+      WHERE \
+        appuser_id = $1 \
+      AND \
+        chat_message_id = $2";
     const deleteValues = [msg.userId, msg.id];
     const pool = await dbConnection.open();
     await pool.query(deleteSql, deleteValues);
