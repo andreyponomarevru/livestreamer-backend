@@ -90,7 +90,7 @@ export const mailService = {
       email,
       token,
     }: ResetPasswordTokenEMail): Mail.Options {
-      // Link to react app, not to API
+      // Link to react app, not to the API
       const submitNewPasswordLink = `${SUBMIT_NEW_PASSWORD_LINK}?token=${token}`;
 
       const options: SendMailOptions = {

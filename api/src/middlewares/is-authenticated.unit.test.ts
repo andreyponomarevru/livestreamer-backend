@@ -14,31 +14,33 @@ describe("isAuthenticated", () => {
   } as unknown as HttpError;
 
   it("calls the next function with an error, if session doesn't exist", async () => {
-    const req = {} as Request;
-    const res = {} as Response;
     const next = jest.fn();
 
-    await isAuthenticated(req, res, next);
+    await isAuthenticated({} as Request, {} as Response, next);
 
     expect(next).toBeCalledWith(httpError);
   });
 
   it("calls the next function with an error, if the session doesn't contain the authenticated user data", async () => {
-    const req: Request = { session: {} } as unknown as Request;
-    const res = {} as Response;
     const next = jest.fn();
 
-    await isAuthenticated(req, res, next);
+    await isAuthenticated(
+      { session: {} } as unknown as Request,
+      {} as Response,
+      next,
+    );
 
     expect(next).toBeCalledWith(httpError);
   });
 
   it("calls the next function with no arguments, if there is a session and it contains the authenticated user data", async () => {
-    const req = { session: { authenticatedUser: {} } } as unknown as Request;
-    const res = {} as Response;
     const next = jest.fn();
 
-    await isAuthenticated(req, res, next);
+    await isAuthenticated(
+      { session: { authenticatedUser: {} } } as unknown as Request,
+      {} as Response,
+      next,
+    );
 
     expect(next).toBeCalledTimes(1);
     expect(next.mock.calls[0].length).toBe(0);

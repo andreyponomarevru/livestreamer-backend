@@ -1,4 +1,4 @@
-import { Pool, PoolConfig } from "pg";
+import { Pool, type PoolConfig } from "pg";
 import { logger } from "../config/logger";
 import {
   POSTGRES_DB,
@@ -30,27 +30,26 @@ export const PG_MIGRATION_CONFIG = {
   dir: "./src/migrations",
 };
 
-// Store the connection pool
-let pool: Pool | undefined;
+let connectionPool: Pool | undefined;
 
 export const dbConnection = {
   open: async function (config: PoolConfig = POOL_CONFIG): Promise<Pool> {
-    if (pool) {
-      return pool;
+    if (connectionPool) {
+      return connectionPool;
     } else {
-      pool = new Pool(config);
+      connectionPool = new Pool(config);
       logger.debug("New Postgres connection established");
-      return pool;
+      return connectionPool;
     }
   },
 
   // Shutdown cleanly. Doc: https://node-postgres.com/api/pool#poolend
   close: async function (): Promise<void> {
-    if (pool) {
-      await pool.end();
+    if (connectionPool) {
+      await connectionPool.end();
     }
 
-    pool = undefined;
+    connectionPool = undefined;
     logger.debug("Pool has ended");
   },
 };

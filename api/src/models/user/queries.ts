@@ -246,16 +246,16 @@ export const userRepo = {
   confirmEmail: async function (userId: number): Promise<ConfirmedEmail> {
     const sql =
       "UPDATE \
-      appuser \
-    SET \
-      is_email_confirmed = true, \
-      email_confirmation_token = NULL \
-    WHERE \
-      appuser_id=$1 \
-    RETURNING \
-      appuser_id, \
-      username, \
-      email";
+        appuser \
+      SET \
+        is_email_confirmed = true, \
+        email_confirmation_token = NULL \
+      WHERE \
+        appuser_id=$1 \
+      RETURNING \
+        appuser_id, \
+        username, \
+        email";
     const values = [userId];
     const pool = await dbConnection.open();
     const res = await pool.query<ConfirmSignUpDBResponse>(sql, values);

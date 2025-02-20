@@ -10,8 +10,6 @@ import { validate } from "../../middlewares/validate";
 import { isAuthenticated } from "../../middlewares/is-authenticated";
 import { sessionController } from "./controller";
 
-// TODO: add .get("/sessions") to retrieve a list of all logged in users
-
 export const sessionRouter = express.Router();
 
 sessionRouter.post(
