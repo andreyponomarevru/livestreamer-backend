@@ -1,17 +1,17 @@
-import { Request, Response } from "express";
-import { jest, describe, it, expect } from "@jest/globals";
-import { HttpError } from "../utils/http-error";
-import { HTTP_ERRORS } from "../config/constants";
-import { moreInfo } from "../../test-helpers/constants";
-import { isAuthorized } from "./is-authorized";
+//import { Request } from "express";
+import { jest, describe, it } from "@jest/globals";
+//import { HttpError } from "../utils/http-error";
+//import { HTTP_ERRORS } from "../config/constants";
+//import { moreInfo } from "../../test-helpers/constants";
+//import { isAuthorized } from "./is-authorized";
 
 jest.mock("../config/logger");
 jest.mock("../utils/http-error");
 
 describe("isAuthorized", () => {
-  const req = { session: { authenticatedUser: {} } } as unknown as Request;
+  //const req = { session: { authenticatedUser: {} } } as unknown as Request;
 
-  isAuthorized("create", "user_account", [(req: Request) => true]);
+  //isAuthorized("create", "user_account", [(req: Request) => true]);
 
   describe("if the permission is not granted", () => {
     it.todo("calls 'next' only once");
