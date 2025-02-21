@@ -18,8 +18,6 @@ export const cacheService = {
 
     if (jsonString) {
       return JSON.parse(jsonString);
-    } else {
-      throw new Error("Empty response");
     }
   },
 };
