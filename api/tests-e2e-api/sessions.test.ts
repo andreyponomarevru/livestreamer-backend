@@ -5,10 +5,10 @@ import {
   broadcasterUser,
   listenerUser,
   superadminUser,
-} from "../test-helpers/utils/user";
+} from "../test-helpers/jest-hooks/utils/user";
 import { httpServer } from "../src/http-server";
 import { RedisClient, redisConnection } from "../src/config/redis";
-import { moreInfo } from "../test-helpers/constants";
+import { moreInfo } from "../test-helpers/responses";
 import { signIn } from "../test-helpers/sign-in";
 
 const sessionKeyPattern = "sess:*";
@@ -93,7 +93,7 @@ describe(`for the pre-seeded user with the role Superadmin`, () => {
           const response = await request(httpServer)
             .post("/sessions")
             .send({
-              email: superadminUser.email,
+              username: superadminUser.username,
               password: superadminUser.password,
             })
             .expect("content-type", /json/)
@@ -144,7 +144,7 @@ describe(`for the pre-seeded user with the role Superadmin`, () => {
     });
 
     describe("400", () => {
-      it("responds with an error if credentials are malformed", async () => {
+      it("responds with an error if the request object is malformed", async () => {
         const response = await request(httpServer)
           .post("/sessions")
           .send({
