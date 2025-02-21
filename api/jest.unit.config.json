@@ -17,11 +17,7 @@
   "restoreMocks": true,
   "extensionsToTreatAsEsm": [".ts"],
 
-  "collectCoverageFrom": [
-    "./src/**/*.ts",
-    "./src/**/*.tsx",
-    "!**/src/open-api/**"
-  ],
+  "collectCoverageFrom": ["./src/**/*.ts", "./src/**/*.tsx"],
   "coverageThreshold": {
     "global": {
       "branches": 7,

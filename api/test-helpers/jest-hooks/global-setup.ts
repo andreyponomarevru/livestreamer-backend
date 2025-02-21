@@ -1,5 +1,5 @@
 import migrateDB from "node-pg-migrate";
-import { dbConnection, PG_MIGRATION_CONFIG } from "../src/config/postgres";
+import { dbConnection, PG_MIGRATION_CONFIG } from "../../src/config/postgres";
 
 // Execute migrations once before all tests
 

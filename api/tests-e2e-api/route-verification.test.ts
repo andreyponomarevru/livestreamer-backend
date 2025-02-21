@@ -2,6 +2,9 @@ import { describe, it, expect } from "@jest/globals";
 import request from "supertest";
 import { httpServer } from "../src/http-server";
 import { dbConnection } from "../src/config/postgres";
+import { moreInfo, response401 } from "../test-helpers/responses";
+
+const API_URL = "/verification";
 
 const unconfirmedUser = {
   roleId: 2,
@@ -11,15 +14,16 @@ const unconfirmedUser = {
   emailConfirmationToken: "123456789",
 };
 
-async function seedUser({
-  roleId,
-  username,
-  email,
-  passwordHash,
-  emailConfirmationToken,
-}: typeof unconfirmedUser) {
-  const pool = await dbConnection.open();
-  await pool.query(`
+describe(`POST ${API_URL} - verify user sign up`, () => {
+  async function seedUser({
+    roleId,
+    username,
+    email,
+    passwordHash,
+    emailConfirmationToken,
+  }: typeof unconfirmedUser) {
+    const pool = await dbConnection.open();
+    await pool.query(`
     INSERT INTO appuser (
       role_id,
       username, 
@@ -34,15 +38,14 @@ async function seedUser({
       '${passwordHash}', 
       '${emailConfirmationToken}'
     )`);
-}
+  }
 
-describe("POST /verification - verify user sign up", () => {
   describe("204", () => {
     it("confirms the user sign up if the email confirmation token from email link is valid and attached to the request in the query string", async () => {
       await seedUser(unconfirmedUser);
 
       await request(httpServer)
-        .post(`/verification?token=${unconfirmedUser.emailConfirmationToken}`)
+        .post(`${API_URL}?token=${unconfirmedUser.emailConfirmationToken}`)
         .expect(204);
 
       const pool = await dbConnection.open();
@@ -68,16 +71,36 @@ describe("POST /verification - verify user sign up", () => {
     });
   });
 
+  describe("400", () => {
+    it("responds with an error if the request path doesn't contain the token from the email link", async () => {
+      await seedUser(unconfirmedUser);
+
+      const response = await request(httpServer)
+        .post(API_URL)
+        .expect(400)
+        .expect("content-type", /json/);
+
+      expect(response.body).toStrictEqual({
+        status: 400,
+        statusText: "BadRequest",
+        message: "Token value is required",
+        ...moreInfo,
+      });
+    });
+  });
+
   describe("401", () => {
-    describe("responds with an error if the token from email link", () => {
-      it.todo("is not attached to the request");
+    it("responds with an error if the token from the email link doesn't match any token in db", async () => {
+      await seedUser(unconfirmedUser);
 
-      it("doesn't match any token in db", async () => {
-        await seedUser(unconfirmedUser);
+      const response = await request(httpServer)
+        .post(`${API_URL}?token=invalid-token`)
+        .expect(401)
+        .expect("content-type", /json/);
 
-        await request(httpServer)
-          .post(`/verification?token=invalid-token`)
-          .expect(401);
+      expect(response.body).toStrictEqual({
+        ...response401,
+        message: "Confirmation token is invalid",
       });
     });
   });

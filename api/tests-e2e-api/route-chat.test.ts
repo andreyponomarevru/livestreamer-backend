@@ -38,13 +38,6 @@ describe("POST /chat/messages", () => {
     );
   });
 
-  describe("401", () => {
-    it.todo("responds with an error if the user is not authenticated");
-    it.todo(
-      "responds with an error if the header doesn't contain the session cookie",
-    );
-  });
-
   describe("403", () => {
     it.todo(
       "responds with an error if the user doesn't have the required permissions",
@@ -68,13 +61,6 @@ describe("DELETE /chat/messages/:id - delete chat message", () => {
   describe("400", () => {
     it.todo(
       "responds with an error if the path doesn't contain the chat message :id",
-    );
-  });
-
-  describe("401", () => {
-    it.todo("responds with an error if the user is not authenticated");
-    it.todo(
-      "responds with an error if the header doesn't contain the session cookie",
     );
   });
 
@@ -103,13 +89,6 @@ describe("POST /chat/messages/:id/like - like chat message", () => {
     );
   });
 
-  describe("401", () => {
-    it.todo("responds with an error if the user is not authenticated");
-    it.todo(
-      "responds with an error if the header doesn't contain the session cookie",
-    );
-  });
-
   describe("403", () => {
     it.todo(
       "responds with an error if the user doesn't have the required permissions",
@@ -131,13 +110,6 @@ describe("DELETE /chat/messages/:id/like - unlike chat message", () => {
   describe("400", () => {
     it.todo(
       "responds with an error if the path doesn't contain the message :id",
-    );
-  });
-
-  describe("401", () => {
-    it.todo("responds with an error if the user is not authenticated");
-    it.todo(
-      "responds with an error if the header doesn't contain the session cookie",
     );
   });
 

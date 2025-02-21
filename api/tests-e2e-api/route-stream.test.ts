@@ -27,13 +27,6 @@ describe("POST /stream", () => {
     it.todo("responds with a new saved broadcast");
   });
 
-  describe("401", () => {
-    it.todo("responds with an error if the user is not authenticated");
-    it.todo(
-      "responds with an error if the header doesn't contain the session cookie",
-    );
-  });
-
   describe("403", () => {
     it.todo(
       "responds with an error for the user with the role other than the 'Broadcaster'",

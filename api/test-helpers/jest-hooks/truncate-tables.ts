@@ -1,6 +1,6 @@
 import { beforeEach } from "@jest/globals";
-import { dbConnection } from "../src/config/postgres";
-import { redisConnection } from "../src/config/redis";
+import { dbConnection } from "../../src/config/postgres";
+import { redisConnection } from "../../src/config/redis";
 
 const tablesToTruncate = [
   "scheduled_broadcast",

@@ -1,5 +1,5 @@
-import { dbConnection } from "../../src/config/postgres";
-import { authnService } from "../../src/services/authn";
+import { dbConnection } from "../../../src/config/postgres";
+import { authnService } from "../../../src/services/authn";
 
 type User = {
   userId?: number;

@@ -3,13 +3,13 @@
   "verbose": true,
 
   "testEnvironment": "node",
-  "globalSetup": "./test-helpers/global-setup.ts",
+  "globalSetup": "./test-helpers/jest-hooks/global-setup.ts",
 
   "setupFilesAfterEnv": [
     "jest-extended/all",
-    "<rootDir>/test-helpers/truncate-tables.ts",
-    "<rootDir>/test-helpers/seed-users.ts",
-    "<rootDir>/test-helpers/disconnect-from-db.ts"
+    "<rootDir>/test-helpers/jest-hooks/truncate-tables.ts",
+    "<rootDir>/test-helpers/jest-hooks/seed-users.ts",
+    "<rootDir>/test-helpers/jest-hooks/disconnect-from-db.ts"
   ],
 
   "testMatch": ["**/?(*.)+(spec|test).+(ts|tsx|js)"],
