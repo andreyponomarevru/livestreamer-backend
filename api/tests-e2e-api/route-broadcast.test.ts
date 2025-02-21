@@ -6,13 +6,6 @@ describe("/broadcasts", () => {
       it.todo("responds with a list of all broadcasts");
     });
 
-    describe("401", () => {
-      it.todo("responds with an error if the user is not authenticated");
-      it.todo(
-        "responds with an error if the header doesn't contain the session cookie",
-      );
-    });
-
     describe("403", () => {
       it.todo(
         "responds with an error if the user doesn't have the required permissions",
@@ -28,13 +21,6 @@ describe("/broadcasts", () => {
     describe("400", () => {
       it.todo(
         "responds with an error if the request doesn't contain the broadcast :id in the path",
-      );
-    });
-
-    describe("401", () => {
-      it.todo("responds with an error if the user is not authenticated");
-      it.todo(
-        "responds with an error if the header doesn't contain the session cookie",
       );
     });
 
@@ -59,13 +45,6 @@ describe("/broadcasts", () => {
         "responds with an error if the broadcast :id is not provided in the path",
       );
       it.todo("responds with an error if the request doesn't contain a body");
-    });
-
-    describe("401", () => {
-      it.todo("responds with an error if the user is not authenticated");
-      it.todo(
-        "responds with an error if the header doesn't contain the session cookie",
-      );
     });
 
     describe("403", () => {
@@ -93,13 +72,6 @@ describe("/broadcasts/:id/bookmark", () => {
       );
     });
 
-    describe("401", () => {
-      it.todo("responds with an error if the user is not authenticated");
-      it.todo(
-        "responds with an error if the header doesn't contain the session cookie",
-      );
-    });
-
     describe("403", () => {
       it.todo(
         "responds with an error if the user doesn't have the required permissions",
@@ -122,13 +94,6 @@ describe("/broadcasts/:id/bookmark", () => {
 
     describe("400", () => {
       it.todo("responds with an error if the path doesn't contain the user id");
-    });
-
-    describe("401", () => {
-      it.todo("responds with an error if the user is not authenticated");
-      it.todo(
-        "responds with an error if the header doesn't contain the session cookie",
-      );
     });
 
     describe("403", () => {

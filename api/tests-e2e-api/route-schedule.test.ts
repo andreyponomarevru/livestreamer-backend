@@ -15,13 +15,6 @@ describe("POST /schedule - schedules a new broadcast", () => {
     it.todo("responds with an error if the request body is malformed");
   });
 
-  describe("401", () => {
-    it.todo("responds with an error if the user is not authenticated");
-    it.todo(
-      "responds with an error if the header doesn't contain the session cookie",
-    );
-  });
-
   describe("403", () => {
     it.todo(
       "responds with an error if the user doesn't have the required permissions",
@@ -45,13 +38,6 @@ describe("DELETE /schedule", () => {
   describe("400", () => {
     it.todo(
       "responds with an error if the scheduled broadcast id hasn't been passed in the path",
-    );
-  });
-
-  describe("401", () => {
-    it.todo("responds with an error if the user is not authenticated");
-    it.todo(
-      "responds with an error if the header doesn't contain the session cookie",
     );
   });
 

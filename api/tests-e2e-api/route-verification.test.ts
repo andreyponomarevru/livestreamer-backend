@@ -14,15 +14,16 @@ const unconfirmedUser = {
   emailConfirmationToken: "123456789",
 };
 
-async function seedUser({
-  roleId,
-  username,
-  email,
-  passwordHash,
-  emailConfirmationToken,
-}: typeof unconfirmedUser) {
-  const pool = await dbConnection.open();
-  await pool.query(`
+describe(`POST ${API_URL} - verify user sign up`, () => {
+  async function seedUser({
+    roleId,
+    username,
+    email,
+    passwordHash,
+    emailConfirmationToken,
+  }: typeof unconfirmedUser) {
+    const pool = await dbConnection.open();
+    await pool.query(`
     INSERT INTO appuser (
       role_id,
       username, 
@@ -37,9 +38,8 @@ async function seedUser({
       '${passwordHash}', 
       '${emailConfirmationToken}'
     )`);
-}
+  }
 
-describe(`POST ${API_URL} - verify user sign up`, () => {
   describe("204", () => {
     it("confirms the user sign up if the email confirmation token from email link is valid and attached to the request in the query string", async () => {
       await seedUser(unconfirmedUser);

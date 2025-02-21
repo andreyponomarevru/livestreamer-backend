@@ -18,11 +18,13 @@ afterAll(() => {
 });
 
 describe("/user", () => {
-  describe("POST /user - create a new user account", () => {
+  const API_ROUTE = "/user";
+
+  describe(`POST ${API_ROUTE} - create a new user account`, () => {
     describe("202", () => {
       it("responds with a new user object", async () => {
         await request(httpServer)
-          .post("/user")
+          .post(API_ROUTE)
           .set("authorization", `Basic ${btoa(`${username}:${password}`)}`)
           .send({ email })
           .expect(202);
@@ -63,7 +65,7 @@ describe("/user", () => {
     });
   });
 
-  describe("DELETE /user - delete user account", () => {
+  describe(`DELETE ${API_ROUTE} - delete user account`, () => {
     describe("204", () => {
       it.todo(
         "allows the user with role 'superadmin' to delete others accounts",
@@ -88,12 +90,6 @@ describe("/user", () => {
       );
     });
 
-    describe("401", () => {
-      it.todo(
-        "responds with an error if the user sending the request is not authenticated",
-      );
-    });
-
     describe("404", () => {
       it.todo("responds with an error if the user has already been deleted");
 
@@ -103,7 +99,7 @@ describe("/user", () => {
     });
   });
 
-  describe("GET /user - get user account", () => {
+  describe(`GET ${API_ROUTE} - get user account`, () => {
     describe("200", () => {
       it.todo("responds with a user object");
     });
@@ -111,13 +107,6 @@ describe("/user", () => {
     describe("400", () => {
       it.todo(
         "responds with an error if the request doesn't container the user id in the path",
-      );
-    });
-
-    describe("401", () => {
-      it.todo("responds with an error if the user is not authenticated");
-      it.todo(
-        "responds with an error if the header doesn't contain the session cookie",
       );
     });
 
@@ -130,7 +119,7 @@ describe("/user", () => {
     });
   });
 
-  describe("PATCH /user - update user account (only username)", () => {
+  describe(`PATCH ${API_ROUTE} - update user account (only username)`, () => {
     describe("200", () => {
       it.todo("responds with an updated user object");
     });
@@ -138,13 +127,6 @@ describe("/user", () => {
     describe("400", () => {
       it.todo(
         "responds with an error if the request doesn't container the user id in the path",
-      );
-    });
-
-    describe("401", () => {
-      it.todo("responds with an error if the user is not authenticated");
-      it.todo(
-        "responds with an error if the header doesn't contain the session cookie",
       );
     });
 
@@ -165,7 +147,9 @@ describe("/user", () => {
 });
 
 describe("/user/settings/password", () => {
-  describe("PATCH /user/settings/password - update the pasword", () => {
+  const API_ROUTE = "/user/settings/password";
+
+  describe(`PATCH ${API_ROUTE} - update the pasword`, () => {
     describe("202", () => {
       it.todo(
         "responds with an empty body and sends the password reset (aka password update) token (i.e. the link with a password reset token) to the user's email if the user sends the request containing only email",
@@ -208,8 +192,4 @@ describe("/user/settings/password", () => {
       );
     });
   });
-});
-
-describe("/broadcasts/bookmarked", () => {
-  describe("GET /broadcasts/bookmarked - get all bookmarked broadcasts", () => {});
 });

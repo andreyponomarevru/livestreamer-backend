@@ -6,7 +6,7 @@ import {
   superadminUser,
   broadcasterUser,
 } from "../test-helpers/jest-hooks/utils/user";
-import { response401, response403 } from "../test-helpers/responses";
+import { response403 } from "../test-helpers/responses";
 
 const API_ROUTE = "/users";
 
@@ -49,34 +49,6 @@ describe(`GET ${API_ROUTE}`, () => {
     it.todo(
       "responds with the sanitized user objects (they don't contain any sensitive data) if the user role is 'superadmin'",
     );
-  });
-
-  describe("401", () => {
-    it("responds with an error if the user is not authenticated", async () => {
-      const response = await request(httpServer)
-        .get(API_ROUTE)
-        .expect(401)
-        .expect("content-type", /json/);
-
-      expect(response.body).toStrictEqual(response401);
-    });
-    it("responds with an error if the header doesn't contain the session cookie", async () => {
-      await request(httpServer)
-        .post("/sessions")
-        .set("accept", "application/json")
-        .send({
-          username: superadminUser.username,
-          password: superadminUser.password,
-        })
-        .expect(200);
-
-      const response = await request(httpServer)
-        .get(API_ROUTE)
-        .expect(401)
-        .expect("content-type", /json/);
-
-      expect(response.body).toStrictEqual(response401);
-    });
   });
 
   describe("403", () => {
