@@ -16,7 +16,7 @@
 #
 # TIP If you've update your local .env files, you also need to update variables
 # and/or secrets on GitHub website: opy-paste the contents of each .env file
-# and update the resposective env vars at https://github.com/andreyponomarevru/livestreamer-backend/settings/secrets/actions
+# and update the resposective env vars at https://github.com/andreyponomarevru/livestreamer/settings/secrets/actions
 
 set -eu -p pipefail
 

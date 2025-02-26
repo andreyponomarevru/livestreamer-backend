@@ -17,10 +17,10 @@ readonly VPS="$VPS_USER_SIMPLECLOUD@$VPS_IP_SIMPLECLOUD"
 
 printf '\n1. Backup Postgres in Docker.\n'
 
-readonly REMOTE_APP_DIR="/home/$VPS_USER_SIMPLECLOUD/livestreamer-backend"
+readonly REMOTE_APP_DIR="/home/$VPS_USER_SIMPLECLOUD/livestreamer"
 readonly LOCAL_BACKUP_DIR="$HOME/vps-backup/livestreamer"
 readonly POSTGRES_BACKUP_SCRIPT_NAME="helper_backup-postgres-db-inside-docker"
-readonly POSTGRES_BACKUP_SCRIPT_PATH="/mnt/9904b8b1-2f58-4bc1-a5de-aa1584088b5e/projects-personal/livestreamer-backend/ci-cd/backup-livestreamer/$POSTGRES_BACKUP_SCRIPT_NAME"
+readonly POSTGRES_BACKUP_SCRIPT_PATH="/mnt/9904b8b1-2f58-4bc1-a5de-aa1584088b5e/projects-personal/livestreamer/ci-cd/backup-livestreamer/$POSTGRES_BACKUP_SCRIPT_NAME"
 
 printf '\n1.1. Copy db backup script to VPS.\n'
 rsync \
