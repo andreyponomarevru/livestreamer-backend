@@ -1,22 +1,6 @@
 # LiveStreamer
 
-* [About](#about)
-  * [Stack](#stack)
-  * [Backend](#backend)
-  * [Frontend](#frontend)
-  * [App Architecture](#app-architecture)
-  * [Database Schema](#database-schema)
-* [How it works](#how-it-works)
-  * [High-level overview](#high-level-overview)
-  * [Low-level overview](#low-level-overview)
-* [Deployment](#deployment)
-  * [Frontend](#frontend-1)
-  * [Backend](#backend-1)
-* [Current Development Status](#current-development-status)
-
-
-
-# About
+## About
 
 Многопользовательское веб-приложение для аудио-стриминга и общения в чате. Концептуально, это клон <a href="http://mixlr.com">Mixlr</a>, но в меньшем масштабе. Архитектурно, состоит из трёх компонентов: фронт, API и CLI-приложение для стриминга. Аудио-стриминг реализован по HTTP, а чат, интерактивные функции и уведомления — через WebSocket. Желающий постримить, запускает на своей машине HTTP клиент, который захватывает музыку из ОС и отправляет её на сервер приложения, с которого уже каждый слушатель, открывший приложение, может слушать стрим, общаться в чате, ставить лайки и пользоваться другими интерактивными функциями. Более подробное описание см. на ГитХабе.
 
@@ -28,14 +12,17 @@ Suppose you're a dj and you want to broadcast your mix live. All you need to do 
 
 
 
-## Stack
+### Stack
 
 * **backend:** TypeScript, Node.js (Express.js), PostgreSQL (raw SQL, without ORM), Redis
 * **frontend:** React.js, SASS
+* **CI/CD:** GitHub Actions, Docker Compose and lots of Bash scripts
 
 
 
 ## Backend
+
+### App server (`/api` dir)
 
 Here's a quick overview of features implemented in application server's API:
 
@@ -51,7 +38,30 @@ Here's a quick overview of features implemented in application server's API:
 
 
 
-## Frontend
+### Database (`/postgres` dir)
+
+![](./doc/db-schema.png)
+
+
+
+### Secondary database / cache (`/redis` dir)
+
+Redis is used for:
+
+* caching API requests
+* storing frequently updated real-time data e.g. stream likes, stream metadata, authenticated user sessions.
+
+
+
+### HTTP Server (`/nginx` dir)
+
+Nginx is used as reverse proxy in front of the App server.
+
+Besides its main purpose — to proxy HTTP and WebSocket traffic — it is also configured as a rate limiter.
+
+
+
+### Frontend (`/frontend` dir)
 
 Some screenshots (just to give you an idea of how the app looks in different states):
 
@@ -66,6 +76,38 @@ Some screenshots (just to give you an idea of how the app looks in different sta
 <img src="./doc/ui-screenshots/05.png" width="40%">
 
 <img src="./doc/ui-screenshots/06.png" width="40%">
+
+
+
+## Streaming client (`/streaming-client` dir)
+
+The client app consists of two parts: 
+* child process capturing all OS audio
+* HTTP client, sending the captured audio to the server in real-time. 
+
+To authenticate to the application server, the client uses regular cookie authentication.
+
+
+
+### Requirements
+
+This command-line app requires two environment variables containing your username and password: `BROADCASTER_USERNAME` and `BROADCASTER_PASSWORD`.
+
+
+
+### How to use
+
+1. First, log in to the application server: `node build/index.js login:prod`
+2. Now you can start broadcasting audio. Issue the following command:
+   ```shell
+   node build/index.js stream:prod
+   
+   # You can pass additional 'save' option to write the stream to disk while you're streaming:
+   node build/index.js stream:prod save
+   ```
+3. After the stream is finished, log out: `node build/index.js logout:prod`
+
+   If you have passed the `save` option in step 2, you will find the `.wav` file of the recorded stream in the `recordings` directory.
 
 
 
@@ -104,15 +146,9 @@ There are 3 environments set up in Compose:
 
 
 
-## Database Schema
+## How the app works 
 
-![](./doc/db-schema.png)
-
-
-
-# How it works 
-
-## High-level overview
+### High-level overview
 
 The app involves three parties: **source client (aka broadcaster)**, **Application Server** and **consuming client (aka listener(s))**:
 
@@ -122,7 +158,7 @@ The app involves three parties: **source client (aka broadcaster)**, **Applicati
 
 
 
-## Low-level overview
+### Low-level overview
 
 The application server is implemented as REST API and provides two main features of the app: audio broadcasting and chat.
 
@@ -144,9 +180,9 @@ All chat functionality, notifications as well as other real-time features are im
 
 
 
-# Deployment
+## Deployment
 
-## Frontend 
+### Frontend 
 
 To build and deploy the app to production env., run `build-and-deploy.sh` script located in `livestreamer-frontend` directory. 
 
@@ -154,7 +190,7 @@ It will start Compose with `client` container with all production environment va
 
 
 
-## Backend
+### Backend
 
 To build and deploy the app to production env., manually rebuild local image(s) > upload them to Docker Hub > on VPS pull images from Docker Hub and restart all or only the required containers. 
 
@@ -223,7 +259,11 @@ Here is a short explanation of how to do this:
 
 
 
-# Current Development Status
+## Current Development Status
 
 * all of the essential features of the app server are implemented; the code needs some refactoring, but I decided not to touch anything until I write more unit tests
 * at the moment of writing, React client uses only a fraction of the existing API
+
+
+
+

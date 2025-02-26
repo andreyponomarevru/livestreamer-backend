@@ -1,3 +1,6 @@
+session-cookie
+recordings
+
 _source/
 *.env
 *.log
