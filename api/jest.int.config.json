@@ -1,0 +1,24 @@
+{
+  "preset": "ts-jest",
+  "verbose": true,
+
+  "testEnvironment": "node",
+  "globalSetup": "./test-helpers/jest-hooks/global-setup.ts",
+
+  "setupFilesAfterEnv": [
+    "jest-extended/all",
+    "<rootDir>/test-helpers/jest-hooks/truncate-tables.ts",
+    "<rootDir>/test-helpers/jest-hooks/seed-users.ts",
+    "<rootDir>/test-helpers/jest-hooks/disconnect-from-db.ts"
+  ],
+
+  "testMatch": ["**/?(*.)+(spec|test).+(ts|tsx|js)"],
+  "moduleFileExtensions": ["ts", "js", "json"],
+  "transform": {
+    "^.+\\.(ts|tsx)$": ["ts-jest", { "useESM": true }]
+  },
+  "clearMocks": true,
+  "resetMocks": true,
+  "restoreMocks": true,
+  "extensionsToTreatAsEsm": [".ts"]
+}
