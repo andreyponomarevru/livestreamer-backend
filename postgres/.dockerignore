@@ -1,0 +1,7 @@
+postgres-data
+
+*.env
+redis_data
+Dockerfile*
+.dockerignore
+*.log

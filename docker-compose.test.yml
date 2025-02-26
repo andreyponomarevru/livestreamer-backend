@@ -1,0 +1,92 @@
+services:
+  api-test:
+    container_name: api-test
+    image: api-test:latest
+    build:
+      context: ./api
+      dockerfile: ./docker/Dockerfile
+      # Should match the stage name in Dockerfile
+      target: test
+    # Don't attempt to restart if tests failed
+    restart: "no"
+    healthcheck:
+      test: "curl --fail http://localhost:5000"
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    init: true
+    tty: true
+    ports:
+      # Port for the app
+      - 5001:8080
+      # node.js process is listening for a debugging client on
+      - 9231:9229
+    expose:
+      # Port for the app
+      - 5001
+    env_file:
+      - ./api/docker/.api.common.env
+      - ./api/docker/.api.test.env
+      - ./postgres/docker/.postgres.common.env
+      - ./postgres/docker/.postgres.test.env
+    volumes:
+      # set the container timezone to the time zone of host machine
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    depends_on:
+      - postgres-test
+      - redis-test
+    networks:
+      - livestreamer_backend_test
+
+  postgres-test:
+    container_name: postgres-test
+    image: postgres-test:latest
+    build:
+      context: ./postgres
+      dockerfile: ./docker/Dockerfile
+      target: production
+    init: true
+    restart: "no"
+    environment:
+      # This var is required to run the healthcheck 'test' command
+      PGUSER: "postgres"
+    healthcheck:
+      test: "pg_isready --user $$POSTGRES_USER --databse $$POSTGRES_DB"
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    env_file:
+      - ./postgres/docker/.postgres.common.env
+      - ./postgres/docker/.postgres.test.env
+    ports:
+      - 54323:5432
+    networks:
+      - livestreamer_backend_test
+
+  redis-test:
+    container_name: redis-test
+    image: redis-test:latest
+    build:
+      context: ./redis
+      dockerfile: ./docker/Dockerfile
+    init: true
+    healthcheck:
+      test: "redis-cli --raw incr ping"
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    ports:
+      - 6379:6379
+    networks:
+      - livestreamer_backend_test
+
+  # rabbitmq-test:
+  #   container_name: rabbitmq-test
+  #   healthcheck:
+  #     test: [rabbitmq-diagnostics -q ping]
+
+networks:
+  livestreamer_backend_test:
+    name: livestreamer_backend_test
+    driver: bridge

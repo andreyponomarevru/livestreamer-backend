@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# DESCRIPTION
+#     Backup and compress Postgres database running in Docker container
+#
+# SYNOPSIS
+#     helper_backup-postgres-db-inside-docker \
+#         [docker db container ID] [dir to dump to]
+
+set -eu -o pipefail
+
+DUMP_FILENAME_PREFIX="$1"
+CONTAINER_NAME="$2"
+DB_USERNAME="$3"
+REMOTE_APP_DIR="$4"
+
+docker exec "$(docker ps -aqf "name=^$CONTAINER_NAME")" \
+  pg_dumpall \
+    --clean \
+    --username="$DB_USERNAME" \
+  > "${REMOTE_APP_DIR}/${DUMP_FILENAME_PREFIX}_postgres-dump_$(date +'%Y_%m_%d').sql"
+  

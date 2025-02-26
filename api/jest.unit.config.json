@@ -1,0 +1,29 @@
+{
+  "preset": "ts-jest",
+  "verbose": true,
+
+  "testEnvironment": "node",
+
+  "setupFilesAfterEnv": ["jest-extended/all"],
+
+  "roots": ["./"],
+  "testMatch": ["**/?(*.)+(spec|test).+(ts|tsx|js)"],
+  "moduleFileExtensions": ["ts", "js", "json"],
+  "transform": {
+    "^.+\\.(ts|tsx)$": ["ts-jest", { "useESM": true }]
+  },
+  "clearMocks": true,
+  "resetMocks": true,
+  "restoreMocks": true,
+  "extensionsToTreatAsEsm": [".ts"],
+
+  "collectCoverageFrom": ["./src/**/*.ts", "./src/**/*.tsx"],
+  "coverageThreshold": {
+    "global": {
+      "branches": 7,
+      "functions": 1,
+      "lines": 7,
+      "statements": 6
+    }
+  }
+}

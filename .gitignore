@@ -1,26 +1,33 @@
-#
-# Project files
-#
-
 session-cookie
 recordings
-ws.code-workspace
-build/
-node_modules/
-package-lock.json
-*.wav
-*.env
 
-#
-# Whitelisted files (track these files if they exist)
-#
+_source/
+*.env
+*.log
+redis_data/
+mongodb/data/
+postgres-data/
+volume/
+node_modules/
+_source/
+*.wav
+*.mp3
+*.env
+.node_repl_history
+.bash_history
+.npm
+\\\\.\\NUL
+build/
+dist/
+docker-hub-password.txt
+docker-hub-access-token.md
+coverage/
+volume_postgresql-data/
 
 !.gitignore
 !.gitattributes
-
 !.prettierrc
-
 !.eslintrc.js
+!.eslintrc
 !.eslintignore
-
 !.dockerignore

@@ -1,0 +1,82 @@
+name: CI
+
+# Control when the workflow will run
+on:
+  pull_request:
+    branches: [main]
+    # Events on which to run this workflow
+    types: [opened , synchronize, reopened, edited]
+  push:
+    branches: [main]
+  # This allows you to trigger the execution of this Workflow file manually
+  workflow_dispatch:
+
+# Define env vars used by multiple jobs inside Bash scripts that they execute
+env:
+  API_COMMON_ENV: ${{ vars.API_COMMON_ENV }}
+  API_DEV_ENV: ${{ vars.API_DEV_ENV }}
+  API_PROD_ENV: ${{ vars.API_PROD_ENV }}
+  API_TEST_ENV: ${{ vars.API_TEST_ENV }}
+  POSTGRES_COMMON_ENV: ${{ vars.POSTGRES_COMMON_ENV }}
+  POSTGRES_DEV_ENV: ${{ vars.POSTGRES_DEV_ENV }}
+  POSTGRES_PROD_ENV: ${{ vars.POSTGRES_PROD_ENV }}
+  POSTGRES_TEST_ENV: ${{ vars.POSTGRES_TEST_ENV }}
+ 
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+
+  check_code_quality:
+    # The type of runner that the job will run on. Uses the Ubuntu Docker image 
+    runs-on: ubuntu-latest
+   # Steps represent a sequence of tasks that will be executed as part of the job    
+    steps:
+        # Clones the repo, so your job can access it
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v2
+        with:
+          # It should match the one specified in Dockerfile, to avoid unexpected errors
+          node-version: 22.13.1
+          cache: "npm"
+          cache-dependency-path: ./api/package-lock.json
+      - run: ./ci-cd/check-code-quality.sh
+    
+  run_unit_tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./ci-cd/set-up-env-vars.sh
+      - run: ./ci-cd/run-unit-tests.sh
+
+  run_integration_tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./ci-cd/set-up-env-vars.sh
+      - run: ./ci-cd/run-int-tests.sh
+
+  run_e2e_api_tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./ci-cd/set-up-env-vars.sh
+      - run: ./ci-cd/run-e2e-api-tests.sh
+
+  build_and_push_to_docker_hub:
+    needs: 
+      - check_code_quality
+      - run_unit_tests
+      - run_integration_tests
+      - run_e2e_api_tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - uses: actions/checkout@v4
+      - run: ./ci-cd/set-up-env-vars.sh
+      - name: Build and push production images to Docker Hub
+        run: ./ci-cd/build-and-push-to-dockerhub.sh

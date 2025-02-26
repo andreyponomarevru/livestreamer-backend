@@ -1,0 +1,32 @@
+{
+  "ts-node": {
+    "compilerOptions": {
+      "module": "commonjs"
+    },
+    "files": true
+  },
+  "compilerOptions": {
+    "types": ["node", "jest", "jest-extended"],
+    "rootDir": "./src",
+    "target": "ES2020",
+    "module": "esnext",
+    "sourceMap": false,
+    "outDir": "./build",
+    "strict": true,
+    "moduleResolution": "node",
+    "noUnusedLocals": false,
+    "noImplicitReturns": true,
+    "noImplicitAny": true,
+    "noFallthroughCasesInSwitch": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowJs": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "useUnknownInCatchVariables": false,
+    "resolveJsonModule": true
+  },
+  "compileOnSave": true,
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "**/*.test.ts"]
+}

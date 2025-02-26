@@ -1,0 +1,82 @@
+services:
+  api-prod:
+    container_name: api-prod
+    image: "ponomarevandrey/livestreamer-backend_api-prod:latest"
+    # Uncomment 'build' to build the image for the first-time deployment (i.e.
+    # to upload to Docker Hub) or if you want to run prod env on local machine
+    # instead of VPS
+    build:
+      context: ./api
+      dockerfile: ./docker/Dockerfile
+      # Should match the stage name in Dockerfile
+      target: production
+    restart: always
+    healthcheck:
+      test: "curl --fail http://localhost:5000"
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    init: true
+    tty: true
+    ports:
+      # Adding '127.0.0.1:' hides opened ports from Internet, 5000 is available
+      # only in internal network on host machine
+      - 127.0.0.1:5000:5000
+    env_file:
+      - ./api/docker/.api.common.env
+      - ./api/docker/.api.prod.env
+      - ./postgres/docker/.postgres.common.env
+      - ./postgres/docker/.postgres.prod.env
+    volumes:
+      # set the container timezone to the time zone of host machine
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    depends_on:
+      - postgres-prod
+      - redis-prod
+
+  postgres-prod:
+    container_name: postgres-prod
+    image: "ponomarevandrey/livestreamer-backend_postgres-prod:latest"
+    # Uncomment to build the image for the first-time deployment (i.e. to
+    # upload to Docker Hub) or if you want to run prod env on local machine
+    # instead of VPS
+    build:
+      context: ./postgres
+      dockerfile: ./docker/Dockerfile
+      target: production
+    restart: always
+    environment:
+      # This var is required to run the healthcheck 'test' command
+      PGUSER: "postgres"
+    healthcheck:
+      test: "pg_isready --user $$POSTGRES_USER --databse $$POSTGRES_DB"
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    init: true
+    env_file:
+      - ./postgres/docker/.postgres.common.env
+      - ./postgres/docker/.postgres.prod.env
+    volumes:
+      - /var/backups/:/var/backups/
+    ports:
+      - 127.0.0.1:5432:5432
+
+  redis-prod:
+    image: "ponomarevandrey/livestreamer-backend_redis-prod:latest"
+    container_name: redis-prod
+    # Uncomment to build the image for the first-time deployment (i.e. to
+    # upload to Docker Hub) or if you want to run prod env on local machine
+    # instead of VPS
+    build:
+      context: ./redis
+      dockerfile: ./docker/Dockerfile
+    healthcheck:
+      test: "redis-cli --raw incr ping"
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    init: true
+    ports:
+      - 127.0.0.1:6379:6379
