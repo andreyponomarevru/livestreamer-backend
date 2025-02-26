@@ -17,35 +17,27 @@ type FetchFailure<T> = {
 type ResetState = { type: "RESET_STATE" };
 
 type Action<T> = FetchInit | FetchSuccess<T> | FetchFailure<T> | ResetState;
-type State<T> = {
-  isLoading: boolean;
-  error: null | Error | APIResponse<T>["error"];
-  response: null | APIResponse<T>["response"];
-};
+type State<T> = APIResponse<T>;
 
-// We need this wrapping function only to pass the data type to the reducer
-function createDataFetchReducer<T>() {
-  // This is is the actual reducer function
-  return function (state: State<T>, action: Action<T>): State<T> {
-    switch (action.type) {
-      case "FETCH_INIT":
-        return { ...state, isLoading: true, error: null };
-      case "FETCH_SUCCESS":
-        return {
-          ...state,
-          isLoading: false,
-          error: null,
-          response: action.payload,
-        };
-      case "FETCH_FAILURE":
-        return { ...state, isLoading: false, error: action.error };
-      case "RESET_STATE": {
-        return { isLoading: false, error: null, response: null };
-      }
-      default:
-        throw new Error();
+function dataFetchReducer<T>(state: State<T>, action: Action<T>): State<T> {
+  switch (action.type) {
+    case "FETCH_INIT":
+      return { ...state, isLoading: true, error: null };
+    case "FETCH_SUCCESS":
+      return {
+        ...state,
+        isLoading: false,
+        error: null,
+        response: action.payload,
+      };
+    case "FETCH_FAILURE":
+      return { ...state, isLoading: false, error: action.error };
+    case "RESET_STATE": {
+      return { isLoading: false, error: null, response: null };
     }
-  };
+    default:
+      throw new Error();
+  }
 }
 
 function useFetch<ResponseBody>(): {
@@ -62,10 +54,11 @@ function useFetch<ResponseBody>(): {
     response: null,
   };
 
-  const dataFetchReducer = createDataFetchReducer<ResponseBody>();
+  const [state, dispatch] = useReducer<
+    React.Reducer<State<ResponseBody>, Action<ResponseBody>>
+  >(dataFetchReducer, initialState);
 
-  const [state, dispatch] = useReducer(dataFetchReducer, initialState);
-
+  // TODO get rid of isMounted hook, delete it from the project, code smell
   const isMounted = useIsMounted();
 
   function resetState() {
@@ -107,7 +100,7 @@ function useFetch<ResponseBody>(): {
     }
   }
 
-  return { state: state as APIResponse<ResponseBody>, fetchNow, resetState };
+  return { state, fetchNow, resetState };
 }
 
 export { State, useFetch };

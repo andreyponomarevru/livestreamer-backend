@@ -22,7 +22,7 @@ export type Credentials = {
 //
 
 export interface APIResponse<Results> {
-  error: APIError | null;
+  error: APIError | Error | null;
   isLoading: boolean;
   response: ParsedResponse<Results> | null;
 }

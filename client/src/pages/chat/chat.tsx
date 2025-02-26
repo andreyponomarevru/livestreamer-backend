@@ -21,9 +21,20 @@ function PagesChat(props: Props): React.ReactElement {
   useDeleteMessageWSEvent(deleteMessage);
   const handleDeleteMessage = useDeleteMessage(deleteMessage);
 
+	//
+
+	function scrollToBottom() {
+    messagesEndRef.current?.scrollIntoView();
+  }
+  const messagesEndRef = React.useRef<any>(null);
+	React.useEffect(scrollToBottom, [messages]);
+
+	//
+
   return (
     <Page className="chat-page">
       <MsgsList messages={messages} handleDeleteMessage={handleDeleteMessage} />
+			<div className="scroll-to" ref={messagesEndRef} />
       <ChatControls
         isStreamOnline={props.isStreamOnline}
         handleAddMessage={addMessage}

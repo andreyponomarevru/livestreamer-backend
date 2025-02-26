@@ -1,10 +1,10 @@
 @import "../../../global.scss";
 
 .chat-controls {
-  z-index: $zindex-fixed;
+  //z-index: $zindex-fixed;
 
   display: flex;
-  flex-flow: row nowrap;
+	flex-flow: row nowrap;
 
   &__input {
     width: 100%;
@@ -22,16 +22,17 @@
     }
   }
 
-  &__btns {
+	/*
+  &__btn {
     display: grid;
-    grid-template-areas: "Send Heart";
+    grid-template-areas: "Send";
     align-items: center;
     column-gap: 0.2rem;
     padding: 0.4rem 0.4rem;
 
     background-color: $color_brand_gray-80;
     border: none;
-  }
+  }*/
 }
 
 .send-chat-msg-btn {

@@ -31,6 +31,7 @@ function ChatControls(props: Props): React.ReactElement {
     const trimmedMsg = msgInput.trim();
     if (trimmedMsg.length > 0 && trimmedMsg.length < 500) {
       sendMessage(trimmedMsg);
+      setMsgInput("");
     }
 
     // Hide keyboard on mobile devices
@@ -43,7 +44,6 @@ function ChatControls(props: Props): React.ReactElement {
   React.useEffect(() => {
     if (postMessageRes.response?.body) {
       props.handleAddMessage(postMessageRes.response.body.results);
-      setMsgInput("");
     }
   }, [postMessageRes]);
 
@@ -51,22 +51,22 @@ function ChatControls(props: Props): React.ReactElement {
   const navigate = useNavigate();
 
   return (
-    <form className="chat-controls chat-page__controls" onSubmit={handleSubmit}>
-      <label htmlFor="chat-message" />
-      <input
-        id="chat-message"
-        className="chat-controls__input"
-        type="text"
-        maxLength={500}
-        minLength={1}
-        name="chat-message"
-        autoComplete="off"
-        placeholder="Type a message here..."
-        value={msgInput}
-        onChange={handleChange}
-        onClick={checkAuth}
-      />
-      <div className="chat-controls__btns">
+    <div className="chat-page__controls chat-page__controls_fixed">
+      <form className="chat-controls" onSubmit={handleSubmit}>
+        <label htmlFor="chat-message" />
+        <input
+          id="chat-message"
+          className="chat-controls__input"
+          type="text"
+          maxLength={500}
+          minLength={1}
+          name="chat-message"
+          autoComplete="off"
+          placeholder="Type a message here..."
+          value={msgInput}
+          onChange={handleChange}
+          onClick={checkAuth}
+        />
         <button
           className={`send-chat-msg-btn ${props.className || ""}`}
           type="submit"
@@ -77,9 +77,9 @@ function ChatControls(props: Props): React.ReactElement {
             <use href={`${icons}#arrow-right`} />
           </svg>
         </button>
-        <HeartBtn isStreamOnline={props.isStreamOnline} />
-      </div>
-    </form>
+      </form>
+      <HeartBtn isStreamOnline={props.isStreamOnline} />
+    </div>
   );
 }
 

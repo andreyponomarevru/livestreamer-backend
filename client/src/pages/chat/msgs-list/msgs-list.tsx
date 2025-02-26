@@ -27,7 +27,7 @@ function MsgsList(props: Props) {
           />
         );
       })}
-      <li ref={messagesEndRef} />
+      <li className="scroll-to" ref={messagesEndRef} />
     </ul>
   );
 }
