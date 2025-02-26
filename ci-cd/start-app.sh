@@ -2,8 +2,8 @@
 
 set -eu -p pipefail
 
-cd ./test/livestreamer-backend
-git pull git@github.com:andreyponomarevru/livestreamer-backend.git
+cd ./test/livestreamer
+git pull git@github.com:andreyponomarevru/livestreamer.git
 
 printf "\n1. Pull images from Docker Hub and (re)starts app **************** \n"
 
