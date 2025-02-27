@@ -2,7 +2,7 @@
 
 CREATE TABLE IF NOT EXISTS role (
   PRIMARY KEY (role_id),
-  role_id              integer                     GENERATED ALWAYS AS IDENTITY,
+  role_id              integer                     NOT NULL,
   name                 varchar(30)                 NOT NULL, 
 																									 UNIQUE (name), 
 																									 CHECK (name != '')
@@ -68,7 +68,7 @@ CREATE TABLE IF NOT EXISTS appuser (
   PRIMARY KEY (appuser_id),
   appuser_id          integer                      GENERATED ALWAYS AS IDENTITY,
   role_id             integer                      NOT NULL,
-  username            varchar(15)                  NOT NULL, 
+  username            varchar(16)                  NOT NULL, 
 	                                                 UNIQUE (username), 
 																									 CHECK (username != ''),
   password_hash       varchar(72)                  NOT NULL,

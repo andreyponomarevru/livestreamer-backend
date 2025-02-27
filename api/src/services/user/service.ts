@@ -1,4 +1,4 @@
-import { SignUpData } from "../../types";
+import { SignUpData, Permissions } from "../../types";
 import { User } from "../../models/user/user";
 import { authnService } from "../authn";
 import { mailService } from "../mail";
@@ -45,7 +45,13 @@ export const userService = {
   }: {
     userId: number;
     username: string;
-  }): Promise<User | null> {
+  }): Promise<{
+    uuid: string;
+    id: number;
+    email: string;
+    username: string;
+    permissions: Permissions;
+  }> {
     return await userRepo.updateUser({ userId, username });
   },
 

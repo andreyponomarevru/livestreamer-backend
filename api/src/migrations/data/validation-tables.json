@@ -1,8 +1,8 @@
 {
   "roles": {
-    "broadcaster": "broadcaster",
-    "listener": "listener",
-    "superadmin": "superadmin"
+    "1": "superadmin",
+    "2": "listener",
+    "3": "broadcaster"
   },
   "resources": [
     "user_own_account",

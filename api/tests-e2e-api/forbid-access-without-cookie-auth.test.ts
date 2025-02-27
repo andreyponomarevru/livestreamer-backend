@@ -26,6 +26,11 @@ const ROUTES = {
   ],
 };
 
+const superadminCredentials = {
+  username: superadminUser.username,
+  password: superadminUser.password,
+};
+
 describe("responds with a 401 error if the user is not authenticated", () => {
   it.each(ROUTES.GET)("GET %p", async (route: string) => {
     const response = await request(httpServer)
@@ -78,10 +83,7 @@ describe("responds with a 401 if the header doesn't contain the session cookie",
     await request(httpServer)
       .post("/sessions")
       .set("accept", "application/json")
-      .send({
-        username: superadminUser.username,
-        password: superadminUser.password,
-      })
+      .send(superadminCredentials)
       .expect(200);
 
     const response = await request(httpServer)
@@ -96,10 +98,7 @@ describe("responds with a 401 if the header doesn't contain the session cookie",
     await request(httpServer)
       .post("/sessions")
       .set("accept", "application/json")
-      .send({
-        username: superadminUser.username,
-        password: superadminUser.password,
-      })
+      .send(superadminCredentials)
       .expect(200);
 
     const response = await request(httpServer)
@@ -114,10 +113,7 @@ describe("responds with a 401 if the header doesn't contain the session cookie",
     await request(httpServer)
       .post("/sessions")
       .set("accept", "application/json")
-      .send({
-        username: superadminUser.username,
-        password: superadminUser.password,
-      })
+      .send(superadminCredentials)
       .expect(200);
 
     const response = await request(httpServer)
@@ -132,10 +128,7 @@ describe("responds with a 401 if the header doesn't contain the session cookie",
     await request(httpServer)
       .post("/sessions")
       .set("accept", "application/json")
-      .send({
-        username: superadminUser.username,
-        password: superadminUser.password,
-      })
+      .send(superadminCredentials)
       .expect(200);
 
     const response = await request(httpServer)
@@ -150,10 +143,7 @@ describe("responds with a 401 if the header doesn't contain the session cookie",
     await request(httpServer)
       .post("/sessions")
       .set("accept", "application/json")
-      .send({
-        username: superadminUser.username,
-        password: superadminUser.password,
-      })
+      .send(superadminCredentials)
       .expect(200);
 
     const response = await request(httpServer)
