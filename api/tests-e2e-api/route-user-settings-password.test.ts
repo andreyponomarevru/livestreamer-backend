@@ -1,8 +1,8 @@
-import { describe, it, beforeAll, afterAll, expect } from "@jest/globals";
-import request from "supertest";
+import { describe, it, beforeAll, afterAll } from "@jest/globals";
+// import request from "supertest";
 import { httpServer } from "../src/http-server";
-import { dbConnection } from "../src/config/postgres";
-import { superadminUser } from "../test-helpers/jest-hooks/utils/user";
+// import { dbConnection } from "../src/config/postgres";
+// import { superadminUser } from "../test-helpers/jest-hooks/utils/user";
 
 beforeAll(async () => {
   httpServer.listen();
@@ -13,10 +13,6 @@ afterAll(() => {
     if (err) throw err;
   });
 });
-
-/*async function seedUser() {
-
-}*/
 
 describe("/user/settings/password", () => {
   describe(`PATCH - update the pasword`, () => {
