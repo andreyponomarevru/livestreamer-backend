@@ -5,6 +5,9 @@ import { httpServer } from "../src/http-server";
 import { dbConnection } from "../src/config/postgres";
 import { createUser } from "../test-helpers/create-user";
 
+const maxUsernameLength = 16;
+const maxPasswordLength = 50;
+
 beforeAll(async () => {
   httpServer.listen();
 });
@@ -16,8 +19,6 @@ afterAll(() => {
 });
 
 describe("/user", () => {
-  const maxUsernameLength = 16;
-  const maxPasswordLength = 50;
   const username = faker.internet.username().substring(0, maxUsernameLength);
   const password = faker.internet.password().substring(0, maxPasswordLength);
   const email = faker.internet.email();
@@ -173,7 +174,9 @@ describe("/user", () => {
           .set("accept", "application/json")
           .send({ username, password })
           .expect(200);
-        const newUsername = faker.internet.username();
+        const newUsername = faker.internet
+          .username()
+          .substring(0, maxUsernameLength);
 
         const response = await agent
           .patch("/user")
@@ -214,8 +217,8 @@ describe("/user", () => {
           isEmailConfirmed: true,
         });
         const user2 = {
-          username: faker.internet.username(),
-          password: faker.internet.password(),
+          username: faker.internet.username().substring(0, maxUsernameLength),
+          password: faker.internet.password().substring(0, maxPasswordLength),
         };
         await createUser({
           ...user2,
