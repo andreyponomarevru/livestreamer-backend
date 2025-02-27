@@ -45,7 +45,6 @@ function createTransports(shouldLogToFile = false) {
 const logger = winston.createLogger({
   transports: createTransports(SHOULD_LOG_TO_FILE),
   exitOnError: false,
-  silent: true,
 });
 
 // Put Morgan logs inside Winston logs,
