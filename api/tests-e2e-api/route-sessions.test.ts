@@ -11,8 +11,6 @@ import { RedisClient, redisConnection } from "../src/config/redis";
 import { moreInfo, response401 } from "../test-helpers/responses";
 import { signIn } from "../test-helpers/sign-in";
 
-const API_ROUTE = "/sessions";
-
 const sessionKeyPattern = "sess:*";
 const sessionCookieResponse = [
   {
@@ -37,7 +35,7 @@ afterAll(() => {
   });
 });
 
-describe(`for the pre-seeded user with the role Superadmin`, () => {
+describe("/sessions (for the pre-seeded user with the role Superadmin)", () => {
   const superadminUserResponse = {
     results: {
       uuid: expect.any(String),
@@ -56,14 +54,14 @@ describe(`for the pre-seeded user with the role Superadmin`, () => {
     },
   };
 
-  describe(`POST ${API_ROUTE} - sign in`, () => {
+  describe("POST - sign in", () => {
     describe("200", () => {
       it("signs the user in, creating a cookie session", async () => {
         const sessionsBeforeSignIn = await redisClient.keys(sessionKeyPattern);
         expect(sessionsBeforeSignIn.length).toBe(0);
 
         const response = await request(httpServer)
-          .post(API_ROUTE)
+          .post("/sessions")
           .send({
             username: superadminUser.username,
             password: superadminUser.password,
@@ -80,7 +78,7 @@ describe(`for the pre-seeded user with the role Superadmin`, () => {
       describe("signs the user in, responding with the user object if", () => {
         it("the user provides username and password", async () => {
           const response = await request(httpServer)
-            .post(API_ROUTE)
+            .post("/sessions")
             .send({
               username: superadminUser.username,
               password: superadminUser.password,
@@ -93,7 +91,7 @@ describe(`for the pre-seeded user with the role Superadmin`, () => {
 
         it("the user provides email and password", async () => {
           const response = await request(httpServer)
-            .post(API_ROUTE)
+            .post("/sessions")
             .send({
               username: superadminUser.username,
               password: superadminUser.password,
@@ -109,7 +107,7 @@ describe(`for the pre-seeded user with the role Superadmin`, () => {
     describe("401", () => {
       it("responds with an error if credentials are invalid", async () => {
         const response = await request(httpServer)
-          .post(API_ROUTE)
+          .post("/sessions")
           .send({ username: "invalid", password: "invalid" })
           .expect("content-type", /json/)
           .expect(401);
@@ -128,7 +126,7 @@ describe(`for the pre-seeded user with the role Superadmin`, () => {
         )[0];
 
         const secondSignInResponse = await request(httpServer)
-          .post(API_ROUTE)
+          .post("/sessions")
           .set("cookie", `${sessionCookie.name}=${sessionCookie.value}`)
           .send({
             username: superadminUser.username,
@@ -148,7 +146,7 @@ describe(`for the pre-seeded user with the role Superadmin`, () => {
     describe("400", () => {
       it("responds with an error if the request object is malformed", async () => {
         const response = await request(httpServer)
-          .post(API_ROUTE)
+          .post("/sessions")
           .send({
             uuser: superadminUser.username,
             ppass: superadminUser.password,
@@ -171,7 +169,7 @@ describe(`for the pre-seeded user with the role Superadmin`, () => {
     });
   });
 
-  describe(`DELETE ${API_ROUTE} - sign out`, () => {
+  describe(`DELETE - sign out`, () => {
     describe("204", () => {
       it("signs the user out if the user is currently signed in and ends the cookie session", async () => {
         const signInResponse = await signIn(superadminUser);
@@ -184,7 +182,7 @@ describe(`for the pre-seeded user with the role Superadmin`, () => {
         expect(sessionsAfterSignIn.length).toBe(1);
 
         await request(httpServer)
-          .delete(API_ROUTE)
+          .delete("/sessions")
           .set("Cookie", `${sessionCookie.name}=${sessionCookie.value}`)
           .expect(204);
 
@@ -200,7 +198,7 @@ describe(`for the pre-seeded user with the role Superadmin`, () => {
 
       it("responds with an error if the user is not signed in", async () => {
         const response = await request(httpServer)
-          .delete(API_ROUTE)
+          .delete("/sessions")
           .send({
             username: superadminUser.username,
             password: superadminUser.password,
@@ -213,7 +211,7 @@ describe(`for the pre-seeded user with the role Superadmin`, () => {
 
       it("responds with an error if username and password are invalid", async () => {
         const response = await request(httpServer)
-          .delete(API_ROUTE)
+          .delete("/sessions")
           .send({ username: "invalid", password: "invalid" })
           .expect("content-type", /json/)
           .expect(401);
@@ -224,7 +222,7 @@ describe(`for the pre-seeded user with the role Superadmin`, () => {
   });
 });
 
-describe(`for the pre-seeded user with the role Listener`, () => {
+describe("/sessions (for the pre-seeded user with the role Listener)", () => {
   const listenerUserResponse = {
     results: {
       uuid: expect.any(String),
@@ -262,7 +260,7 @@ describe(`for the pre-seeded user with the role Listener`, () => {
   });
 });
 
-describe(`for the pre-seeded user with the role Broadcaster`, () => {
+describe("/sessions (for the pre-seeded user with the role Broadcaster)", () => {
   const broadcasterUserResponse = {
     results: {
       uuid: expect.any(String),
@@ -273,7 +271,7 @@ describe(`for the pre-seeded user with the role Broadcaster`, () => {
     },
   };
 
-  describe("POST /sessions - sign in", () => {
+  describe("POST - sign in", () => {
     describe("200", () => {
       it("signs in with the username and password", async () => {
         const response = await request(httpServer)

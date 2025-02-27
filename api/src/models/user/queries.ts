@@ -445,35 +445,34 @@ export const userRepo = {
   }: {
     userId: number;
     username: string;
-  }): Promise<User | null> {
+  }): Promise<{
+    uuid: string;
+    id: number;
+    email: string;
+    username: string;
+    permissions: Permissions;
+  }> {
     const sql =
       "UPDATE \
-			appuser \
-		SET \
-			username=$1 \
-		WHERE \
-			appuser_id=$2 \
-		RETURNING \
-			appuser_id, username, email, password_hash, created_at, last_login_at,  is_email_confirmed, is_deleted";
+        appuser \
+      SET \
+        username=$1 \
+      WHERE \
+        appuser_id=$2 \
+      RETURNING \
+        appuser_id, username, email";
     const values = [username, userId];
     const pool = await dbConnection.open();
     const res = await pool.query<ReadUserDBResponse>(sql, values);
 
-    if (res.rowCount === 0) return null;
-
     const permissions = await this.readUserPermissions(userId);
-    const user = new User({
+    const user = {
       uuid: uuidv4(),
       id: res.rows[0].appuser_id,
       email: res.rows[0].email,
       username: res.rows[0].username,
-      password: res.rows[0].password_hash,
-      createdAt: res.rows[0].created_at,
-      lastLoginAt: res.rows[0].last_login_at,
-      isEmailConfirmed: res.rows[0].is_email_confirmed,
-      isDeleted: res.rows[0].is_deleted,
       permissions,
-    });
+    };
 
     return user;
   },

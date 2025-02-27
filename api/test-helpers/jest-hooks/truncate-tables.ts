@@ -29,5 +29,5 @@ async function deleteAllRedisKeys() {
 beforeEach(async () => {
   await truncateDBTables(tablesToTruncate);
   await deleteAllRedisKeys();
-  logger.silent = true;
+  logger.silent = false;
 });

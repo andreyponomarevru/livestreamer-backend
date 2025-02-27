@@ -40,13 +40,13 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
   }
 
   const broadcasterPerms = rolesResourcesPermissions.broadcaster;
-  await seed(validationTables.roles.broadcaster, broadcasterPerms);
+  await seed(validationTables.roles["3"], broadcasterPerms);
 
   const listenerPerms = rolesResourcesPermissions.listener;
-  await seed(validationTables.roles.listener, listenerPerms);
+  await seed(validationTables.roles["2"], listenerPerms);
 
   const superadminPerms = rolesResourcesPermissions.superadmin;
-  await seed(validationTables.roles.superadmin, superadminPerms);
+  await seed(validationTables.roles["1"], superadminPerms);
 }
 
 export async function down(pgm: MigrationBuilder): Promise<void> {

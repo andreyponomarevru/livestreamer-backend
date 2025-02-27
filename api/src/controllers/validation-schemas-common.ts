@@ -3,7 +3,7 @@
 import Joi from "joi";
 
 export const asciiRegex = new RegExp("^[\x00-\x7F]+$");
-export const alphaNumericRegex = new RegExp("^[a-zA-Z0-9]+$");
+export const alphaNumericRegex = new RegExp("^[a-zA-Z0-9-._]+$");
 
 export const passwordSchema = Joi.string()
   .required()
@@ -22,7 +22,7 @@ export const usernameSchema = Joi.string()
   .trim()
   .required()
   .min(3)
-  .max(15)
+  .max(16)
   .pattern(alphaNumericRegex)
   .messages({
     "string.base": `Username should be a type of 'string'`,
@@ -32,7 +32,7 @@ export const usernameSchema = Joi.string()
     "any.required": `Username is required`,
   });
 
-export const emailSchema = Joi.string().required().email().messages({
+export const emailSchema = Joi.string().max(320).required().email().messages({
   "string.base": `Email should be a type of 'string'`,
   "string.empty": `Email cannot be an empty string`,
   "string.email": `The string is not a valid e-mail`,

@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { userService } from "../../services/user/service";
 import { HttpError } from "../../utils/http-error";
-import { CustomRequest } from "../../types";
+import { CustomRequest, Permissions } from "../../types";
 import { logger } from "../../config/logger";
 import { COOKIE_NAME } from "../../config/env";
 import { wsService } from "../../services/ws";
@@ -9,7 +9,6 @@ import { cacheService } from "../../services/cache";
 import { SanitizedUser } from "../../types";
 import { sanitizeUser } from "../../models/user/sanitize-user";
 import { authnService } from "../../services/authn";
-import { User } from "../../models/user/user";
 import { Broadcast } from "../../types";
 import { broadcastService } from "../../services/broadcast";
 
@@ -68,14 +67,6 @@ export const userController = {
       if (!(await userService.isUserExists({ userId }))) {
         res.status(204).end();
         logger.debug("Attempt to delete the user which doesn't exist");
-      } else if (!(await userService.isEmailConfirmed({ userId }))) {
-        throw new HttpError({
-          code: 404,
-          message:
-            "Pending Account. Look for the verification email in your inbox and click the link in that email",
-        });
-      } else if (await userService.isUserDeleted({ userId })) {
-        throw new HttpError({ code: 404 });
       }
 
       await userService.destroyUser(userId);
@@ -177,24 +168,22 @@ export const userController = {
       Record<string, unknown>,
       { username: string }
     >,
-    res: Response<{ results: User | null }>,
+    res: Response<{
+      results: {
+        uuid: string;
+        id: number;
+        email: string;
+        username: string;
+        permissions: Permissions;
+      };
+    }>,
     next: NextFunction,
   ): Promise<void> {
     try {
       const userId = req.session.authenticatedUser!.id;
       const username = req.body.username;
 
-      if (!(await userService.isUserExists({ userId }))) {
-        throw new HttpError({ code: 404 });
-      } else if (!(await userService.isEmailConfirmed({ userId }))) {
-        throw new HttpError({
-          code: 404,
-          message:
-            "Pending Account. Look for the verification email in your inbox and click the link in that email",
-        });
-      } else if (await userService.isUserDeleted({ userId })) {
-        throw new HttpError({ code: 404 });
-      } else if (await userService.isUserExists({ username })) {
+      if (await userService.isUserExists({ username })) {
         throw new HttpError({
           code: 409,
           message: "Sorry, this username is already taken",
@@ -205,7 +194,7 @@ export const userController = {
         userId,
         username,
       });
-      res.set("location", `/users/${userId}`);
+      res.set("location", `/user`);
       res.status(200);
       res.json({ results: updatedUser });
     } catch (err) {

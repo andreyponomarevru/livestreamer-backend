@@ -35,7 +35,7 @@ export const mailService = {
 
     const transporter = nodemailer.createTransport(mailConfig);
 
-    await transporter.verify((err) => {
+    transporter.verify((err) => {
       if (err) throw err;
     });
 
@@ -73,13 +73,11 @@ export const mailService = {
       username,
       email,
     }: WelcomeEmail): Mail.Options {
-      const signInLink = SIGN_IN_LINK;
-
       const options: SendMailOptions = {
         from: MAIL_FROM_EMAIL,
         to: email,
         subject: "Email address confirmed",
-        html: `<p>Thanks ${username}, email address confirmed. You're now registered and can <a href="${signInLink}"">log into your account.</a></p>`,
+        html: `<p>Thanks ${username}, email address confirmed. You're now registered and can <a href="${SIGN_IN_LINK}"">log into your account.</a></p>`,
         replyTo: MAIL_FROM_EMAIL,
       };
 
