@@ -27,6 +27,11 @@ type ResetPasswordTokenEMail = {
   token: string;
 };
 
+// (Then, implement another service that consumes messages from the queue, which would actually send the confirmation email, handling retries and failures. It’s easy to imagine extending this email service to send other types of emails, neatly isolating this functionality in the application.)
+
+// Somewhere here I should pool for RabbitMQ's new messages, and when the message arrives, consume it and send the letter with: this line:
+// await mailService.sendEmail(singUpConfirmationEmail);
+
 export const mailService = {
   sendEmail: async function (
     mailOptions: SendMailOptions,
@@ -47,7 +52,7 @@ export const mailService = {
   },
 
   emailTemplates: {
-    createConfirmationEmail: function ({
+    createSignUpConfirmationEmail: function ({
       username,
       email,
       userToken,

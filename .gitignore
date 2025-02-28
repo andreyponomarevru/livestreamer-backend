@@ -23,6 +23,8 @@ docker-hub-password.txt
 docker-hub-access-token.md
 coverage/
 volume_postgresql-data/
+rabbitmq_log/
+rabbitmq_data/
 
 !.gitignore
 !.gitattributes

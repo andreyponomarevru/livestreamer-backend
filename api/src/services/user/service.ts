@@ -3,7 +3,12 @@ import { User } from "../../models/user/user";
 import { authnService } from "../authn";
 import { mailService } from "../mail";
 import { userRepo } from "../../models/user/queries";
-import { logger } from "../../config/logger";
+import {
+  EXCHANGE_NAME,
+  QUEUE_NAME,
+  ROUTING_KEY_NAME,
+} from "../../config/rabbitmq/config";
+import { sendMsgToQueue } from "../../config/rabbitmq/publisher";
 
 export const userService = {
   createUser: async function (signupData: SignUpData): Promise<void> {
@@ -18,17 +23,21 @@ export const userService = {
       isEmailConfirmed: signupData.isEmailConfirmed,
     });
 
-    const singUpConfirmationEmail =
-      mailService.emailTemplates.createConfirmationEmail({
-        username: signupData.username,
-        email: signupData.email,
-        userId: userId,
-        userToken: userToken,
-      });
-
-    logger.debug(singUpConfirmationEmail);
-
-    await mailService.sendEmail(singUpConfirmationEmail);
+    await sendMsgToQueue({
+      queue: QUEUE_NAME,
+      exchange: EXCHANGE_NAME,
+      routingKey: ROUTING_KEY_NAME,
+      content: Buffer.from(
+        JSON.stringify(
+          mailService.emailTemplates.createSignUpConfirmationEmail({
+            username: signupData.username,
+            email: signupData.email,
+            userId: userId,
+            userToken: userToken,
+          }),
+        ),
+      ),
+    });
   },
 
   readUser: async function (userId: number): Promise<User> {

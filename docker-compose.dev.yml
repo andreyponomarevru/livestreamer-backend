@@ -28,6 +28,7 @@ services:
       - ./api/docker/.api.dev.env
       - ./postgres/docker/.postgres.common.env
       - ./postgres/docker/.postgres.dev.env
+      - ./rabbitmq/.env
     volumes:
       # Recompile code on changes
       - ./api:/home/node
@@ -81,6 +82,36 @@ services:
     init: true
     ports:
       - 6380:6379
+    networks:
+      - livestreamer_backend
+
+  rabbitmq-dev:
+    container_name: "rabbitmq-dev"
+    image: rabbitmq-dev:latest
+    build:
+      context: ./rabbitmq
+      dockerfile: ./docker/Dockerfile
+    healthcheck:
+      test: "curl --fail http://127.0.0.1:5672"
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    init: true
+    ports:
+      # Message broker itself:
+      - 5672:5672
+      # Web UI for managing message broker
+      - 15672:15672
+    # We map volumes so that our durable queues and logs are not lost on container restart..
+    # ':ro' sets the volume as read-only.
+    volumes:
+      - ./rabbitmq/rabbitmq_data:/var/lib/rabbitmq/
+      - ./rabbitmq/rabbitmq_log:/var/log/rabbitmq/
+      - ./rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+    env_file:
+      - ./rabbitmq/.env
+    depends_on:
+      - api-dev
     networks:
       - livestreamer_backend
 

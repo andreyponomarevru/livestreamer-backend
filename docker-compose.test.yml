@@ -29,6 +29,7 @@ services:
       - ./api/docker/.api.test.env
       - ./postgres/docker/.postgres.common.env
       - ./postgres/docker/.postgres.test.env
+      - ./rabbitmq/.env
     volumes:
       # set the container timezone to the time zone of host machine
       - /etc/timezone:/etc/timezone:ro
