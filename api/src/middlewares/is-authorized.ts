@@ -1,5 +1,3 @@
-/* eslint-disable no-unused-vars */
-
 import { Request, Response, NextFunction } from "express";
 
 import { HttpError } from "../utils/http-error";

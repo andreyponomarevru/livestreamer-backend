@@ -14,7 +14,7 @@
     "outDir": "./build",
     "strict": true,
     "moduleResolution": "node",
-    "noUnusedLocals": false,
+    "noUnusedLocals": true,
     "noImplicitReturns": true,
     "noImplicitAny": true,
     "noFallthroughCasesInSwitch": true,
