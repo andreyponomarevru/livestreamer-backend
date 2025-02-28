@@ -54,8 +54,6 @@ export default [
         },
       ],
 
-      "no-unused-vars": 1,
-
       "no-warning-comments": [
         0,
         {
