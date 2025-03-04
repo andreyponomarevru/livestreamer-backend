@@ -1,18 +1,4 @@
-import { describe, it, beforeAll, afterAll } from "@jest/globals";
-// import request from "supertest";
-import { httpServer } from "../src/http-server";
-// import { dbConnection } from "../src/config/postgres";
-// import { superadminUser } from "../test-helpers/jest-hooks/utils/user";
-
-beforeAll(async () => {
-  httpServer.listen();
-});
-
-afterAll(() => {
-  httpServer.close((err) => {
-    if (err) throw err;
-  });
-});
+import { describe, it } from "@jest/globals";
 
 describe("/user/settings/password", () => {
   describe(`PATCH - update the pasword`, () => {

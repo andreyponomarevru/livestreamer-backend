@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { jest, describe, it, expect } from "@jest/globals";
 import { handle404Error } from "./handle-404-error";
-import { moreInfo } from "../../test-helpers/responses";
+import { moreInfo } from "../../test-helpers/helpers";
 import { HTTP_ERRORS } from "../config/constants";
 
 describe("handle404Error middleware", () => {

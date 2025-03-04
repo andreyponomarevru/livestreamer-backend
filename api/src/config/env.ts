@@ -71,5 +71,5 @@ export const RABBITMQ_HOSTNAME = process.env.RABBITMQ_HOSTNAME || "";
 export const RABBITMQ_PORT = Number(process.env.RABBITMQ_PORT) || 5672;
 export const RABBITMQ_USER = process.env.RABBITMQ_USER || "";
 export const RABBITMQ_PASSWORD = process.env.RABBITMQ_PASSWORD || "";
-export const RABBITMQ_VHOST = process.env.RABBITMQ_VHOST || "";
+export const RABBITMQ_VHOST = process.env.RABBITMQ_VHOST1 || "";
 export const RABBITMQ_HEARTBEAT = Number(process.env.RABBITMQ_HEARTBEAT) || 60;

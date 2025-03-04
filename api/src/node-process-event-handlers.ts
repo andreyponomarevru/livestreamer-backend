@@ -7,7 +7,7 @@ export function onWarning(err: Error) {
   logger.warn(err.stack);
 }
 
-export function onUncaughtException(err: Error) {
+export async function onUncaughtException(err: Error) {
   logger.error(`uncaughtException: ${err.message} \n${err.stack}`);
   dbConnection.close();
   redisConnection.quit();

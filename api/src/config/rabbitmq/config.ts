@@ -10,8 +10,20 @@ import {
 } from "../env";
 
 export const EXCHANGE_NAME = "livestreamer";
-export const USER_SIGN_UP_QUEUE_NAME = "livestreamer.sign_up_email";
-export const USER_SIGN_UP_ROUTING_KEY_NAME = "sign_up_email";
+export const QUEUES = {
+  confirmSignUpEmail: {
+    queue: `${EXCHANGE_NAME}.send_confirm_sign_up_email`,
+    routingKey: "send_confirm_sign_up_email",
+  },
+  welcomeEmail: {
+    queue: `${EXCHANGE_NAME}.send_sign_up_success_email`,
+    routingKey: "send_sign_up_success_email",
+  },
+  resetPasswordEmail: {
+    queue: `${EXCHANGE_NAME}.send_password_reset_email`,
+    routingKey: "send_password_reset_email",
+  },
+};
 
 export const AMQP_SERVER_CONFIG: amqpClient.Options.Connect = {
   protocol: RABBITMQ_PROTOCOL,

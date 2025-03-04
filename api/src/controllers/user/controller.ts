@@ -42,8 +42,8 @@ export const userController = {
       }
 
       await userService.createUser({
-        username: req.headers.basicauth?.username,
-        password: req.headers.basicauth?.password,
+        username: req.headers.basicauth.username,
+        password: req.headers.basicauth.password,
         email: req.body.email,
         roleId: 2,
         isEmailConfirmed: false,

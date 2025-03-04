@@ -1,5 +1,5 @@
 services:
-  api-dev:
+  api:
     container_name: api-dev
     image: api-dev:latest
     build:
@@ -36,12 +36,13 @@ services:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     depends_on:
-      - postgres-dev
-      - redis-dev
+      - postgres
+      - redis
+      - rabbitmq
     networks:
       - livestreamer_backend
 
-  postgres-dev:
+  postgres:
     container_name: postgres-dev
     image: postgres-dev:latest
     build:
@@ -68,7 +69,7 @@ services:
     networks:
       - livestreamer_backend
 
-  redis-dev:
+  redis:
     container_name: redis-dev
     image: redis-dev:latest
     build:
@@ -85,7 +86,7 @@ services:
     networks:
       - livestreamer_backend
 
-  rabbitmq-dev:
+  rabbitmq:
     container_name: "rabbitmq-dev"
     image: rabbitmq-dev:latest
     build:
@@ -110,8 +111,6 @@ services:
       - ./rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
     env_file:
       - ./rabbitmq/.env
-    depends_on:
-      - api-dev
     networks:
       - livestreamer_backend
 

@@ -3,12 +3,8 @@ import { User } from "../../models/user/user";
 import { authnService } from "../authn";
 import { mailService } from "../mail";
 import { userRepo } from "../../models/user/queries";
-import {
-  EXCHANGE_NAME,
-  QUEUE_NAME,
-  ROUTING_KEY_NAME,
-} from "../../config/rabbitmq/config";
-import { sendMsgToQueue } from "../../config/rabbitmq/publisher";
+import { EXCHANGE_NAME, QUEUES } from "../../config/rabbitmq/config";
+import { rabbitMQPublisher } from "../../config/rabbitmq/publisher";
 
 export const userService = {
   createUser: async function (signupData: SignUpData): Promise<void> {
@@ -23,10 +19,10 @@ export const userService = {
       isEmailConfirmed: signupData.isEmailConfirmed,
     });
 
-    await sendMsgToQueue({
-      queue: QUEUE_NAME,
+    await rabbitMQPublisher.sendMsgToQueue({
+      queue: QUEUES.confirmSignUpEmail.queue,
       exchange: EXCHANGE_NAME,
-      routingKey: ROUTING_KEY_NAME,
+      routingKey: QUEUES.confirmSignUpEmail.routingKey,
       content: Buffer.from(
         JSON.stringify(
           mailService.emailTemplates.createSignUpConfirmationEmail({

@@ -9,7 +9,7 @@
     "jest-extended/all",
     "<rootDir>/test-helpers/jest-hooks/truncate-tables.ts",
     "<rootDir>/test-helpers/jest-hooks/seed-users.ts",
-    "<rootDir>/test-helpers/jest-hooks/disconnect-from-db.ts"
+    "<rootDir>/test-helpers/jest-hooks/close-connections.ts"
   ],
 
   "testMatch": ["**/?(*.)+(spec|test).+(ts|tsx|js)"],

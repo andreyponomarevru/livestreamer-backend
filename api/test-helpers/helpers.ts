@@ -1,5 +1,31 @@
 import { dbConnection } from "../src/config/postgres";
 import { authnService } from "../src/services/authn";
+import request from "supertest";
+import { httpServer } from "../src/http-server";
+
+export const moreInfo = { moreInfo: "https://github.com/ponomarevandrey/" };
+export const response403 = {
+  status: 403,
+  statusText: "Forbidden",
+  message: "You don't have permission to access this resource",
+  ...moreInfo,
+};
+export const response401 = {
+  status: 401,
+  statusText: "Unauthorized",
+  moreInfo: "https://github.com/ponomarevandrey/",
+  message: "You must authenticate to access this resource",
+};
+
+type Credentials = { username: string; password: string };
+
+export async function signIn({ username, password }: Credentials) {
+  const agent = request.agent(httpServer);
+  return agent
+    .post("/sessions")
+    .set("accept", "application/json")
+    .send({ username, password });
+}
 
 export async function createUser({
   roleId,

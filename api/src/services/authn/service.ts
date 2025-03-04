@@ -1,30 +1,41 @@
 import crypto from "crypto";
 import bcrypt from "bcrypt";
-import util from "util";
 import { userRepo } from "../../models/user/queries";
 import { logger } from "../../config/logger";
 import { mailService } from "../mail";
+import { rabbitMQPublisher } from "../../config/rabbitmq/publisher";
+import { EXCHANGE_NAME, QUEUES } from "../../config/rabbitmq/config";
 
 export const authnService = {
   confirmEmail: async function (userId: number): Promise<void> {
     const { username, email } = await userRepo.confirmEmail(userId);
-    const welcomeEmail = mailService.emailTemplates.createWelcomeEmail({
-      username,
-      email,
-    });
-    logger.debug(welcomeEmail);
 
-    await mailService.sendEmail(welcomeEmail);
+    await rabbitMQPublisher.sendMsgToQueue({
+      queue: QUEUES.welcomeEmail.queue,
+      exchange: EXCHANGE_NAME,
+      routingKey: QUEUES.welcomeEmail.routingKey,
+      content: Buffer.from(
+        JSON.stringify(
+          mailService.emailTemplates.createWelcomeEmail({ username, email }),
+        ),
+      ),
+    });
   },
 
   handlePasswordReset: async function (email: string): Promise<void> {
     const token = this.generateToken();
     await userRepo.savePasswordResetToken({ email, token });
-    const passwordResetEmail =
-      mailService.emailTemplates.createPasswordResetEmail({ email, token });
-    logger.debug(`${__filename}: ${util.inspect(passwordResetEmail)}`);
 
-    await mailService.sendEmail(passwordResetEmail);
+    await rabbitMQPublisher.sendMsgToQueue({
+      queue: QUEUES.resetPasswordEmail.queue,
+      exchange: EXCHANGE_NAME,
+      routingKey: QUEUES.resetPasswordEmail.routingKey,
+      content: Buffer.from(
+        JSON.stringify(
+          mailService.emailTemplates.createPasswordResetEmail({ email, token }),
+        ),
+      ),
+    });
   },
 
   hashPassword: async function (

@@ -3,7 +3,7 @@ import request from "supertest";
 import { faker } from "@faker-js/faker";
 import { httpServer } from "../src/http-server";
 import { dbConnection } from "../src/config/postgres";
-import { createUser } from "../test-helpers/create-user";
+import { createUser } from "../test-helpers/helpers";
 
 const maxUsernameLength = 16;
 const maxPasswordLength = 50;
@@ -12,8 +12,8 @@ beforeAll(async () => {
   httpServer.listen();
 });
 
-afterAll(() => {
-  httpServer.close((err) => {
+afterAll(async () => {
+  httpServer.close(async (err) => {
     if (err) throw err;
   });
 });
@@ -33,7 +33,7 @@ describe("/user", () => {
           .expect(202);
       });
 
-      it("saves a new user in database", async () => {
+      it("saves a new user in database, marking its email as unconfirmed", async () => {
         await request(httpServer)
           .post("/user")
           .set("authorization", `Basic ${btoa(`${username}:${password}`)}`)

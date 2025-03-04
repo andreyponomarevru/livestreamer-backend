@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from "@jest/globals";
-import { cacheService } from "../../../src/services/cache";
-import { RedisClient, redisConnection } from "../../../src/config/redis";
+import { cacheService } from "../../src/services/cache";
+import { RedisClient, redisConnection } from "../../src/config/redis";
 
 describe("Cache Service", () => {
   let client: RedisClient;

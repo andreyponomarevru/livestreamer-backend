@@ -6,7 +6,7 @@ import {
   superadminUser,
   broadcasterUser,
 } from "../test-helpers/jest-hooks/utils/user";
-import { response403 } from "../test-helpers/responses";
+import { response403 } from "../test-helpers/helpers";
 
 beforeAll(async () => {
   httpServer.listen();
