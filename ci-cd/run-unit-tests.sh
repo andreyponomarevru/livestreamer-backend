@@ -10,7 +10,7 @@ docker compose --file "$DOCKER_COMPOSE_FILE_PATH" up \
   --build \
   --detach \
   --no-deps \
-  api-test
+  api
 
 docker exec api-test bash -c "npm run test:unit -- --no-watchAll"
 docker exec api-test bash -c "npm run test:coverage"

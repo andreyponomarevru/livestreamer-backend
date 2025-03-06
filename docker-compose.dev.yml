@@ -26,9 +26,8 @@ services:
     env_file:
       - ./api/docker/.api.common.env
       - ./api/docker/.api.dev.env
-      - ./postgres/docker/.postgres.common.env
-      - ./postgres/docker/.postgres.dev.env
-      - ./rabbitmq/.env
+      - ./postgres/docker/.postgres.env
+      - ./rabbitmq/docker/.rabbitmq.env
     volumes:
       # Recompile code on changes
       - ./api:/home/node
@@ -40,7 +39,7 @@ services:
       - redis
       - rabbitmq
     networks:
-      - livestreamer_backend
+      - livestreamer_backend_dev
 
   postgres:
     container_name: postgres-dev
@@ -60,14 +59,13 @@ services:
       retries: 5
     init: true
     env_file:
-      - ./postgres/docker/.postgres.common.env
-      - ./postgres/docker/.postgres.dev.env
+      - ./postgres/docker/.postgres.env
     volumes:
       - ./postgres/volume_postgresql-data:/var/lib/postgresql/data/
     ports:
       - 54324:5432
     networks:
-      - livestreamer_backend
+      - livestreamer_backend_dev
 
   redis:
     container_name: redis-dev
@@ -84,7 +82,7 @@ services:
     ports:
       - 6380:6379
     networks:
-      - livestreamer_backend
+      - livestreamer_backend_dev
 
   rabbitmq:
     container_name: "rabbitmq-dev"
@@ -93,7 +91,7 @@ services:
       context: ./rabbitmq
       dockerfile: ./docker/Dockerfile
     healthcheck:
-      test: "curl --fail http://127.0.0.1:5672"
+      test: "rabbitmq-diagnostics --quiet ping"
       interval: 30s
       timeout: 10s
       retries: 5
@@ -110,11 +108,11 @@ services:
       - ./rabbitmq/rabbitmq_log:/var/log/rabbitmq/
       - ./rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
     env_file:
-      - ./rabbitmq/.env
+      - ./rabbitmq/docker/.rabbitmq.env
     networks:
-      - livestreamer_backend
+      - livestreamer_backend_dev
 
 networks:
   livestreamer_backend:
-    name: livestreamer_backend
+    name: livestreamer_backend_dev
     driver: bridge
