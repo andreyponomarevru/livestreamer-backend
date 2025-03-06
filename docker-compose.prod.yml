@@ -95,6 +95,7 @@ services:
     init: true
     ports:
       - 127.0.0.1:5672:5672
+      - 127.0.0.1:15672:15672
     # We map volumes so that our durable queues and logs are not lost on container restart..
     # ':ro' sets the volume as read-only.
     volumes:
