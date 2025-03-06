@@ -6,20 +6,34 @@
 
 ## About
 
-Многопользовательское веб-приложение для аудио-стриминга и общения в чате. Концептуально, это клон <a href="http://mixlr.com">Mixlr</a>, но в меньшем масштабе. Архитектурно, состоит из трёх компонентов: фронт, API и CLI-приложение для стриминга. Аудио-стриминг реализован по HTTP, а чат, интерактивные функции и уведомления — через WebSocket. Желающий постримить, запускает на своей машине HTTP клиент, который захватывает музыку из ОС и отправляет её на сервер приложения, с которого уже каждый слушатель, открывший приложение, может слушать стрим, общаться в чате, ставить лайки и пользоваться другими интерактивными функциями. Более подробное описание см. на ГитХабе.
+**RU**
 
-The app is comprised of the two main parts: the backend, the frontend and the audio streaming client (broadcaster).
+Многопользовательское веб-приложение для аудио-стриминга и общения в чате. Концептуально, это клон <a href="http://mixlr.com">Mixlr</a>, но в меньшем масштабе. Архитектурно, состоит из трёх компонентов: фронт, API и CLI-приложение для стриминга. Аудио-стриминг реализован через HTTP, а чат, интерактивные функции и уведомления — через WebSocket. Чтобы начать стрим, пользователь запускает на своей машине HTTP клиент, который захватывает аудио из ОС и отправляет его на сервер приложения. Другие пользователи, в свою очередь, могут открыть сайт приложения (React.js-клиент) и слушать стрим, общаться в чате, ставить лайки и пользоваться иными интерактивными функциями.
 
----
+**EN**
 
 Web application for broadcasting live audio and chatting. Conceptually, it is similar to [Mixlr](http://mixlr.com) but on a smaller scale.
 
 Suppose you're a dj and you want to broadcast your mix live. All you need to do is to start up [this command-line app](https://github.com/ponomarevandrey/live-streamer-source-client) on your local machine — it captures the live audio output and streams it to the application server, which in turn broadcasts the audio to all connected listeners.
 
+## Architecture
+
+```
+                                                        chat over WebSocket + HTTP
+            auido stream over HTTPS/1.1           audio stream over HTTP WebSocket
+ BROADCASTER -----------------------> || APP SERVER ---------------------------> LISTENERS
+(HTTP client)       mp3, 128kbps      ||                   mp3, 128kbps        (React Client)
+                                      ||
+                              Nginx as reverse proxy
+                          translating HTTPS/1.1 to HTTP/2
+```
+
+![](./doc/architecture.png)
+
 ## Stack
 
-- **backend:** TypeScript, Node.js (Express.js), PostgreSQL (raw SQL, without ORM), Redis
-- **frontend:** React.js, SASS
+- **backend:** TypeScript, Node.js (Express.js), PostgreSQL (raw SQL, without ORM), Redis, RabbitMQ
+- **frontend:** React.js
 
 ## Documentation
 
@@ -121,24 +135,6 @@ This command-line app requires two environment variables containing your usernam
 3. After the stream is finished, log out: `node build/index.js logout:prod`
 
    If you have passed the `save` option in step 2, you will find the `.wav` file of the recorded stream in the `recordings` directory.
-
-## App Architecture
-
-```
-                                                        chat over WebSocket + HTTP
-            auido stream over HTTPS/1.1           audio stream over HTTP WebSocket
- BROADCASTER -----------------------> || APP SERVER ---------------------------> LISTENERS
-(HTTP client)       mp3, 128kbps      ||                   mp3, 128kbps        (React Client)
-                                      ||
-                              Nginx as reverse proxy
-                          translating HTTPS/1.1 to HTTP/2
-```
-
-![](./doc/architecture.png)
-
-## Database Schema
-
-![](./doc/db-schema.png)
 
 # How it works
 
