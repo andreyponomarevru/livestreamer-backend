@@ -7,8 +7,11 @@
    viewBox="0 0 483.38649 412.8764"
    version="1.1"
    id="svg8"
-   inkscape:version="1.2.2 (1:1.2.2+202212051552+b0a8486541)"
+   inkscape:version="1.4 (1:1.4+202410161351+e7c3feb100)"
    sodipodi:docname="architecture.svg"
+   inkscape:export-filename="architecture.png"
+   inkscape:export-xdpi="95.6"
+   inkscape:export-ydpi="95.6"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -2523,8 +2526,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.49864821"
-     inkscape:cx="1001.7082"
-     inkscape:cy="341.92442"
+     inkscape:cx="832.25005"
+     inkscape:cy="905.44795"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -3577,16 +3580,16 @@
          x="1313.9797"
          y="-121.94548"
          id="text18426-4-1-3-7-0-8-5-6"><tspan
-           id="tspan5765-4-6-1"
-           sodipodi:role="line"
-           x="1313.9797"
-           y="-121.94548"
-           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:condensed;font-family:'PT Sans Narrow';-inkscape-font-specification:'PT Sans Narrow Bold Condensed';text-align:center;text-anchor:middle;stroke-width:0.416155">Node.js HTTP Client </tspan><tspan
            id="tspan8300-3"
            sodipodi:role="line"
            x="1313.9797"
+           y="-121.94548"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:condensed;font-family:'PT Sans Narrow';-inkscape-font-specification:'PT Sans Narrow Bold Condensed';text-align:center;text-anchor:middle;stroke-width:0.416155">Broadcaster</tspan><tspan
+           sodipodi:role="line"
+           x="1313.9797"
            y="-106.07048"
-           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:condensed;font-family:'PT Sans Narrow';-inkscape-font-specification:'PT Sans Narrow Bold Condensed';text-align:center;text-anchor:middle;stroke-width:0.416155">(Broadcaster)</tspan></text>
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:condensed;font-family:'PT Sans Narrow';-inkscape-font-specification:'PT Sans Narrow Bold Condensed';text-align:center;text-anchor:middle;stroke-width:0.416155"
+           id="tspan1">(Node.js HTTP Client )</tspan></text>
     </g>
     <rect
        style="vector-effect:none;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
@@ -3764,17 +3767,17 @@
            y="-146.33861"
            x="1416.4066"
            sodipodi:role="line"
-           id="tspan5765-4-6-4-5-3-2">Client </tspan><tspan
+           id="tspan5765-4-6-4-5-3-2">Listener </tspan><tspan
            style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:condensed;font-family:'PT Sans Narrow';-inkscape-font-specification:'PT Sans Narrow Bold Condensed';text-align:center;text-anchor:middle;stroke-width:0.416155"
            y="-130.46361"
            x="1416.4066"
            sodipodi:role="line"
-           id="tspan8302-9-5-2">(Listener)</tspan><tspan
+           id="tspan8302-9-5-2">(client)</tspan><tspan
            style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:condensed;font-family:'PT Sans Narrow';-inkscape-font-specification:'PT Sans Narrow Bold Condensed';text-align:center;text-anchor:middle;stroke-width:0.416155"
            y="-114.58861"
            x="1416.4066"
            sodipodi:role="line"
-           id="tspan25618-7-1-9">&quot;A&quot;</tspan></text>
+           id="tspan25618-7-1-9">1</tspan></text>
       <circle
          style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-dasharray:none;stroke-opacity:1"
          id="path11612-5-7-7"
@@ -3888,17 +3891,17 @@
            y="-146.33861"
            x="1416.4066"
            sodipodi:role="line"
-           id="tspan5765-4-6-4-5-3-2-7">Client </tspan><tspan
+           id="tspan5765-4-6-4-5-3-2-7">Listener </tspan><tspan
            style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:condensed;font-family:'PT Sans Narrow';-inkscape-font-specification:'PT Sans Narrow Bold Condensed';text-align:center;text-anchor:middle;stroke-width:0.416155"
            y="-130.46361"
            x="1416.4066"
            sodipodi:role="line"
-           id="tspan8302-9-5-2-2">(Listener)</tspan><tspan
+           id="tspan8302-9-5-2-2">(client)</tspan><tspan
            style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:condensed;font-family:'PT Sans Narrow';-inkscape-font-specification:'PT Sans Narrow Bold Condensed';text-align:center;text-anchor:middle;stroke-width:0.416155"
            y="-114.58861"
            x="1416.4066"
            sodipodi:role="line"
-           id="tspan25618-7-1-9-5">&quot;B&quot;</tspan></text>
+           id="tspan25618-7-1-9-5">2</tspan></text>
       <circle
          style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-dasharray:none;stroke-opacity:1"
          id="path11612-5-7-7-8"
@@ -3979,17 +3982,17 @@
            y="-146.33861"
            x="1416.4066"
            sodipodi:role="line"
-           id="tspan5765-4-6-4-5-3-2-7-5">Client </tspan><tspan
+           id="tspan5765-4-6-4-5-3-2-7-5">Listener </tspan><tspan
            style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:condensed;font-family:'PT Sans Narrow';-inkscape-font-specification:'PT Sans Narrow Bold Condensed';text-align:center;text-anchor:middle;stroke-width:0.416155"
            y="-130.46361"
            x="1416.4066"
            sodipodi:role="line"
-           id="tspan8302-9-5-2-2-1">(Listener)</tspan><tspan
+           id="tspan8302-9-5-2-2-1">(client)</tspan><tspan
            style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:condensed;font-family:'PT Sans Narrow';-inkscape-font-specification:'PT Sans Narrow Bold Condensed';text-align:center;text-anchor:middle;stroke-width:0.416155"
            y="-114.58861"
            x="1416.4066"
            sodipodi:role="line"
-           id="tspan25618-7-1-9-5-0">&quot;C&quot;</tspan></text>
+           id="tspan25618-7-1-9-5-0">N</tspan></text>
       <circle
          style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-dasharray:none;stroke-opacity:1"
          id="path11612-5-7-7-8-8"
