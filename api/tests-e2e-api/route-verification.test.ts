@@ -2,7 +2,7 @@ import { describe, it, expect } from "@jest/globals";
 import request from "supertest";
 import { httpServer } from "../src/http-server";
 import { dbConnection } from "../src/config/postgres";
-import { moreInfo, response401 } from "../test-helpers/responses";
+import { moreInfo, response401 } from "../test-helpers/helpers";
 
 const unconfirmedUser = {
   roleId: 2,

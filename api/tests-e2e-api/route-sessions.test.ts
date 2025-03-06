@@ -8,8 +8,8 @@ import {
 } from "../test-helpers/jest-hooks/utils/user";
 import { httpServer } from "../src/http-server";
 import { RedisClient, redisConnection } from "../src/config/redis";
-import { moreInfo, response401 } from "../test-helpers/responses";
-import { signIn } from "../test-helpers/sign-in";
+import { moreInfo, response401 } from "../test-helpers/helpers";
+import { signIn } from "../test-helpers/helpers";
 
 const sessionKeyPattern = "sess:*";
 const sessionCookieResponse = [

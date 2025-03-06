@@ -2,11 +2,11 @@ import { jest, describe, it, expect } from "@jest/globals";
 import { faker } from "@faker-js/faker";
 import { v4 as uuidv4 } from "uuid";
 import WebSocket from "ws";
-import { wsService } from "../../../src/services/ws";
-import { logger } from "../../../src/config/logger";
-import type { WSMsg, WSClient } from "../../../src/types";
+import { wsService } from "../../src/services/ws";
+import { logger } from "../../src/config/logger";
+import type { WSMsg, WSClient } from "../../src/types";
 
-jest.mock("../../../src/config/logger");
+jest.mock("../../src/config/logger");
 
 const wsMessage: WSMsg = {
   event: "chat:new_client",

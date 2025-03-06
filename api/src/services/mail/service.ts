@@ -1,3 +1,4 @@
+import { type ConsumeMessage } from "amqplib";
 import nodemailer, { SendMailOptions } from "nodemailer";
 import SMTPTransport from "nodemailer/lib/smtp-transport";
 import Mail from "nodemailer/lib/mailer";
@@ -9,6 +10,8 @@ import {
   SIGN_IN_LINK,
   SUBMIT_NEW_PASSWORD_LINK,
 } from "../../config/env";
+import { messageQueueEmitter } from "../../config/rabbitmq/consumer";
+import { QUEUES } from "../../config/rabbitmq/config";
 
 type MailConfirmationEmail = {
   username: string;
@@ -29,25 +32,30 @@ type ResetPasswordTokenEMail = {
 
 export const mailService = {
   sendEmail: async function (
-    mailOptions: SendMailOptions,
-  ): Promise<SMTPTransport.SentMessageInfo> {
-    logger.debug(mailOptions);
+    rabbitMQMessage: ConsumeMessage | null,
+  ): Promise<SMTPTransport.SentMessageInfo | void> {
+    logger.debug(rabbitMQMessage);
 
-    const transporter = nodemailer.createTransport(mailConfig);
+    if (rabbitMQMessage === null) {
+      throw new Error("'mailOptions' is null");
+    }
 
-    transporter.verify((err) => {
-      if (err) throw err;
-    });
-
-    const info = await transporter.sendMail(mailOptions);
-
-    logger.debug("Message sent: ", info.messageId);
-
-    return info;
+    try {
+      const mail: SendMailOptions = JSON.parse(String(rabbitMQMessage));
+      const transporter = nodemailer.createTransport(mailConfig);
+      transporter.verify((err) => {
+        if (err) throw err;
+      });
+      const info = await transporter.sendMail(mail);
+      logger.debug("[Mail Service] Sent message ID: ", info.messageId);
+      return info;
+    } catch (err) {
+      logger.error("[Mail Service] Email is not sent: " + err);
+    }
   },
 
   emailTemplates: {
-    createConfirmationEmail: function ({
+    createSignUpConfirmationEmail: function ({
       username,
       email,
       userToken,
@@ -103,3 +111,7 @@ export const mailService = {
     },
   },
 };
+
+messageQueueEmitter.on(QUEUES.confirmSignUpEmail.queue, mailService.sendEmail);
+messageQueueEmitter.on(QUEUES.welcomeEmail.queue, mailService.sendEmail);
+messageQueueEmitter.on(QUEUES.resetPasswordEmail.queue, mailService.sendEmail);

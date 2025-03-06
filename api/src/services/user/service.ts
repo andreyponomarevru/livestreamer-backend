@@ -3,7 +3,8 @@ import { User } from "../../models/user/user";
 import { authnService } from "../authn";
 import { mailService } from "../mail";
 import { userRepo } from "../../models/user/queries";
-import { logger } from "../../config/logger";
+import { EXCHANGE_NAME, QUEUES } from "../../config/rabbitmq/config";
+import { rabbitMQPublisher } from "../../config/rabbitmq/publisher";
 
 export const userService = {
   createUser: async function (signupData: SignUpData): Promise<void> {
@@ -18,17 +19,21 @@ export const userService = {
       isEmailConfirmed: signupData.isEmailConfirmed,
     });
 
-    const singUpConfirmationEmail =
-      mailService.emailTemplates.createConfirmationEmail({
-        username: signupData.username,
-        email: signupData.email,
-        userId: userId,
-        userToken: userToken,
-      });
-
-    logger.debug(singUpConfirmationEmail);
-
-    await mailService.sendEmail(singUpConfirmationEmail);
+    await rabbitMQPublisher.sendMsgToQueue({
+      queue: QUEUES.confirmSignUpEmail.queue,
+      exchange: EXCHANGE_NAME,
+      routingKey: QUEUES.confirmSignUpEmail.routingKey,
+      content: Buffer.from(
+        JSON.stringify(
+          mailService.emailTemplates.createSignUpConfirmationEmail({
+            username: signupData.username,
+            email: signupData.email,
+            userId: userId,
+            userToken: userToken,
+          }),
+        ),
+      ),
+    });
   },
 
   readUser: async function (userId: number): Promise<User> {

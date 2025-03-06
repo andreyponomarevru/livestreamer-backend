@@ -69,6 +69,8 @@
     "typescript": "^5.4.5"
   },
   "dependencies": {
+    "@types/amqplib": "^0.10.6",
+    "amqplib": "^0.10.5",
     "bcrypt": "^5.0.1",
     "connect-redis": "^7.1.1",
     "cookie-parser": "^1.4.6",

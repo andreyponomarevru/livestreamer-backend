@@ -31,7 +31,8 @@ echo "$API_TEST_ENV" >>"$API_ROOT_DIR/.api.test.env"
 
 POSTGRES_ROOT_DIR="./postgres/docker"
 mkdir -p "$POSTGRES_ROOT_DIR"
-echo "$POSTGRES_COMMON_ENV" >>"$POSTGRES_ROOT_DIR/.postgres.common.env"
-echo "$POSTGRES_DEV_ENV" >>"$POSTGRES_ROOT_DIR/.postgres.dev.env"
-echo "$POSTGRES_PROD_ENV" >>"$POSTGRES_ROOT_DIR/.postgres.prod.env"
-echo "$POSTGRES_TEST_ENV" >>"$POSTGRES_ROOT_DIR/.postgres.test.env"
+echo "$POSTGRES_ENV" >>"$POSTGRES_ROOT_DIR/.postgres.env"
+
+RABBITMQ_ROOT_DIR="./rabbitmq/docker"
+mkdir -p "$RABBITMQ_ROOT_DIR"
+echo "$RABBITMQ_ENV" >>"$RABBITMQ_ROOT_DIR/.rabbitmq.env"

@@ -1,7 +1,7 @@
 import { describe, it, expect } from "@jest/globals";
 import request from "supertest";
 import { httpServer } from "../src/http-server";
-import { response401 } from "../test-helpers/responses";
+import { response401 } from "../test-helpers/helpers";
 import { superadminUser } from "../test-helpers/jest-hooks/utils/user";
 
 const ROUTES = {

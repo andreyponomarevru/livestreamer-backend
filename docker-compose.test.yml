@@ -1,5 +1,5 @@
 services:
-  api-test:
+  api:
     container_name: api-test
     image: api-test:latest
     build:
@@ -7,8 +7,7 @@ services:
       dockerfile: ./docker/Dockerfile
       # Should match the stage name in Dockerfile
       target: test
-    # Don't attempt to restart if tests failed
-    restart: "no"
+    restart: on-failure
     healthcheck:
       test: "curl --fail http://localhost:5000"
       interval: 5s
@@ -27,19 +26,20 @@ services:
     env_file:
       - ./api/docker/.api.common.env
       - ./api/docker/.api.test.env
-      - ./postgres/docker/.postgres.common.env
-      - ./postgres/docker/.postgres.test.env
+      - ./postgres/docker/.postgres.env
+      - ./rabbitmq/docker/.rabbitmq.env
     volumes:
       # set the container timezone to the time zone of host machine
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     depends_on:
-      - postgres-test
-      - redis-test
+      - postgres
+      - redis
+      - rabbitmq
     networks:
       - livestreamer_backend_test
 
-  postgres-test:
+  postgres:
     container_name: postgres-test
     image: postgres-test:latest
     build:
@@ -57,14 +57,13 @@ services:
       timeout: 5s
       retries: 5
     env_file:
-      - ./postgres/docker/.postgres.common.env
-      - ./postgres/docker/.postgres.test.env
+      - ./postgres/docker/.postgres.env
     ports:
       - 54323:5432
     networks:
       - livestreamer_backend_test
 
-  redis-test:
+  redis:
     container_name: redis-test
     image: redis-test:latest
     build:
@@ -81,10 +80,33 @@ services:
     networks:
       - livestreamer_backend_test
 
-  # rabbitmq-test:
-  #   container_name: rabbitmq-test
-  #   healthcheck:
-  #     test: [rabbitmq-diagnostics -q ping]
+  rabbitmq:
+    container_name: "rabbitmq-test"
+    image: rabbitmq-test:latest
+    build:
+      context: ./rabbitmq
+      dockerfile: ./docker/Dockerfile
+    healthcheck:
+      test: "curl --fail http://localhost:15672"
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    init: true
+    expose:
+      # Message broker itself:
+      - 5672:5672
+      # Web UI for managing message broker
+      - 15672:15672
+    # We map volumes so that our durable queues and logs are not lost on container restart..
+    # ':ro' sets the volume as read-only.
+    volumes:
+      - ./rabbitmq/rabbitmq_data:/var/lib/rabbitmq/
+      - ./rabbitmq/rabbitmq_log:/var/log/rabbitmq/
+      - ./rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+    env_file:
+      - ./rabbitmq/docker/.rabbitmq.env
+    networks:
+      - livestreamer_backend_test
 
 networks:
   livestreamer_backend_test:

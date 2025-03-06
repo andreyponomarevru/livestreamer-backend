@@ -3,7 +3,7 @@ import { jest, describe, it, expect } from "@jest/globals";
 import { isAuthenticated } from "./is-authenticated";
 import { HttpError } from "../utils/http-error";
 import { HTTP_ERRORS } from "../config/constants";
-import { moreInfo } from "../../test-helpers/responses";
+import { moreInfo } from "../../test-helpers/helpers";
 
 describe("isAuthenticated", () => {
   const httpError = {

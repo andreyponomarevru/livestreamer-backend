@@ -1,5 +1,5 @@
 services:
-  api-prod:
+  api:
     container_name: api-prod
     image: "ponomarevandrey/livestreamer_api-prod:latest"
     # Uncomment 'build' to build the image for the first-time deployment (i.e.
@@ -25,17 +25,18 @@ services:
     env_file:
       - ./api/docker/.api.common.env
       - ./api/docker/.api.prod.env
-      - ./postgres/docker/.postgres.common.env
-      - ./postgres/docker/.postgres.prod.env
+      - ./postgres/docker/.postgres.env
+      - ./rabbitmq/docker/.rabbitmq.env
     volumes:
       # set the container timezone to the time zone of host machine
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     depends_on:
-      - postgres-prod
-      - redis-prod
+      - postgres
+      - redis
+      - rabbitmq
 
-  postgres-prod:
+  postgres:
     container_name: postgres-prod
     image: "ponomarevandrey/livestreamer_postgres-prod:latest"
     # Uncomment to build the image for the first-time deployment (i.e. to
@@ -56,16 +57,15 @@ services:
       retries: 5
     init: true
     env_file:
-      - ./postgres/docker/.postgres.common.env
-      - ./postgres/docker/.postgres.prod.env
+      - ./postgres/docker/.postgres.env
     volumes:
       - /var/backups/:/var/backups/
     ports:
       - 127.0.0.1:5432:5432
 
-  redis-prod:
-    image: "ponomarevandrey/livestreamer_redis-prod:latest"
+  redis:
     container_name: redis-prod
+    image: "ponomarevandrey/livestreamer_redis-prod:latest"
     # Uncomment to build the image for the first-time deployment (i.e. to
     # upload to Docker Hub) or if you want to run prod env on local machine
     # instead of VPS
@@ -80,3 +80,27 @@ services:
     init: true
     ports:
       - 127.0.0.1:6379:6379
+
+  rabbitmq:
+    container_name: rabbitmq-prod
+    image: "ponomarevandrey/livestreamer_rabbitmq-prod:latest"
+    build:
+      context: ./rabbitmq
+      dockerfile: ./docker/Dockerfile
+    healthcheck:
+      test: "curl --fail http://localhost:15672"
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    init: true
+    ports:
+      - 127.0.0.1:5672:5672
+      - 127.0.0.1:15672:15672
+    # We map volumes so that our durable queues and logs are not lost on container restart..
+    # ':ro' sets the volume as read-only.
+    volumes:
+      - ./rabbitmq/rabbitmq_data:/var/lib/rabbitmq/
+      - ./rabbitmq/rabbitmq_log:/var/log/rabbitmq/
+      - ./rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+    env_file:
+      - ./rabbitmq/docker/.rabbitmq.env
